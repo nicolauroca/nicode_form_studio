@@ -4,7 +4,7 @@ declare(strict_types=1);
 (static function () use ($connection, $forms, $registry, $validationEngine, $pipelineActions, $postSubmit, $attemptTokens, $captchaFixture, $storageProviders): void {
     // Fail only the projection registry, after the repository has inserted its
     // response and attempt inside the real transaction. Validation stays real.
-    $fieldProvider = new class($registry->get('text'), $connection) implements Nicode\EasyForms\Contract\FieldTypeInterface {
+    $fieldProvider = new class($registry->get('text'), $connection) implements Nicode\FormStudio\Contract\FieldTypeInterface {
         public bool $fail = true;
         public int $form = 0;
         public bool $observedUncommitted = false;
@@ -26,11 +26,11 @@ declare(strict_types=1);
             return $this->delegate->indexType();
         }
     };
-    $projectionFields = new Nicode\EasyForms\Registry\FieldTypeRegistry(); $projectionFields->register($fieldProvider);
-    $submissions = new Nicode\EasyForms\Infrastructure\Database\SubmissionRepository($connection, new Nicode\EasyForms\Search\IndexProjector($projectionFields), random_bytes(32));
-    $pipeline = new Nicode\EasyForms\Application\SubmissionPipeline($forms, $submissions, new Nicode\EasyForms\Security\PublicAccess(), $attemptTokens, $captchaFixture, new Nicode\EasyForms\Infrastructure\Database\RateLimiter($connection), $validationEngine, $pipelineActions, $postSubmit, $storageProviders);
+    $projectionFields = new Nicode\FormStudio\Registry\FieldTypeRegistry(); $projectionFields->register($fieldProvider);
+    $submissions = new Nicode\FormStudio\Infrastructure\Database\SubmissionRepository($connection, new Nicode\FormStudio\Search\IndexProjector($projectionFields), random_bytes(32));
+    $pipeline = new Nicode\FormStudio\Application\SubmissionPipeline($forms, $submissions, new Nicode\FormStudio\Security\PublicAccess(), $attemptTokens, $captchaFixture, new Nicode\FormStudio\Infrastructure\Database\RateLimiter($connection), $validationEngine, $pipelineActions, $postSubmit, $storageProviders);
     $form = $forms->create('Persistence recovery', 'persistence-message-' . bin2hex(random_bytes(6)), 1); $fieldProvider->form = $form;
-    $draft = $forms->draft($form); $field = Nicode\EasyForms\Domain\Uuid::create();
+    $draft = $forms->draft($form); $field = Nicode\FormStudio\Domain\Uuid::create();
     $draft['elements'] = [['uuid' => $field, 'type' => 'field']];
     $draft['fields'] = [['uuid' => $field, 'name' => 'answer', 'type' => 'text', 'index' => true, 'config' => ['max_length' => 255]]];
     $draft['post_submit']['messages']['persistence_error'] = 'Retry {{form.name}}';
@@ -42,9 +42,9 @@ declare(strict_types=1);
         return $result;
     };
     foreach (['en-GB' => 'Retry', 'es-ES' => 'Reintenta'] as $locale => $prefix) {
-        $context = new Nicode\EasyForms\Submission\RequestContext(0, [1], $locale, 'persistence-fixture', hash('sha256', $locale), true);
+        $context = new Nicode\FormStudio\Submission\RequestContext(0, [1], $locale, 'persistence-fixture', hash('sha256', $locale), true);
         $token = $attemptTokens->issue($form, $version, 'persistence-fixture:component');
-        $request = new Nicode\EasyForms\Submission\SubmitRequest($form, $version, $token, [$field => 'recoverable answer']);
+        $request = new Nicode\FormStudio\Submission\SubmitRequest($form, $version, $token, [$field => 'recoverable answer']);
         $before = $counts(); $fieldProvider->fail = true; $fieldProvider->observedUncommitted = false;
         $failed = $pipeline->submit($request, $context);
         if (!$fieldProvider->observedUncommitted || $failed['accepted'] !== false || $failed['category'] !== 'persistence_error' || $failed['message'] !== $prefix . ' Persistence recovery' || str_contains(json_encode($failed), '/internal/database') || $counts() !== $before) { throw new RuntimeException('Persistence failure lost localized error, leaked detail or left partial rows.'); }

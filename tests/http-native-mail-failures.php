@@ -5,18 +5,18 @@ foreach (['blocking' => 'action_blocking_failure', 'non_blocking' => 'action_par
     foreach (['disabled' => 'failed', 'unknown' => 'unknown'] as $failure => $runState) {
         foreach (['json', 'html'] as $format) {
             $form = $forms->create('Native action failure messages', 'native-mail-failure-' . bin2hex(random_bytes(6)), (int) $admin->id); $created[] = $form;
-            $draft = $forms->edit($form, (int) $admin->id)['draft']; $field = Nicode\EasyForms\Domain\Uuid::create();
+            $draft = $forms->edit($form, (int) $admin->id)['draft']; $field = Nicode\FormStudio\Domain\Uuid::create();
             $draft['elements'] = [['uuid' => $field, 'type' => 'field']];
             $draft['fields'] = [['uuid' => $field, 'name' => 'answer', 'type' => 'text', 'config' => []]];
             $draft['security']['captcha'] = ['mode' => 'none'];
             $draft['post_submit'] = ['behavior' => 'hide', 'messages' => [$category => 'Configured ' . $category . ' {{submission.reference}} <script>action-marker</script>']];
-            $draft['actions'] = [['uuid' => Nicode\EasyForms\Domain\Uuid::create(), 'type' => 'email_notification', 'failure_policy' => $policy, 'config' => ['to' => ['fixture@example.test'], 'subject' => 'Failure acceptance', 'body_text' => 'Synthetic test only']]];
+            $draft['actions'] = [['uuid' => Nicode\FormStudio\Domain\Uuid::create(), 'type' => 'email_notification', 'failure_policy' => $policy, 'config' => ['to' => ['fixture@example.test'], 'subject' => 'Failure acceptance', 'body_text' => 'Synthetic test only']]];
             $revision = $forms->save($form, 0, $draft, (int) $admin->id); $forms->publish($form, $revision, (int) $admin->id);
-            [$status, $html] = $request('/index.php?option=com_nicode_easy_forms&view=form&tmpl=component&id=' . $form);
-            $document = new DOMDocument(); $prior = libxml_use_internal_errors(true); $document->loadHTML($html); libxml_clear_errors(); libxml_use_internal_errors($prior); $xpath = new DOMXPath($document); $node = $xpath->query('//form[@data-nef-form]')->item(0);
+            [$status, $html] = $request('/index.php?option=com_nicode_form_studio&view=form&tmpl=component&id=' . $form);
+            $document = new DOMDocument(); $prior = libxml_use_internal_errors(true); $document->loadHTML($html); libxml_clear_errors(); libxml_use_internal_errors($prior); $xpath = new DOMXPath($document); $node = $xpath->query('//form[@data-nfs-form]')->item(0);
             if ($status !== 200 || !$node instanceof DOMElement) { throw new RuntimeException('Action-failure form unavailable.'); }
             $post = []; foreach ($xpath->query('.//input[@type="hidden"]', $node) as $input) { $post[$input->getAttribute('name')] = $input->getAttribute('value'); }
-            $post['format'] = $format; $post['nef[' . $field . ']'] = 'Preserved answer';
+            $post['format'] = $format; $post['nfs[' . $field . ']'] = 'Preserved answer';
             $destination = $node->getAttribute('action');
             if (str_starts_with($destination, 'http')) { $destination = parse_url($destination, PHP_URL_PATH) . '?' . parse_url($destination, PHP_URL_QUERY); }
             $before = count($captures());

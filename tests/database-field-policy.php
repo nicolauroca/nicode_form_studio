@@ -9,7 +9,7 @@ foreach ([
     'opted' => ['sensitive' => true, 'index' => true, 'allow_sensitive_index' => true, 'include_email' => true, 'include_export' => true],
     'password' => ['persist' => true, 'include_email' => true, 'include_export' => true],
 ] as $name => $flags) {
-    $uuid = Nicode\EasyForms\Domain\Uuid::create(); $policyIds[$name] = $uuid; $policyValues[$uuid] = 'sentinel-' . $name;
+    $uuid = Nicode\FormStudio\Domain\Uuid::create(); $policyIds[$name] = $uuid; $policyValues[$uuid] = 'sentinel-' . $name;
     $policyDraft['elements'][] = ['uuid' => $uuid, 'type' => 'field', 'parent_uuid' => null];
     $policyDraft['fields'][] = ['uuid' => $uuid, 'name' => $name, 'type' => $name === 'password' ? 'password' : 'text', 'config' => []] + $flags;
 }
@@ -20,9 +20,9 @@ foreach ($policyIds as $name => $uuid) { if (array_key_exists($uuid, $policyPayl
 $policyIndex = array_column($connection->rows('SELECT field_uuid FROM ' . $connection->table('submission_index') . ' WHERE submission_id = :id', [':id' => $policySubmission->id]), 'field_uuid');
 sort($policyIndex); $expectedPolicyIndex = [$policyIds['public'], $policyIds['opted']]; sort($expectedPolicyIndex);
 if ($policyIndex !== $expectedPolicyIndex) { throw new RuntimeException('Field index policy did not match stored values and explicit sensitive consent.'); }
-$policyTokens = (new Nicode\EasyForms\Actions\ActionContext($policySpec, $policyValues, 'reference', 'date'))->emailTokens();
+$policyTokens = (new Nicode\FormStudio\Actions\ActionContext($policySpec, $policyValues, 'reference', 'date'))->emailTokens();
 foreach ($policyIds as $name => $uuid) { if (isset($policyTokens['field.' . $uuid . '.value']) !== in_array($name, ['public', 'opted'], true)) { throw new RuntimeException('Email inclusion ignored field policy.'); } }
-$policyReader = new Nicode\EasyForms\Application\SubmissionReader($submissions, $forms, $connection, $authorizeRead);
+$policyReader = new Nicode\FormStudio\Application\SubmissionReader($submissions, $forms, $connection, $authorizeRead);
 $policyMasked = $policyReader->read($policyForm, $policySubmission->id, 2);
 if (array_keys($policyMasked['values']) !== [$policyIds['public']] || count($policyMasked['masked']) !== 2) { throw new RuntimeException('Sensitive field values escaped default masking.'); }
 $policyExport = $policyReader->read($policyForm, $policySubmission->id, 1, 'export', true)['values'];

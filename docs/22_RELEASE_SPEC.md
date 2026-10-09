@@ -1,7 +1,7 @@
 # 22 — Release y Definition of Done
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**

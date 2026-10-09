@@ -1,7 +1,7 @@
 # 08 — Options y Data Sources
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -79,8 +79,8 @@ Un FormSpec publicado debe apuntar a una versión determinada o incorporar snaps
 
 Cada guardado de un Option Set crea una revisión inmutable con hash canónico y
 control optimista de concurrencia. Sus opciones actuales son una proyección de
-esa revisión. Los administradores con `easyforms.resources.manage` pueden
-modificar recursos; quienes solo tengan `easyforms.forms.manage` pueden
+esa revisión. Los administradores con `formstudio.resources.manage` pueden
+modificar recursos; quienes solo tengan `formstudio.forms.manage` pueden
 consultarlos para componer formularios. Ambos requieren `core.manage`.
 Las condiciones reutilizables usan nombres de parámetros; al aplicar una revisión
 a un campo se enlazan explícitamente con UUIDs del formulario y se incorpora el

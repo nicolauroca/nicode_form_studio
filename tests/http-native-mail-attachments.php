@@ -3,19 +3,19 @@ declare(strict_types=1);
 $root=dirname(__DIR__); $site=$root.'/build/joomla-6.0.0';
 $_SERVER['HTTP_HOST']='127.0.0.1:13371'; $_SERVER['REQUEST_URI']='/'; $_SERVER['SCRIPT_NAME']='/index.php'; $_SERVER['PHP_SELF']='/index.php';
 define('_JEXEC',1); define('JPATH_BASE',$site);
-require $site.'/includes/defines.php'; require $site.'/includes/framework.php'; require $root.'/src/lib_nicode_easy_forms/autoload.php';
+require $site.'/includes/defines.php'; require $site.'/includes/framework.php'; require $root.'/src/lib_nicode_form_studio/autoload.php';
 $container=Joomla\CMS\Factory::getContainer();
 $container->alias('session','session.cli')->alias(Joomla\CMS\Session\Session::class,'session.cli')->alias(Joomla\Session\SessionInterface::class,'session.cli');
 $app=$container->get(Joomla\CMS\Application\SiteApplication::class); Joomla\CMS\Factory::$application=$app; $app->createExtensionNamespaceMap();
-if($app->get('db')!=='easyforms_joomla' || $app->get('host')!=='127.0.0.1:13367') { throw new RuntimeException('Non-isolated fixture.'); }
+if($app->get('db')!=='formstudio_joomla' || $app->get('host')!=='127.0.0.1:13367') { throw new RuntimeException('Non-isolated fixture.'); }
 $app->loadLanguage($container->get(Joomla\CMS\Language\LanguageFactoryInterface::class)->createLanguage('en-GB',false));
 $credentials=json_decode(file_get_contents($root.'/build/joomla-test.json'),true,flags:JSON_THROW_ON_ERROR);
 $admin=$container->get(Joomla\CMS\User\UserFactoryInterface::class)->loadUserByUsername($credentials['username']); unset($credentials); $app->loadIdentity($admin);
-$db=new Nicode\EasyForms\Infrastructure\Database\Connection($container->get(Joomla\Database\DatabaseInterface::class));
-$row=$db->row('SELECT params FROM '.$db->quote('#__extensions')." WHERE type='component' AND element='com_nicode_easy_forms'");
-$params=new Joomla\Registry\Registry($row['params']); $runtime=new Joomla\DI\Container($container); $runtime->registerServiceProvider(new Nicode\EasyForms\Infrastructure\Joomla\RuntimeProvider($app,$params,$site));
-$forms=$runtime->get(Nicode\EasyForms\Application\FormAdministration::class); $repository=$runtime->get(Nicode\EasyForms\Infrastructure\Database\FormRepository::class);
-$storage=$runtime->get(Nicode\EasyForms\Registry\StorageProviderRegistry::class);
+$db=new Nicode\FormStudio\Infrastructure\Database\Connection($container->get(Joomla\Database\DatabaseInterface::class));
+$row=$db->row('SELECT params FROM '.$db->quote('#__extensions')." WHERE type='component' AND element='com_nicode_form_studio'");
+$params=new Joomla\Registry\Registry($row['params']); $runtime=new Joomla\DI\Container($container); $runtime->registerServiceProvider(new Nicode\FormStudio\Infrastructure\Joomla\RuntimeProvider($app,$params,$site));
+$forms=$runtime->get(Nicode\FormStudio\Application\FormAdministration::class); $repository=$runtime->get(Nicode\FormStudio\Infrastructure\Database\FormRepository::class);
+$storage=$runtime->get(Nicode\FormStudio\Registry\StorageProviderRegistry::class);
 $auth=json_decode(file_get_contents($root.'/build/upload-test.json'),true,flags:JSON_THROW_ON_ERROR);
 $jar=$root.'/build/native-mail-cookie.txt'; $file=$root.'/build/native-mail-evidence.txt'; file_put_contents($file,'native component evidence');
 file_put_contents($root.'/build/native-mail-capture.jsonl','');
@@ -35,10 +35,10 @@ try {
     foreach([['full',true],['full',false],['metadata',true],['none',true]] as [$mode,$persist]) {
       foreach(['email_notification','email_autoresponse'] as $actionType) {
         $form=$forms->create('Native attachment acceptance','native-mail-'.bin2hex(random_bytes(5)),(int)$admin->id); $created[]=$form;
-        $draft=$forms->edit($form,(int)$admin->id)['draft']; $field=Nicode\EasyForms\Domain\Uuid::create(); $action=Nicode\EasyForms\Domain\Uuid::create();
+        $draft=$forms->edit($form,(int)$admin->id)['draft']; $field=Nicode\FormStudio\Domain\Uuid::create(); $action=Nicode\FormStudio\Domain\Uuid::create();
         $draft['elements']=[['uuid'=>$field,'type'=>'field']];
         $draft['fields']=[['uuid'=>$field,'name'=>'evidence','type'=>'multiple-files','persist'=>$persist,'sensitive'=>true,'include_email'=>true,'config'=>['label'=>'Evidence','extensions'=>['txt'],'mime_types'=>['text/plain'],'max_bytes'=>1024,'max_files'=>2]]];
-        $email=Nicode\EasyForms\Domain\Uuid::create(); $answer=Nicode\EasyForms\Domain\Uuid::create(); $private=Nicode\EasyForms\Domain\Uuid::create();
+        $email=Nicode\FormStudio\Domain\Uuid::create(); $answer=Nicode\FormStudio\Domain\Uuid::create(); $private=Nicode\FormStudio\Domain\Uuid::create();
         foreach([$email,$answer,$private] as $uuid) { $draft['elements'][]=['uuid'=>$uuid,'type'=>'field']; }
         $draft['fields'][]=['uuid'=>$email,'name'=>'email','type'=>'email','config'=>['label'=>'Email','required'=>true]];
         $draft['fields'][]=['uuid'=>$answer,'name'=>'answer','type'=>'textarea','config'=>['label'=>'Answer']];
@@ -46,14 +46,14 @@ try {
         $draft['persistence']['mode']=$mode; $draft['security']['captcha']=['mode'=>'none']; $draft['security']['minimum_seconds']=0;
         $draft['actions']=[['uuid'=>$action,'type'=>$actionType,'failure_policy'=>'blocking','config'=>['to'=>['capture@example.test'],'email_field'=>$email,'reply_to_field'=>$email,'cc'=>['copy@example.test'],'bcc'=>['hidden@example.test'],'subject'=>'Received {{submission.reference}}','body_text'=>'{{field.'.$answer.'.value}}\n{{response.summary}}','body_html'=>'<p>{{field.'.$answer.'.value}}</p>','attachment_fields'=>[$field]]]];
         $revision=$forms->save($form,0,$draft,(int)$admin->id); $forms->publish($form,$revision,(int)$admin->id);
-        [$status,$html]=$request('/index.php?option=com_nicode_easy_forms&view=form&id='.$form);
-        $document=new DOMDocument(); $prior=libxml_use_internal_errors(true); $document->loadHTML($html); libxml_clear_errors(); libxml_use_internal_errors($prior); $xp=new DOMXPath($document); $node=$xp->query('//form[@data-nef-form]')->item(0);
+        [$status,$html]=$request('/index.php?option=com_nicode_form_studio&view=form&id='.$form);
+        $document=new DOMDocument(); $prior=libxml_use_internal_errors(true); $document->loadHTML($html); libxml_clear_errors(); libxml_use_internal_errors($prior); $xp=new DOMXPath($document); $node=$xp->query('//form[@data-nfs-form]')->item(0);
         if($status!==200 || !$node instanceof DOMElement) { file_put_contents($root.'/build/native-mail-render.html',$html); throw new RuntimeException('Native form did not render: '.$status); }
         $post=['format'=>'json']; foreach($xp->query('.//input[@type="hidden"]',$node) as $input) { $post[$input->getAttribute('name')]=$input->getAttribute('value'); }
-        $post['nef['.$field.'][0]']=new CURLFile($file,'browser/forged','first.txt'); $post['nef['.$field.'][1]']=new CURLFile($file,'browser/forged','second.txt');
-        $post['nef['.$email.']']='visitor@example.test'; $post['nef['.$answer.']']='<strong>literal & text</strong>'; $post['nef['.$private.']']='PRIVATE-MARKER-MUST-NOT-LEAK';
+        $post['nfs['.$field.'][0]']=new CURLFile($file,'browser/forged','first.txt'); $post['nfs['.$field.'][1]']=new CURLFile($file,'browser/forged','second.txt');
+        $post['nfs['.$email.']']='visitor@example.test'; $post['nfs['.$answer.']']='<strong>literal & text</strong>'; $post['nfs['.$private.']']='PRIVATE-MARKER-MUST-NOT-LEAK';
         $destination=$node->getAttribute('action'); if(str_starts_with($destination,'http')) { $destination=parse_url($destination,PHP_URL_PATH).'?'.parse_url($destination,PHP_URL_QUERY); }
-        $before=count($captures()); $invalid=$post; $invalid['nef['.$email.']']="visitor@example.test\r\nBcc: injected@example.test";
+        $before=count($captures()); $invalid=$post; $invalid['nfs['.$email.']']="visitor@example.test\r\nBcc: injected@example.test";
         [$status,$body]=$request($destination,$invalid); $rejected=json_decode($body,true,flags:JSON_THROW_ON_ERROR);
         if($status!==422 || ($rejected['category']??null)!=='validation_error' || count($captures())!==$before) { throw new RuntimeException('Invalid visitor email reached native mail action.'); }
         [$status,$body]=$request($destination,$post); $result=json_decode($body,true,flags:JSON_THROW_ON_ERROR);

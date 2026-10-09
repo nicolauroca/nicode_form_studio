@@ -318,7 +318,7 @@ Evidence: `joomla-diagnostic-translation-focus.png`. Correcting to Respuesta rem
 the warning on preview. JavaScript tests total 111 with no failures.
 
 The native dark-theme review found white Joomla labels over the condition
-editor's fixed pale background. `.nef-condition` now uses Joomla's paired
+editor's fixed pale background. `.nfs-condition` now uses Joomla's paired
 `--body-bg` and `--body-color` variables, with a light fallback. Native computed
 styles show white labels over `rgb(15, 21, 29)`; the panel is visually readable in
 `tests/artifacts/joomla-condition-dark-contrast.png`. This is evidence for this
@@ -409,7 +409,7 @@ Reports are `build/native-file-http-packed-results.json` and
 `build/native-file-http-results.json`.
 
 The large-form fixture saves, publishes and renders 1,500 required fields, then
-posts their exact Unicode/whitespace values in the new `nef_values` JSON form
+posts their exact Unicode/whitespace values in the new `nfs_values` JSON form
 part. Malformed JSON, non-object input and mixed legacy/packed maps return 422.
 Native browser evidence `joomla-large-form-submitted.png` and an independent
 database check confirm all 1,500 values, including the last field edited in the
@@ -564,7 +564,7 @@ publication, replay, indexed search, action claims/retries, rate limits, leased
 jobs and resumable reindexing. Test-only providers never ship with the extension.
 
 The official Joomla site is installed in `build/joomla-6.0.0`, with its separate
-`easyforms_joomla` database; CLI startup has been verified. Package installation,
+`formstudio_joomla` database; CLI startup has been verified. Package installation,
 the complete supported-engine matrix, concurrent-process races, full browser UI, live mail,
 and scheduler remain unverified as complete product acceptance. The separate
 ACL test boots installed Joomla and exercises real Asset tables and user-group
@@ -582,7 +582,7 @@ and an independent workspace data directory, without a Windows service.
 ```powershell
 php -d extension=pgsql -d extension=pdo_pgsql tests/database.php postgresql
 php -d extension=pgsql -d extension=pdo_pgsql tools/install-test-joomla.php --postgresql
-php -d extension=pgsql -d extension=pdo_pgsql build/joomla-postgresql/cli/joomla.php extension:install --path=build/development-package/pkg_nicode_easy_forms.zip
+php -d extension=pgsql -d extension=pdo_pgsql build/joomla-postgresql/cli/joomla.php extension:install --path=build/development-package/pkg_nicode_form_studio.zip
 php -d extension=pgsql -d extension=pdo_pgsql tests/joomla-lifecycle.php --postgresql
 ```
 
@@ -724,7 +724,7 @@ filtered CSV creation, private download headers and CSRF, safe job status,
 cancellation, filtered state/anonymize/delete, export revocation and reindexing.
 It also renders the installed component options and jobs screens.
 
-`php tests/joomla-scheduler.php` enables only the installed EasyForms task plugin
+`php tests/joomla-scheduler.php` enables only the installed FormStudio task plugin
 in the isolated test site and creates a manual-only task. It launches the real
 Joomla scheduler CLI repeatedly and verifies durable export resume with a
 one-record chunk and two-batch limit. It does not create an automatic schedule.
@@ -758,10 +758,10 @@ viewer; browser filtering by the returned UUID is captured in
 `tests/artifacts/joomla-admin-logs.png`. The diagnostics screenshot is
 `tests/artifacts/joomla-admin-health.png`.
 
-Lifecycle acceptance uses a separate official site and `easyforms_lifecycle`
+Lifecycle acceptance uses a separate official site and `formstudio_lifecycle`
 database. Prepare it with `php tools/install-test-joomla.php --lifecycle`.
 `php tools/reset-lifecycle-package.php` destructively resets **only disposable
-EasyForms data in that named fixture**, disables the compatibility plugin and
+FormStudio data in that named fixture**, disables the compatibility plugin and
 verifies native package installation from zero to 29 tables. It never resets the
 HTTP fixture. `php tests/joomla-lifecycle.php` uses installed library classes,
 publishes/persists a form, verifies same-version update and runs native preserve
@@ -790,7 +790,7 @@ bind its country parameter in the builder, publish, and clear Madrid when the
 selected country changes from Spain to France.
 
 `php tests/joomla-providers.php` installs the current development package and an
-authored source-provider plugin in `easyforms_lifecycle`, enables it only for the
+authored source-provider plugin in `formstudio_lifecycle`, enables it only for the
 test, and invokes the installed plugin through native Joomla import and the
 typed registration event. It verifies resolver output, shared registries,
 renderer/source freeze and core search registration, then disables the fixture
@@ -1139,7 +1139,7 @@ equivalence remains unverified and is not claimed by these cases.
 Common field properties are covered by `tests/unit/common-field.php` and the
 native HTTP validator scenarios: both description and help are escaped and
 rendered, administrative labels remain private, allowed CSS classes are scoped
-to `nef-custom-*`, and input hints reject markup. Native browser acceptance
+to `nfs-custom-*`, and input hints reject markup. Native browser acceptance
 saves an administrative label, description and help and verifies the saved draft
 preview (`tests/artifacts/joomla-common-properties.png`). The shared
 `tests/fixtures/range.json` cases verify default slider bounds 0..100 and step 1,

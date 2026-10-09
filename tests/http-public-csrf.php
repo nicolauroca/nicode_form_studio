@@ -22,8 +22,8 @@ declare(strict_types=1);
         $api('publish', ['id' => $form, 'revision' => $saved['revision']]);
         $inputs = []; $tokens = [];
         foreach ([0, 1] as $guest) {
-            $page = $http('option=com_nicode_easy_forms&view=form&tmpl=component&id=' . $form, $guest);
-            $xpath = $dom($page['body']); $node = $xpath->query('//form[@data-nef-form]')->item(0);
+            $page = $http('option=com_nicode_form_studio&view=form&tmpl=component&id=' . $form, $guest);
+            $xpath = $dom($page['body']); $node = $xpath->query('//form[@data-nfs-form]')->item(0);
             $assert($page['status'] === 200 && $node instanceof DOMElement, 'Guest CSRF form unavailable.');
             $inputs[$guest] = [];
             foreach ($xpath->query('.//input[@type="hidden"]', $node) as $input) {
@@ -35,8 +35,8 @@ declare(strict_types=1);
         $assert($tokens[0] !== $tokens[1], 'Independent guest sessions share a CSRF token.');
         $checks = 0;
         foreach (['submit', 'options', 'rows'] as $task) {
-            $route = 'option=com_nicode_easy_forms&task=form.' . $task . '&format=json';
-            $bare = $inputs[0]; unset($bare[$tokens[0]]); $bare['format'] = 'json'; $bare['nef'] = [$field => 'Accepted guest answer'];
+            $route = 'option=com_nicode_form_studio&task=form.' . $task . '&format=json';
+            $bare = $inputs[0]; unset($bare[$tokens[0]]); $bare['format'] = 'json'; $bare['nfs'] = [$field => 'Accepted guest answer'];
             $cases = [
                 'missing' => [$bare, [], ''],
                 'wrong_value' => [$bare + [$tokens[0] => '0'], [], ''],
@@ -55,12 +55,12 @@ declare(strict_types=1);
             $response = $http($route . '&' . $tokens[0] . '=1', 0);
             $assert($response['status'] === 405, 'Public GET reached POST handler ' . $task); $checks++;
         }
-        $query = $pdo->prepare('SELECT COUNT(*) FROM j6_nicode_easyforms_submissions WHERE form_id=?'); $query->execute([$form]);
+        $query = $pdo->prepare('SELECT COUNT(*) FROM j6_nicode_form_studio_submissions WHERE form_id=?'); $query->execute([$form]);
         $assert((int) $query->fetchColumn() === 0, 'Rejected CSRF requests stored answers.');
         foreach ([0, 1] as $guest) {
-            $post = $inputs[$guest]; $post['format'] = 'json'; $post['nef'] = [$field => 'Accepted guest answer']; $headers = [];
+            $post = $inputs[$guest]; $post['format'] = 'json'; $post['nfs'] = [$field => 'Accepted guest answer']; $headers = [];
             if ($guest === 0) { unset($post[$tokens[$guest]]); $headers = ['X-CSRF-Token: ' . $tokens[$guest]]; }
-            $response = $http('option=com_nicode_easy_forms&task=form.submit&format=json', $guest, $post, $headers);
+            $response = $http('option=com_nicode_form_studio&task=form.submit&format=json', $guest, $post, $headers);
             $result = json_decode($response['body'], true, flags: JSON_THROW_ON_ERROR);
             $assert($response['status'] === 200 && ($result['accepted'] ?? false), 'Valid ' . ($guest === 0 ? 'header' : 'body') . ' CSRF token rejected.');
         }

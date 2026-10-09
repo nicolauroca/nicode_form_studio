@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 test('schema type diagnostics preserve exact size precision nullability and signedness', function (): void {
-    $matches = Nicode\EasyForms\Health\SchemaTypes::matches(...);
+    $matches = Nicode\FormStudio\Health\SchemaTypes::matches(...);
     $base = ['is_nullable' => 'NO'];
     foreach ([['data_type' => 'numeric', 'numeric_precision' => '38', 'numeric_scale' => '12'], ['data_type' => 'decimal', 'numeric_precision' => 38, 'numeric_scale' => 12]] as $decimal) {
         same(true, $matches($base + $decimal, 'DECIMAL(38,12)', false));
@@ -21,7 +21,7 @@ test('schema type diagnostics preserve exact size precision nullability and sign
 });
 
 test('schema storage diagnostics detect identity and collation drift', function (): void {
-    $check = Nicode\EasyForms\Health\SchemaTypes::storageProperties(...);
+    $check = Nicode\FormStudio\Health\SchemaTypes::storageProperties(...);
     $pg = ['is_identity' => 'YES', 'identity_generation' => 'BY DEFAULT', 'is_generated' => 'NEVER', 'collation_name' => null];
     same(true, $check($pg, true, true));
     foreach (['is_identity' => 'NO', 'identity_generation' => 'ALWAYS', 'is_generated' => 'ALWAYS', 'collation_name' => 'custom'] as $key => $value) { same(false, $check(array_replace($pg, [$key => $value]), true, true)); }

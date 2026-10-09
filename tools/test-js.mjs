@@ -4,9 +4,9 @@ import {fileURLToPath} from 'node:url';
 import {resolve} from 'node:path';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const production = readdirSync(resolve(root, 'src/com_nicode_easy_forms/media/js')).filter(name => name.endsWith('.js'));
+const production = readdirSync(resolve(root, 'src/com_nicode_form_studio/media/js')).filter(name => name.endsWith('.js'));
 for (const name of production) {
-  const syntax = spawnSync(process.execPath, ['--check', resolve(root, 'src/com_nicode_easy_forms/media/js', name)], {cwd:root, encoding:'utf8'});
+  const syntax = spawnSync(process.execPath, ['--check', resolve(root, 'src/com_nicode_form_studio/media/js', name)], {cwd:root, encoding:'utf8'});
   if (syntax.status !== 0) { process.stderr.write(syntax.stderr || `Syntax check failed: ${name}\n`); process.exit(1); }
 }
 const files = readdirSync(resolve(root, 'tests/js')).filter(name => name.endsWith('.test.mjs')).sort().map(name => resolve(root, 'tests/js', name));

@@ -11,13 +11,13 @@ for ($i = 0; $i < 1500; $i++) {
 }
 $largeRevision = $api('save', ['id' => $largeForm['id'], 'revision' => 0, 'draft' => $largeDraft])['revision'];
 $api('publish', ['id' => $largeForm['id'], 'revision' => $largeRevision]);
-$largePage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_easy_forms&view=form&id=' . $largeForm['id']);
-$largeXpath = $dom($largePage['body']); $largeNode = $largeXpath->query('//form[@data-nef-form]')->item(0);
-$assert($largePage['status'] === 200 && $largeNode instanceof DOMElement && $largeXpath->query('.//*[@data-nef-input]', $largeNode)->length === 1500, 'Large form lost rendered fields.');
-$largePost = ['format' => 'json', 'nef_values' => json_encode($largeValues + ['unknown' => 'ignored'], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE)];
+$largePage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_form_studio&view=form&id=' . $largeForm['id']);
+$largeXpath = $dom($largePage['body']); $largeNode = $largeXpath->query('//form[@data-nfs-form]')->item(0);
+$assert($largePage['status'] === 200 && $largeNode instanceof DOMElement && $largeXpath->query('.//*[@data-nfs-input]', $largeNode)->length === 1500, 'Large form lost rendered fields.');
+$largePost = ['format' => 'json', 'nfs_values' => json_encode($largeValues + ['unknown' => 'ignored'], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE)];
 foreach ($largeXpath->query('.//input[@type="hidden"]', $largeNode) as $input) { $largePost[$input->getAttribute('name')] = $input->getAttribute('value'); }
 $largeDestination = 'http://127.0.0.1:13371' . $largeNode->getAttribute('action');
-foreach ([['nef_values' => '[]'], ['nef_values' => '{'], ['nef' => [array_key_first($largeValues) => 'ambiguous']]] as $invalid) {
+foreach ([['nfs_values' => '[]'], ['nfs_values' => '{'], ['nfs' => [array_key_first($largeValues) => 'ambiguous']]] as $invalid) {
     $badResponse = $visitorRequest($largeDestination, array_replace($largePost, $invalid));
     $assert($badResponse['status'] === 422, 'Malformed or mixed packed values were accepted.');
 }

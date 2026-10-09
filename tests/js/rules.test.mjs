@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { evaluateOperator, evaluateRules, safePattern } from '../../src/com_nicode_easy_forms/media/js/rules.js';
-import { normalizeDecimal, compareDecimal, stepMatches } from '../../src/com_nicode_easy_forms/media/js/decimal.js';
+import { evaluateOperator, evaluateRules, safePattern } from '../../src/com_nicode_form_studio/media/js/rules.js';
+import { normalizeDecimal, compareDecimal, stepMatches } from '../../src/com_nicode_form_studio/media/js/decimal.js';
 
 const cases = JSON.parse(readFileSync(new URL('../fixtures/operators.json', import.meta.url), 'utf8'));
 for (const [index, fixture] of cases.entries()) {

@@ -1,10 +1,17 @@
 # Build and release
 
-The current software version is `1.0.4`. The stable package is
-`dist/pkg_nicode_easy_forms-1.0.4.zip`. Database acceptance covers MariaDB 11.4.5,
-MySQL 8.4.8 and PostgreSQL 14.24 with Joomla 6.0.0. The user explicitly accepted
-accessibility and waived the outstanding manual screen-reader check; no executed
-screen-reader test or WCAG certification is claimed.
+Nicode Form Studio is in development. Source manifests retain the inherited
+version `1.0.4`; no stable release of the renamed product is claimed.
+The current development artifact is built from source as described below.
+Historical packages and acceptance records in `dist/` belong to Nicode EasyForms
+and remain unchanged. Their installation, database and accessibility results do
+not establish acceptance of this renamed product.
+
+Use a clean isolated Joomla site. This is a new extension identity, including its
+tables and ACL assets, not an in-place migration. The package refuses installation
+if legacy component/library files or retained legacy tables are present. Do not
+delete an existing installation or its data to bypass this check. A validated
+migration is a separate pending task if existing sites must be upgraded.
 
 ## Build the development package
 
@@ -15,7 +22,7 @@ php tools/build-development.php
 php tests/build-package.php
 ```
 
-The installable artifact is `build/development-package/pkg_nicode_easy_forms.zip`.
+The installable artifact is `build/development-package/pkg_nicode_form_studio.zip`.
 The directory also contains component, library, module, scheduler plugin and
 extension plugin archives, `NOT_A_RELEASE.txt` and `build-manifest.json`. The
 manifest records software version, every archive SHA-256 and each entry's byte
@@ -77,7 +84,7 @@ SHA-256 sidecar and source inventory/toolchain report under `dist`. It refuses
 to replace a different artifact with the same version. Installation and the
 cross-feature acceptance must then be verified against that exact ZIP before
 closing OPS-008. Accessibility acceptance for 1.0.0 was explicitly granted by
-the user on 2026-09-28. There is no supported previous stable EasyForms release to migrate
+the user on 2026-09-28. There is no supported previous stable FormStudio release to migrate
 from; existing evidence covers clean install and the pre-release upgrade path.
 
 The requested forty-step scenario is `tests/product-acceptance.php`. In the

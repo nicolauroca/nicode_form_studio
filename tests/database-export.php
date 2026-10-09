@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 $exportRoot = $root . '/build/export-workspace'; if (!is_dir($exportRoot)) { mkdir($exportRoot, 0770, true); }
-$exportWorkspace = new Nicode\EasyForms\Export\ExportWorkspace($exportRoot, $root . '/build/joomla-6.0.0');
-$exportHandler = new Nicode\EasyForms\Jobs\ExportHandler($connection, $forms, $reader, $jobs, $exportWorkspace, $authorizeRead, $search);
+$exportWorkspace = new Nicode\FormStudio\Export\ExportWorkspace($exportRoot, $root . '/build/joomla-6.0.0');
+$exportHandler = new Nicode\FormStudio\Jobs\ExportHandler($connection, $forms, $reader, $jobs, $exportWorkspace, $authorizeRead, $search);
 $handlerRegistry->register($exportHandler);
 $exportId = $jobs->enqueue('export-csv', ['form_id' => $multiForm, 'version_id' => $multiVersion, 'fields' => [$multiField], 'include_sensitive' => false], 1);
 $firstExportLease = $jobs->claim(); if ($firstExportLease->id !== $exportId) { throw new RuntimeException('Unexpected export claim.'); }
@@ -14,14 +14,14 @@ $exportJob = $jobs->get($exportId);
 if ($exportJob['state'] !== 'completed') { throw new RuntimeException('Export did not complete in bounded chunks.'); }
 $exportAudit = $connection->rows('SELECT actor_id, event_type FROM ' . $connection->table('audit_log') . ' WHERE correlation_id = :uuid', [':uuid' => $exportJob['uuid']]);
 if (count($exportAudit) !== 1 || (int) $exportAudit[0]['actor_id'] !== 1 || $exportAudit[0]['event_type'] !== 'submission.export') { throw new RuntimeException('Export completion audit lost its job correlation or actor.'); }
-$exportDownloads = new Nicode\EasyForms\Application\ExportDownloads($jobs, $exportWorkspace, $authorizeRead);
+$exportDownloads = new Nicode\FormStudio\Application\ExportDownloads($jobs, $exportWorkspace, $authorizeRead);
 try { $exportDownloads->open($exportId, 2); throw new RuntimeException('Other-user export download bypass.'); } catch (OutOfBoundsException) {}
 $exportDownload = $exportDownloads->open($exportId, 1); $csvRows = [];
 while (($csvRow = fgetcsv($exportDownload->stream, escape: '')) !== false) { $csvRows[] = $csvRow; } fclose($exportDownload->stream);
 if (count($csvRows) !== (int) $exportJob['processed'] + 1 || $csvRows[0] !== ['reference', 'received_at', 'state', 'choices'] || count(array_unique(array_column(array_slice($csvRows, 1), 0))) !== (int) $exportJob['processed']) { throw new RuntimeException('Export retry duplicated rows or headers.'); }
 $connection->execute('UPDATE ' . $connection->table('jobs') . ' SET expires_at = :past WHERE id = :id', [':past' => '2000-01-01 00:00:00', ':id' => $exportId]);
 try { $exportDownloads->open($exportId, 1); throw new RuntimeException('Expired export download bypass.'); } catch (OutOfBoundsException) {}
-$handlerRegistry->register(new Nicode\EasyForms\Jobs\ExportCleanupHandler($connection, $jobs, $exportWorkspace));
+$handlerRegistry->register(new Nicode\FormStudio\Jobs\ExportCleanupHandler($connection, $jobs, $exportWorkspace));
 $cleanupId = $jobs->enqueue('export-cleanup', [], 1);
 // Reused fixtures can contain more than one chunk of expired artifacts.
 for ($cleanupChunk = 0; $cleanupChunk < 1000 && $jobs->get($cleanupId)['state'] !== 'completed'; $cleanupChunk++) { $worker->tick(2); }

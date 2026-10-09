@@ -11,10 +11,10 @@ declare(strict_types=1);
     $fields=array_column($spec['fields'],'uuid','name'); $route=$fields['route']; $email=$fields['email'];
     if(count($spec['actions'])!==4) { throw new RuntimeException('Expected four UI-authored actions.'); }
     foreach(['receipt','support','neither'] as $choice) {
-        [$status,$html]=$request('/index.php?option=com_nicode_easy_forms&view=form&id='.$form);
-        $document=new DOMDocument(); $prior=libxml_use_internal_errors(true); $document->loadHTML($html); libxml_clear_errors(); libxml_use_internal_errors($prior); $xp=new DOMXPath($document); $node=$xp->query('//form[@data-nef-form]')->item(0);
+        [$status,$html]=$request('/index.php?option=com_nicode_form_studio&view=form&id='.$form);
+        $document=new DOMDocument(); $prior=libxml_use_internal_errors(true); $document->loadHTML($html); libxml_clear_errors(); libxml_use_internal_errors($prior); $xp=new DOMXPath($document); $node=$xp->query('//form[@data-nfs-form]')->item(0);
         if($status!==200 || !$node instanceof DOMElement) { throw new RuntimeException('UI-authored form did not render.'); }
-        $post=['format'=>'json','nef['.$route.']'=>$choice,'nef['.$email.']'=>'visitor@example.test'];
+        $post=['format'=>'json','nfs['.$route.']'=>$choice,'nfs['.$email.']'=>'visitor@example.test'];
         foreach($xp->query('.//input[@type="hidden"]',$node) as $input) { $post[$input->getAttribute('name')]=$input->getAttribute('value'); }
         $destination=$node->getAttribute('action'); if(str_starts_with($destination,'http')) { $destination=parse_url($destination,PHP_URL_PATH).'?'.parse_url($destination,PHP_URL_QUERY); }
         $before=count($captures()); [$status,$body]=$request($destination,$post); $result=json_decode($body,true,flags:JSON_THROW_ON_ERROR);

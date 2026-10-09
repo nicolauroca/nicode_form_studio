@@ -1,6 +1,6 @@
 # 18 — Extension Points
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -10,7 +10,7 @@
 
 ## 1. Objetivo
 
-Extender EasyForms sin modificar core.
+Extender FormStudio sin modificar core.
 
 ## 2. Registries
 
@@ -69,7 +69,7 @@ Eventos conceptuales:
 
 Los nombres y tipos finales deben ajustarse al sistema de eventos Joomla actual.
 
-Los eventos nativos se llaman `onEasyForms` seguido del nombre conceptual y
+Los eventos nativos se llaman `onFormStudio` seguido del nombre conceptual y
 reciben un `LifecycleEvent` tipado. `phase` y `context` son de solo lectura.
 El contexto expone identificadores, versión, canal, idioma y resultado técnico;
 no expone respuestas, credenciales, tokens de sesión ni rutas privadas. Los
@@ -94,8 +94,8 @@ Cuando una capacidad encaje naturalmente en el ecosistema Joomla, se preferirá 
 
 CAPTCHA es caso obligatorio de esta estrategia.
 
-El grupo de plugins `easyforms` registra providers mediante
-`onEasyFormsRegisterProviders(ProviderRegistrationEvent $event)`.
+El grupo de plugins `formstudio` registra providers mediante
+`onFormStudioRegisterProviders(ProviderRegistrationEvent $event)`.
 El evento expone `kind` y `registry` como propiedades tipadas de solo lectura;
 el registro admite altas durante el evento y queda cerrado al terminar.
 Los tipos son `fields`, `validators`, `operators`, `effects`, `sources`,

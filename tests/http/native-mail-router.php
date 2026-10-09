@@ -12,7 +12,7 @@ require $site.'/includes/defines.php'; require $site.'/includes/framework.php';
 $parent=Joomla\CMS\Factory::getContainer();
 $parent->alias('session.web','session.web.site')->alias('session','session.web.site')->alias('JSession','session.web.site')->alias(Joomla\CMS\Session\Session::class,'session.web.site')->alias(Joomla\Session\Session::class,'session.web.site')->alias(Joomla\Session\SessionInterface::class,'session.web.site');
 $config=$parent->get('config');
-if($config->get('db')!=='easyforms_joomla' || $config->get('host')!=='127.0.0.1:13367') { throw new RuntimeException('Non-isolated mail fixture.'); }
+if($config->get('db')!=='formstudio_joomla' || $config->get('host')!=='127.0.0.1:13367') { throw new RuntimeException('Non-isolated mail fixture.'); }
 foreach(['mailonline'=>true,'mailfrom'=>'fixture@example.test','fromname'=>'Attachment fixture'] as $key=>$value) { $config->set($key,$value); }
 $capture=$parent;
 $capture->alias(Joomla\CMS\Mail\MailerFactoryInterface::class,'fixture.mailer');

@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
 
-use Nicode\EasyForms\Domain\FormSpec;
-use Nicode\EasyForms\Domain\Uuid;
-use Nicode\EasyForms\Registry\RuleOperatorRegistry;
-use Nicode\EasyForms\Registry\RuleEffectRegistry;
-use Nicode\EasyForms\Rules\ConditionEvaluator;
-use Nicode\EasyForms\Rules\RuleEngine;
-use Nicode\EasyForms\Validation\ValidationEngine;
+use Nicode\FormStudio\Domain\FormSpec;
+use Nicode\FormStudio\Domain\Uuid;
+use Nicode\FormStudio\Registry\RuleOperatorRegistry;
+use Nicode\FormStudio\Registry\RuleEffectRegistry;
+use Nicode\FormStudio\Rules\ConditionEvaluator;
+use Nicode\FormStudio\Rules\RuleEngine;
+use Nicode\FormStudio\Validation\ValidationEngine;
 
 function rules(): RuleEngine { return new RuleEngine(new ConditionEvaluator(RuleOperatorRegistry::core()), RuleEffectRegistry::core(), registry()); }
 function validation(): ValidationEngine { return new ValidationEngine(registry(), rules()); }

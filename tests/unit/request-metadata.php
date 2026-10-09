@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 test('request metadata requires strict independent opt-ins and bounded valid transport values', function (): void {
-    $select = Nicode\EasyForms\Privacy\RequestMetadata::select(...);
+    $select = Nicode\FormStudio\Privacy\RequestMetadata::select(...);
     $raw = ['ip' => '2001:0db8:0:0:0:0:0:1', 'user_agent' => "Browser\r\n<script>😀</script>"];
     same([], $select([], 'full', $raw));
     same([], $select(['store_ip' => 'true', 'store_user_agent' => 1], 'full', $raw));
@@ -18,7 +18,7 @@ test('request metadata requires strict independent opt-ins and bounded valid tra
 
 test('request context does not collect metadata until opted in and keeps it out of rules', function (): void {
     $calls = 0;
-    $context = new Nicode\EasyForms\Submission\RequestContext(0, [1], 'en-GB', 'session', str_repeat('a', 64), true, metadataProvider: static function () use (&$calls): array { $calls++; return ['ip' => '127.0.0.1', 'user_agent' => 'Browser']; });
+    $context = new Nicode\FormStudio\Submission\RequestContext(0, [1], 'en-GB', 'session', str_repeat('a', 64), true, metadataProvider: static function () use (&$calls): array { $calls++; return ['ip' => '127.0.0.1', 'user_agent' => 'Browser']; });
     same([], $context->requestMetadata([], 'full'));
     same([], $context->requestMetadata(['store_ip' => true], 'none'));
     same([], $context->requestMetadata(['store_ip' => 1], 'full'));
@@ -30,7 +30,7 @@ test('request context does not collect metadata until opted in and keeps it out 
 test('publication rejects null and coerced privacy flags', function (): void {
     foreach (['store_user', 'store_ip', 'store_user_agent'] as $key) {
         foreach ([null, 0, 1, 'true', [], ''] as $invalid) {
-            $errors = (new Nicode\EasyForms\Compiler\RuntimePolicyValidator())->validate(['privacy' => [$key => $invalid]]);
+            $errors = (new Nicode\FormStudio\Compiler\RuntimePolicyValidator())->validate(['privacy' => [$key => $invalid]]);
             same(1, count($errors));
         }
     }

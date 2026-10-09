@@ -2,7 +2,7 @@
 declare(strict_types=1);
 require __DIR__ . '/joomla-scheduler.php';
 $retentionForm = $administration->create('Native retention fixture', 'native-retention-' . bin2hex(random_bytes(4)), (int) $admin->id);
-$retentionDraft = $administration->edit($retentionForm, (int) $admin->id)['draft']; $retentionField = Nicode\EasyForms\Domain\Uuid::create();
+$retentionDraft = $administration->edit($retentionForm, (int) $admin->id)['draft']; $retentionField = Nicode\FormStudio\Domain\Uuid::create();
 $retentionDraft['elements'] = [['uuid' => $retentionField, 'type' => 'field']];
 $retentionDraft['fields'] = [['uuid' => $retentionField, 'name' => 'retention_answer', 'type' => 'text', 'config' => []]];
 $retentionResponses = [];
@@ -11,10 +11,10 @@ foreach (['anonymize', 'delete'] as $retentionOperation) {
     $currentRevision = $administration->edit($retentionForm, (int) $admin->id)['form']['draft_revision'];
     $nextRevision = $administration->save($retentionForm, (int) $currentRevision, $retentionDraft, (int) $admin->id);
     $retentionVersion = $administration->publish($retentionForm, $nextRevision, (int) $admin->id);
-    $retentionSpec = $runtime->get(Nicode\EasyForms\Infrastructure\Database\FormRepository::class)->version($retentionForm, $retentionVersion);
-    $retentionResponses[$retentionOperation] = $runtime->get(Nicode\EasyForms\Infrastructure\Database\SubmissionRepository::class)->persist($retentionForm, $retentionVersion, $retentionSpec, [$retentionField => 'Synthetic expired answer'], hash('sha256', random_bytes(32)), ['expires_at' => '2000-01-01 00:00:00'])->id;
+    $retentionSpec = $runtime->get(Nicode\FormStudio\Infrastructure\Database\FormRepository::class)->version($retentionForm, $retentionVersion);
+    $retentionResponses[$retentionOperation] = $runtime->get(Nicode\FormStudio\Infrastructure\Database\SubmissionRepository::class)->persist($retentionForm, $retentionVersion, $retentionSpec, [$retentionField => 'Synthetic expired answer'], hash('sha256', random_bytes(32)), ['expires_at' => '2000-01-01 00:00:00'])->id;
 }
-$retentionQueue = new Nicode\EasyForms\Infrastructure\Joomla\JobMaintenance($db, $repository, static fn (): int => time() + 3601);
+$retentionQueue = new Nicode\FormStudio\Infrastructure\Joomla\JobMaintenance($db, $repository, static fn (): int => time() + 3601);
 $retentionDispatch = $retentionQueue->queueRetention();
 if ($retentionDispatch === null || $retentionQueue->queueRetention() !== null) { throw new RuntimeException('Native retention dispatch deduplication failed.'); }
 for ($run = 0; $run < 15; $run++) {

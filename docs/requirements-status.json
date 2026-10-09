@@ -26,7 +26,7 @@
   },
   "FORM-006": {
     "status": "COMPLETE",
-    "implementation": "Immutable published snapshots, isolated drafts, scoped history/preview/comparison, restore-to-draft and exact historical response identity verified; history includes state and permission-gated response counts with bounded keyset pages. `Infrastructure/Database/FormRepository.php; Application/FormAdministration.php; Domain/SpecDiff.php; src/com_nicode_easy_forms/media/js/admin.js`",
+    "implementation": "Immutable published snapshots, isolated drafts, scoped history/preview/comparison, restore-to-draft and exact historical response identity verified; history includes state and permission-gated response counts with bounded keyset pages. `Infrastructure/Database/FormRepository.php; Application/FormAdministration.php; Domain/SpecDiff.php; src/com_nicode_form_studio/media/js/admin.js`",
     "evidence": "tests/database-version-history.php on three engines; tests/http-admin.php; tests/unit/spec-diff.php; tests/artifacts/joomla-version-history.png; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "FORM-007": {
@@ -61,17 +61,17 @@
   },
   "FIELD-003": {
     "status": "COMPLETE",
-    "implementation": "Eight normative text types implemented with metadata, native controls, normalization, constraints and canonical persistence; hidden inputs are validated, readonly/system/calculated values reject POST authority, passwords never persist. Browser correction and three-engine exact text projections verified. PHP remains authoritative for special email syntax per Validation SPEC. `Field/CoreFieldTypes.php; Field/ScalarFieldType.php; Validation/ValidationEngine.php; Rendering/CoreFieldRenderer.php; src/com_nicode_easy_forms/media/js/validation.js`",
+    "implementation": "Eight normative text types implemented with metadata, native controls, normalization, constraints and canonical persistence; hidden inputs are validated, readonly/system/calculated values reject POST authority, passwords never persist. Browser correction and three-engine exact text projections verified. PHP remains authoritative for special email syntax per Validation SPEC. `Field/CoreFieldTypes.php; Field/ScalarFieldType.php; Validation/ValidationEngine.php; Rendering/CoreFieldRenderer.php; src/com_nicode_form_studio/media/js/validation.js`",
     "evidence": "tests/unit/text-types.php; shared normalizers/text-length/text-types; tests/http-admin-text.php; tests/http-admin-derived-fields.php; tests/database-text.php on three engines; tests/artifacts/joomla-eight-text-submitted.png; tests/artifacts/joomla-derived-submitted.png; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "FIELD-004": {
     "status": "COMPLETE",
-    "implementation": "All five numeric providers with native controls, metadata-driven configuration, exact normalization/validation, consistent slider defaults and publication diagnostics; browser correction and canonical/typed persistence at SQL numeric boundaries verified. `Field/ScalarFieldType.php; Field/CommonConfiguration.php; Validation/Decimal.php; Rendering/CoreFieldRenderer.php; src/com_nicode_easy_forms/media/js/validation.js`",
+    "implementation": "All five numeric providers with native controls, metadata-driven configuration, exact normalization/validation, consistent slider defaults and publication diagnostics; browser correction and canonical/typed persistence at SQL numeric boundaries verified. `Field/ScalarFieldType.php; Field/CommonConfiguration.php; Validation/Decimal.php; Rendering/CoreFieldRenderer.php; src/com_nicode_form_studio/media/js/validation.js`",
     "evidence": "tests/unit/domain.php; tests/unit/common-field.php; shared normalizers/range fixtures; tests/http-admin-range.php; tests/database-numeric.php on three engines; tests/artifacts/joomla-numeric-submitted.png; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "FIELD-005": {
     "status": "COMPLETE",
-    "implementation": "Five temporal field types with metadata-driven bounds, native controls, calendar/ISO-week validation, exact minute/second comparison and publication diagnostics; shared PHP/JS cases, native direct POST and browser correction, canonical persistence and portable SQL projections verified. `Field/ScalarFieldType.php; Validation/Temporal.php; Rendering/CoreFieldRenderer.php; src/com_nicode_easy_forms/media/js/temporal.js`",
+    "implementation": "Five temporal field types with metadata-driven bounds, native controls, calendar/ISO-week validation, exact minute/second comparison and publication diagnostics; shared PHP/JS cases, native direct POST and browser correction, canonical persistence and portable SQL projections verified. `Field/ScalarFieldType.php; Validation/Temporal.php; Rendering/CoreFieldRenderer.php; src/com_nicode_form_studio/media/js/temporal.js`",
     "evidence": "tests/fixtures/temporal.json; tests/unit/temporal.php; tests/js/validation.test.mjs; shared operators; tests/http-admin-temporal.php; tests/database-temporal.php on three engines; tests/artifacts/joomla-temporal-submitted.png; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "FIELD-006": {
@@ -86,12 +86,12 @@
   },
   "FIELD-008": {
     "status": "COMPLETE",
-    "implementation": "Consent field uses native labelled checkbox rendering and strict boolean normalization; required acceptance, optional refusal, malformed input rejection and browser/server validation verified. `Field/CoreFieldTypes.php; Field/ScalarFieldType.php; Rendering/CoreFieldRenderer.php; src/com_nicode_easy_forms/media/js/validation.js`",
+    "implementation": "Consent field uses native labelled checkbox rendering and strict boolean normalization; required acceptance, optional refusal, malformed input rejection and browser/server validation verified. `Field/CoreFieldTypes.php; Field/ScalarFieldType.php; Rendering/CoreFieldRenderer.php; src/com_nicode_form_studio/media/js/validation.js`",
     "evidence": "tests/unit/runtime.php; tests/js/validation.test.mjs; tests/database-translations.php; tests/http-admin-validators.php; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "FIELD-009": {
     "status": "COMPLETE",
-    "implementation": "Seven presentation elements with semantic rendering, escaped plain text, Joomla HTML allowlist and fail-closed fallback; excluded from canonical answers. Native palette insertion, content/property editing, save/reload, preview and publication verified. `Rendering/FormRenderer.php; Infrastructure/Joomla/RuntimeProvider.php; src/com_nicode_easy_forms/media/js/admin.js`",
+    "implementation": "Seven presentation elements with semantic rendering, escaped plain text, Joomla HTML allowlist and fail-closed fallback; excluded from canonical answers. Native palette insertion, content/property editing, save/reload, preview and publication verified. `Rendering/FormRenderer.php; Infrastructure/Joomla/RuntimeProvider.php; src/com_nicode_form_studio/media/js/admin.js`",
     "evidence": "tests/unit/rendering.php; tests/http-admin-presentation.php; tests/artifacts/joomla-presentation-edited-preview.png; tests/artifacts/joomla-presentation-edited-published.png; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "FIELD-010": {
@@ -106,12 +106,12 @@
   },
   "FIELD-012": {
     "status": "COMPLETE",
-    "implementation": "Typed persistence/sensitivity/index/email/export flags enforced by compiler, canonical storage, derived projection, historical read/search ACL and action/export policies; editor reflects sensitive defaults, explicit sensitive indexing approval and mandatory password exclusions. `Compiler/FormCompiler.php; Infrastructure/Database/SubmissionRepository.php; Search/IndexProjector.php; Application/SubmissionReader.php; Actions/ActionContext.php; src/com_nicode_easy_forms/media/js/admin.js`",
+    "implementation": "Typed persistence/sensitivity/index/email/export flags enforced by compiler, canonical storage, derived projection, historical read/search ACL and action/export policies; editor reflects sensitive defaults, explicit sensitive indexing approval and mandatory password exclusions. `Compiler/FormCompiler.php; Infrastructure/Database/SubmissionRepository.php; Search/IndexProjector.php; Application/SubmissionReader.php; Actions/ActionContext.php; src/com_nicode_form_studio/media/js/admin.js`",
     "evidence": "tests/database-field-policy.php; tests/database-read.php; tests/database-search.php on three engines; tests/unit/domain.php; native browser publication denial and password controls; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "FIELD-013": {
     "status": "COMPLETE",
-    "implementation": "Stable UUID-based field identity with unique lowercase machine names and portable storage bounds; editor warns against the latest published name and publication advances the baseline without rewriting historical definitions or responses. `Compiler/FormCompiler.php; Compiler/StructureValidator.php; Application/FormAdministration.php; src/com_nicode_easy_forms/media/js/admin.js`",
+    "implementation": "Stable UUID-based field identity with unique lowercase machine names and portable storage bounds; editor warns against the latest published name and publication advances the baseline without rewriting historical definitions or responses. `Compiler/FormCompiler.php; Compiler/StructureValidator.php; Application/FormAdministration.php; src/com_nicode_form_studio/media/js/admin.js`",
     "evidence": "tests/unit/domain.php; tests/database-field-identity.php on three engines; tests/artifacts/joomla-machine-name-warning.png; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "FIELD-014": {
@@ -141,7 +141,7 @@
   },
   "LAYOUT-005": {
     "status": "COMPLETE",
-    "implementation": "Tree drag/drop before/after rows, inside containers and to root with visible destination and same-editor source. Graph checks preserve identity, descendants and provider data while rejecting cycles and nested steps. Native pointer destinations, save/reload and keyboard selection, parent change and sibling movement verified. `src/com_nicode_easy_forms/media/js/builder-drag.js; src/com_nicode_easy_forms/media/js/builder-model.js; src/com_nicode_easy_forms/media/js/admin.js`",
+    "implementation": "Tree drag/drop before/after rows, inside containers and to root with visible destination and same-editor source. Graph checks preserve identity, descendants and provider data while rejecting cycles and nested steps. Native pointer destinations, save/reload and keyboard selection, parent change and sibling movement verified. `src/com_nicode_form_studio/media/js/builder-drag.js; src/com_nicode_form_studio/media/js/builder-model.js; src/com_nicode_form_studio/media/js/admin.js`",
     "evidence": "tests/js/builder-drag.test.mjs; tests/js/builder.test.mjs; tests/artifacts/joomla-builder-drag-root.png; tests/artifacts/joomla-builder-keyboard-root.png; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "LAYOUT-006": {
@@ -186,7 +186,7 @@
   },
   "RULE-008": {
     "status": "COMPLETE",
-    "implementation": "Deterministic ascending priority and lexical UUID tie-break implemented in PHP and JavaScript; permutation and equal-priority tests pass. `Rules/RuleEngine.php; src/com_nicode_easy_forms/media/js/rules.js`",
+    "implementation": "Deterministic ascending priority and lexical UUID tie-break implemented in PHP and JavaScript; permutation and equal-priority tests pass. `Rules/RuleEngine.php; src/com_nicode_form_studio/media/js/rules.js`",
     "evidence": "tests/unit/runtime.php; tests/js/rules.test.mjs; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "RULE-009": {
@@ -206,7 +206,7 @@
   },
   "DATA-002": {
     "status": "COMPLETE",
-    "implementation": "Reusable Option Sets with ordered stable identities, immutable hashed revisions, optimistic edits, scoped resource ACL, explicit dependency binding and embedded published snapshots; portable dependency import and exact reference-aware revision/hash preservation verified. `Application/OptionSets.php; DataSource/StaticDataSource.php; Transfer/DefinitionPackage.php; Application/FormExchange.php; src/com_nicode_easy_forms/media/js/option-sets.js`",
+    "implementation": "Reusable Option Sets with ordered stable identities, immutable hashed revisions, optimistic edits, scoped resource ACL, explicit dependency binding and embedded published snapshots; portable dependency import and exact reference-aware revision/hash preservation verified. `Application/OptionSets.php; DataSource/StaticDataSource.php; Transfer/DefinitionPackage.php; Application/FormExchange.php; src/com_nicode_form_studio/media/js/option-sets.js`",
     "evidence": "tests/database-option-sets.php; tests/database-form-exchange.php on three engines; tests/http-admin-optionsets.php; tests/unit/definition-package.php; tests/artifacts/joomla-option-set.png; tests/artifacts/joomla-option-binding.png; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "DATA-003": {
@@ -301,13 +301,13 @@
   },
   "SEARCH-005": {
     "status": "COMPLETE",
-    "implementation": "Private named views persist authorized filters, columns and declared order; native read/write routes, ownership, removal, sort round-trip and ACL revocation verified. `Application/SavedSubmissionViews.php; src/com_nicode_easy_forms/media/js/submission-search.js`",
+    "implementation": "Private named views persist authorized filters, columns and declared order; native read/write routes, ownership, removal, sort round-trip and ACL revocation verified. `Application/SavedSubmissionViews.php; src/com_nicode_form_studio/media/js/submission-search.js`",
     "evidence": "tests/joomla-acl.php; tests/http-admin-submissions.php; tests/http-admin-search-order.php; tests/artifacts/joomla-response-order.png; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "SEARCH-006": {
     "status": "COMPLETE",
     "implementation": "Registered search contract is consumed by explorer/export/bulk jobs; native provider selection validates capabilities and pins signed cursors to provider/version/query/scope. Missing providers report unavailability without canonical data loss. Dedicated external search engines remain explicitly future in SPEC 23 section 11.",
-    "evidence": "src/lib_nicode_easy_forms/src/Contract/SearchProviderInterface.php; tests/unit/selected-search.php; tests/database-search-selection.php; tests/joomla-providers.php; docs/23_SUBMISSION_SEARCH_SCALE_SPEC.md"
+    "evidence": "src/lib_nicode_form_studio/src/Contract/SearchProviderInterface.php; tests/unit/selected-search.php; tests/database-search-selection.php; tests/joomla-providers.php; docs/23_SUBMISSION_SEARCH_SCALE_SPEC.md"
   },
   "SEARCH-007": {
     "status": "COMPLETE",
@@ -422,12 +422,12 @@
   "FRONT-002": {
     "status": "COMPLETE",
     "implementation": "Shared native menu/module selector traverses authorized published forms without a fixed quota, retains stored selections and masks unavailable titles.",
-    "evidence": "tests/joomla-selectors.php; src/com_nicode_easy_forms/administrator/src/Field/EasyformField.php"
+    "evidence": "tests/joomla-selectors.php; src/com_nicode_form_studio/administrator/src/Field/FormStudioField.php"
   },
   "FRONT-003": {
     "status": "COMPLETE",
     "implementation": "Native module uses the shared runtime with optional escaped form title/description, filtered CSS classes, Joomla module layouts and hide/generic-message availability policy. Core module title remains Joomla-owned.",
-    "evidence": "tests/joomla-module-presentation.php; tests/http-joomla.php; src/mod_nicode_easy_forms; docs/12_FRONTEND_SPEC.md"
+    "evidence": "tests/joomla-module-presentation.php; tests/http-joomla.php; src/mod_nicode_form_studio; docs/12_FRONTEND_SPEC.md"
   },
   "FRONT-004": {
     "status": "COMPLETE",
@@ -482,7 +482,7 @@
   "SEC-008": {
     "status": "COMPLETE",
     "implementation": "Repository and native installer value queries bind typed parameters. Dynamic identifiers are internally validated/quoted; filter operators and sorts map to fixed SQL fragments and limits are bounded integers. Source audit and injection-shaped persistence/search inputs reveal no direct request-to-SQL interpolation.",
-    "evidence": "src/lib_nicode_easy_forms/src/Infrastructure/Database/Connection.php; src/lib_nicode_easy_forms/src/Search/SqlSearchProvider.php; src/lib_nicode_easy_forms/src/Application/FormListing.php; tests/database.php; tests/joomla-runtime.php; docs/REQUIREMENT_ACCEPTANCE.md"
+    "evidence": "src/lib_nicode_form_studio/src/Infrastructure/Database/Connection.php; src/lib_nicode_form_studio/src/Search/SqlSearchProvider.php; src/lib_nicode_form_studio/src/Application/FormListing.php; tests/database.php; tests/joomla-runtime.php; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "SEC-009": {
     "status": "COMPLETE",
@@ -497,7 +497,7 @@
   "SEC-011": {
     "status": "COMPLETE",
     "implementation": "Exact HTTPS host allowlist, public-address policy including mixed/mapped DNS rejection, pinned resolve, TLS peer/host verification, disabled redirects/proxy/netrc and bounded request/response/timeouts verified at the transport boundary.",
-    "evidence": "src/lib_nicode_easy_forms/src/Http; tests/unit/http.php; tests/curl-transport.php"
+    "evidence": "src/lib_nicode_form_studio/src/Http; tests/unit/http.php; tests/curl-transport.php"
   },
   "SEC-012": {
     "status": "COMPLETE",
@@ -536,7 +536,7 @@
   },
   "PRIV-006": {
     "status": "COMPLETE",
-    "implementation": "Independent strict IP/User-Agent opt-ins default off; transport-only bounded capture after validation/CAPTCHA, omitted in no-storage mode and on replay. Canonical metadata stays outside indexes, Actions and exports; sensitive reveal requires ACL and audit, anonymization removes it. Native editor save/reload and safe text rendering verified. `Privacy/RequestMetadata.php; Infrastructure/Joomla/RequestAdapter.php; Application/SubmissionPipeline.php; Application/SubmissionReader.php; src/com_nicode_easy_forms/media/js/admin.js`",
+    "implementation": "Independent strict IP/User-Agent opt-ins default off; transport-only bounded capture after validation/CAPTCHA, omitted in no-storage mode and on replay. Canonical metadata stays outside indexes, Actions and exports; sensitive reveal requires ACL and audit, anonymization removes it. Native editor save/reload and safe text rendering verified. `Privacy/RequestMetadata.php; Infrastructure/Joomla/RequestAdapter.php; Application/SubmissionPipeline.php; Application/SubmissionReader.php; src/com_nicode_form_studio/media/js/admin.js`",
     "evidence": "tests/unit/request-metadata.php; tests/database-request-metadata.php and tests/database-pipeline.php on three engines; tests/http-admin-request-metadata.php; tests/artifacts/joomla-request-metadata-policy.png; tests/artifacts/joomla-request-metadata-revealed.png; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "PRIV-007": {
@@ -562,7 +562,7 @@
   "ADMIN-004": {
     "status": "COMPLETE",
     "implementation": "Visual nested conditions, typed operators, ordered effects and cross-field validator controls use registry metadata and compiler diagnostics; native authoring, publication and normalized runtime behavior verified.",
-    "evidence": "src/com_nicode_easy_forms/media/js/automation-editor.js; src/com_nicode_easy_forms/media/js/validator-editor.js; tests/http-admin-validators.php; tests/js/rules.test.mjs; tests/unit/runtime.php; docs/REQUIREMENT_ACCEPTANCE.md"
+    "evidence": "src/com_nicode_form_studio/media/js/automation-editor.js; src/com_nicode_form_studio/media/js/validator-editor.js; tests/http-admin-validators.php; tests/js/rules.test.mjs; tests/unit/runtime.php; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "ADMIN-005": {
     "status": "COMPLETE",
@@ -616,7 +616,7 @@
   },
   "OPS-005": {
     "status": "COMPLETE",
-    "implementation": "Separate metadata-only audit with actor/correlation, transactional form/privacy/permission/retry events, export completion, deletion-surviving history and native global configuration save integration; independent resumable retention and protected typed viewer verified. `Application/AuditLog.php; Application/FormAdministration.php; Infrastructure/Database/SubmissionMaintenance.php; Jobs/OperationalHistoryCleanupHandler.php; src/plg_extension_nicode_easy_forms`",
+    "implementation": "Separate metadata-only audit with actor/correlation, transactional form/privacy/permission/retry events, export completion, deletion-surviving history and native global configuration save integration; independent resumable retention and protected typed viewer verified. `Application/AuditLog.php; Application/FormAdministration.php; Infrastructure/Database/SubmissionMaintenance.php; Jobs/OperationalHistoryCleanupHandler.php; src/plg_extension_nicode_form_studio`",
     "evidence": "tests/database-audit-log.php; audit assertions in form-administration/privacy/export/action-retries/form-deletion on three engines; tests/joomla-acl.php; tests/joomla-config-audit.php; tests/joomla-scheduler.php; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "OPS-006": {
@@ -632,7 +632,7 @@
   "OPS-008": {
     "status": "COMPLETE",
     "implementation": "Stable 1.0.0 package generated under dist, deterministic source/member/nested-package integrity verified, all forty product steps passed against the exact ZIP, and native update/preserve/purge/clean-reinstall passed. User administration and build documentation delivered. Accessibility closed by explicit user acceptance, without claiming an executed screen-reader test.",
-    "evidence": "tests/build-package.php; tests/product-acceptance.php; tests/joomla-lifecycle.php; tests/joomla-purge.php; dist/pkg_nicode_easy_forms-1.0.0.zip.sha256; docs/REQUIREMENT_ACCEPTANCE.md"
+    "evidence": "tests/build-package.php; tests/product-acceptance.php; tests/joomla-lifecycle.php; tests/joomla-purge.php; dist/pkg_nicode_form_studio-1.0.0.zip.sha256; docs/REQUIREMENT_ACCEPTANCE.md"
   },
   "A11Y-001": {
     "status": "COMPLETE",

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="package" method="upgrade">
+  <name>pkg_nicode_form_studio</name>
+  <packagename>nicode_form_studio</packagename>
+  <version>1.0.4</version>
+  <author>Nicode</author>
+  <creationDate>2026-09</creationDate>
+  <license>GPL-2.0-or-later</license>
+  <description>Nicode Form Studio for Joomla — form builder, response management and automation.</description>
+  <blockChildUninstall>true</blockChildUninstall>
+  <scriptfile>script.php</scriptfile>
+  <files folder="packages">
+    <file type="library" id="nicode_form_studio">lib_nicode_form_studio.zip</file>
+    <file type="component" id="com_nicode_form_studio">com_nicode_form_studio.zip</file>
+    <file type="module" id="mod_nicode_form_studio" client="site">mod_nicode_form_studio.zip</file>
+    <file type="plugin" id="nicode_form_studio" group="task">plg_task_nicode_form_studio.zip</file>
+    <file type="plugin" id="nicode_form_studio" group="extension">plg_extension_nicode_form_studio.zip</file>
+  </files>
+</extension>

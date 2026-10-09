@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Domain\{Uuid, RepeatedInstances, FieldAddress, FormSpec};
-use Nicode\EasyForms\Rules\PresentationState;
+use Nicode\FormStudio\Domain\{Uuid, RepeatedInstances, FieldAddress, FormSpec};
+use Nicode\FormStudio\Rules\PresentationState;
 
 test('initial repeated rows meet nested minima and retain identity through presentation and validation', function (): void {
     [$outer,$inner,$optional,$field,$unused] = array_map(static fn()=>Uuid::create(),range(1,5));

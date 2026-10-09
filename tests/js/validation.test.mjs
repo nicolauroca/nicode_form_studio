@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {normalizeField, validateField, validateRelations, nativeConstraintInvalid} from '../../src/com_nicode_easy_forms/media/js/validation.js';
+import {normalizeField, validateField, validateRelations, nativeConstraintInvalid} from '../../src/com_nicode_form_studio/media/js/validation.js';
 
 test('special email syntax defers only HTML type mismatch to authoritative server validation', () => {
   const control = {disabled:false, checkValidity:()=>false, validity:{typeMismatch:true}};

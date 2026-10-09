@@ -1,6 +1,6 @@
 # Almacenamiento de respuestas
 
-En Configuración de Nicode EasyForms, «Almacenamiento predeterminado para
+En Configuración de Nicode Form Studio, «Almacenamiento predeterminado para
 formularios nuevos» establece la política inicial. Elija una de estas opciones:
 
 | Modo | Respuestas conservadas | Archivos después del procesamiento |
@@ -47,7 +47,7 @@ no regresa, la limpieza de intentos caducados elimina esa fila conforme a su
 versión histórica. Conserva acciones cuyo permiso temporal de ejecución sigue
 vigente; vuelve a examinarlas en una ejecución posterior.
 
-La tarea Nicode EasyForms del programador de Joomla debe ejecutarse regularmente
+La tarea Nicode Form Studio del programador de Joomla debe ejecutarse regularmente
 para que funcione la limpieza diferida. La limpieza de subidas abandonadas y los
 trabajos de eliminación de archivos también utilizan ese sistema. La caducidad
 no garantiza una eliminación a una hora exacta si la tarea está desactivada,

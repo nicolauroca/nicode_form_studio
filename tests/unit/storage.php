@@ -1,29 +1,29 @@
 <?php
 declare(strict_types=1);
 
-use Nicode\EasyForms\Storage\LocalStorage;
-use Nicode\EasyForms\Storage\UploadInspector;
-use Nicode\EasyForms\Storage\UploadPolicy;
-use Nicode\EasyForms\Storage\HttpUploadGateway;
+use Nicode\FormStudio\Storage\LocalStorage;
+use Nicode\FormStudio\Storage\UploadInspector;
+use Nicode\FormStudio\Storage\UploadPolicy;
+use Nicode\FormStudio\Storage\HttpUploadGateway;
 
 test('staged upload cleanup queues only its owned key and exposes an unavailable outbox', function (): void {
-    $storage = new class implements \Nicode\EasyForms\Contract\StorageProviderInterface {
+    $storage = new class implements \Nicode\FormStudio\Contract\StorageProviderInterface {
         public bool $available = false;
         public function id(): string { return 'fixture'; }
         public function version(): string { return '1.0.0'; }
         public function metadata(): array { return []; }
         public function validateConfiguration(array $configuration, string $path): array { return []; }
-        public function put($stream, int $maxBytes): \Nicode\EasyForms\Storage\StoredFile { throw new LogicException(); }
+        public function put($stream, int $maxBytes): \Nicode\FormStudio\Storage\StoredFile { throw new LogicException(); }
         public function open(string $key) { throw new LogicException(); }
         public function exists(string $key): bool { return true; }
         public function delete(string $key): void { if (!$this->available) { throw new RuntimeException('storage unavailable'); } }
     };
     $queued = []; $enqueue = static function (string $provider, string $key) use (&$queued): void { $queued[] = [$provider, $key]; };
-    same(false, \Nicode\EasyForms\Storage\UploadCleanup::discard($storage, 'opaque-owned-key', $enqueue));
+    same(false, \Nicode\FormStudio\Storage\UploadCleanup::discard($storage, 'opaque-owned-key', $enqueue));
     same([['fixture', 'opaque-owned-key']], $queued);
-    raises(RuntimeException::class, static fn () => \Nicode\EasyForms\Storage\UploadCleanup::discard($storage, 'opaque-owned-key', static fn () => throw new RuntimeException('outbox unavailable')));
+    raises(RuntimeException::class, static fn () => \Nicode\FormStudio\Storage\UploadCleanup::discard($storage, 'opaque-owned-key', static fn () => throw new RuntimeException('outbox unavailable')));
     $storage->available = true;
-    same(true, \Nicode\EasyForms\Storage\UploadCleanup::discard($storage, 'opaque-owned-key', $enqueue));
+    same(true, \Nicode\FormStudio\Storage\UploadCleanup::discard($storage, 'opaque-owned-key', $enqueue));
     same(1, count($queued));
 });
 

@@ -1,4 +1,4 @@
-# Nicode EasyForms — MASTER SPEC
+# Nicode Form Studio — MASTER SPEC
 > Documento agregado para consulta integral. Los documentos temáticos de `docs/` siguen siendo la fuente normativa por materia.
 
 
@@ -9,7 +9,7 @@
 # 00 — Product Vision
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -20,9 +20,9 @@
 
 ## 1. Producto
 
-**Nombre:** Nicode EasyForms.
+**Nombre:** Nicode Form Studio.
 
-Nicode EasyForms será un sistema integral de creación, publicación, procesamiento, consulta y administración de formularios para Joomla 6.
+Nicode Form Studio será un sistema integral de creación, publicación, procesamiento, consulta y administración de formularios para Joomla 6.
 
 No será una colección de formularios programados. Será un **motor declarativo de formularios**.
 
@@ -153,7 +153,7 @@ La extensión DEBE perseguir:
 # 01 — Arquitectura
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -164,13 +164,13 @@ La extensión DEBE perseguir:
 
 ## 1. Unidad de distribución
 
-Nicode EasyForms se distribuirá como un **Joomla Package**:
+Nicode Form Studio se distribuirá como un **Joomla Package**:
 
-`pkg_nicode_easy_forms`
+`pkg_nicode_form_studio`
 
 Constituyentes iniciales:
 
-### `com_nicode_easy_forms`
+### `com_nicode_form_studio`
 
 Componente principal.
 
@@ -188,7 +188,7 @@ Responsabilidades:
 - reporting operativo;
 - import/export.
 
-### `mod_nicode_easy_forms`
+### `mod_nicode_form_studio`
 
 Módulo de Site.
 
@@ -200,7 +200,7 @@ Responsabilidad principal:
 
 El módulo NO DEBE duplicar reglas, validación o procesamiento.
 
-### `lib_nicode_easy_forms`
+### `lib_nicode_form_studio`
 
 Librería compartida.
 
@@ -384,7 +384,7 @@ El core deberá conocer interfaces, no todas las implementaciones futuras.
 # 02 — Modelo de dominio
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -662,7 +662,7 @@ No habrá borrado destructivo silencioso.
 
 # 03 — FormSpec
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -672,7 +672,7 @@ No habrá borrado destructivo silencioso.
 
 ## 1. Propósito
 
-`Nicode EasyForms FormSpec` será el contrato lógico, portable y versionado que describe un formulario ejecutable.
+`Nicode Form Studio FormSpec` será el contrato lógico, portable y versionado que describe un formulario ejecutable.
 
 No será un volcado de tablas SQL.
 
@@ -695,13 +695,13 @@ mutables durante el runtime. Su política de compatibilidad se define en SPEC-18
 
 Se distinguirán siempre:
 
-1. versión de Nicode EasyForms;
+1. versión de Nicode Form Studio;
 2. versión del schema FormSpec;
 3. revisión/version del formulario.
 
 Ejemplo:
 
-- EasyForms `1.4.0`;
+- FormStudio `1.4.0`;
 - FormSpec schema `1.1`;
 - Form revision `27`.
 
@@ -868,7 +868,7 @@ identificadores únicos en cada formulario y caben en la columna de 255 caracter
 # 04 — Field Type Registry
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -1106,7 +1106,7 @@ campo dentro del constructor; nunca sustituye la pública ni se envía al runtim
 Descripción y ayuda se muestran juntas, escapadas y asociadas al control.
 Los campos textuales admiten autocomplete/inputmode y trim explícito (excepto
 password, que conserva sus espacios). Las clases personalizadas son hasta ocho
-tokens `nef-custom-...`, con sufijo ASCII de 1–48 caracteres; no aceptan CSS libre
+tokens `nfs-custom-...`, con sufijo ASCII de 1–48 caracteres; no aceptan CSS libre
 ni nombres que sustituyan clases reservadas del layout o del framework.
 
 El campo `range` aplica mínimo 0, máximo 100 y paso 1 cuando se omiten o son
@@ -1146,7 +1146,7 @@ el valor, con validación posterior. La entrada original no se modifica.
 # 05 — Layout y estructura
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -1410,7 +1410,7 @@ usando submit para el fallback HTML.
 # 06 — Validación y normalización
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -1435,9 +1435,9 @@ raw input
 → accepted canonical value.
 
 El envío mejorado agrupa los valores escalares y selecciones en una parte JSON
-`nef_values` del multipart para evitar truncamientos por `max_input_vars`.
+`nfs_values` del multipart para evitar truncamientos por `max_input_vars`.
 Archivos, CSRF, CAPTCHA e identidad mantienen sus partes originales. El servidor
-admite también `nef` tradicional para formularios sin JavaScript, pero rechaza
+admite también `nfs` tradicional para formularios sin JavaScript, pero rechaza
 mezclar ambos mapas. El mapa JSON debe ser un objeto UTF-8 válido de hasta 2 MiB;
 este presupuesto protege el parser, no impone un número comercial de campos.
 Los valores siguen sin ser confiables y recorren la misma validación autoritativa.
@@ -1640,7 +1640,7 @@ Referencias: [filtros PHP](https://www.php.net/manual/en/filter.constants.php) y
 # 07 — Rule Engine
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -1820,7 +1820,7 @@ un resultado inválido o no convergente deja indisponible esa instancia.
 # 08 — Options y Data Sources
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -1898,8 +1898,8 @@ Un FormSpec publicado debe apuntar a una versión determinada o incorporar snaps
 
 Cada guardado de un Option Set crea una revisión inmutable con hash canónico y
 control optimista de concurrencia. Sus opciones actuales son una proyección de
-esa revisión. Los administradores con `easyforms.resources.manage` pueden
-modificar recursos; quienes solo tengan `easyforms.forms.manage` pueden
+esa revisión. Los administradores con `formstudio.resources.manage` pueden
+modificar recursos; quienes solo tengan `formstudio.forms.manage` pueden
 consultarlos para componer formularios. Ambos requieren `core.manage`.
 Las condiciones reutilizables usan nombres de parámetros; al aplicar una revisión
 a un campo se enlazan explícitamente con UUIDs del formulario y se incorpora el
@@ -2059,7 +2059,7 @@ ni las comprobaciones autorizadas que realiza el servidor.
 # 09 — Submission Engine
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -2224,7 +2224,7 @@ para clasificarlos conservan el rechazo de sesión y no persisten datos.
 # 10 — Action Engine
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -2460,7 +2460,7 @@ Debe contemplar:
 - logging sin secretos.
 
 Las cabeceras personalizadas `X-*` tienen nombres únicos sin distinguir
-mayúsculas. `X-EasyForms-Signature` y `X-EasyForms-Timestamp` están reservadas al
+mayúsculas. `X-FormStudio-Signature` y `X-FormStudio-Timestamp` están reservadas al
 firmado del runtime, incluso cuando una acción no configura firma. El compilador
 y la validación previa a ejecutar rechazan esas colisiones. El transporte HTTP
 también rechaza nombres duplicados sin distinguir mayúsculas antes de resolver
@@ -2521,7 +2521,7 @@ mide por bytes y el contenido escapado de JSON también consume presupuesto.
 
 # 11 — Administrator UX
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -2531,7 +2531,7 @@ mide por bytes y el contenido escapado de JSON también consume presupuesto.
 
 ## 1. Menú principal
 
-`Nicode EasyForms`
+`Nicode Form Studio`
 
 - Panel de control
 - Formularios
@@ -2614,7 +2614,7 @@ Columnas mínimas:
 
 El recuento de campos corresponde al borrador guardado. El recuento de respuestas
 cuenta filas persistidas, sin duplicar reintentos idempotentes, y se oculta si el
-actor no tiene `easyforms.submissions.view` en ese formulario. Ambos se agregan
+actor no tiene `formstudio.submissions.view` en ese formulario. Ambos se agregan
 solo para los formularios autorizados de la página visible mediante índices por
 `form_id`; no se leen payloads de respuestas para construir el listado.
 
@@ -2835,7 +2835,7 @@ Subsecciones:
 - Email Templates;
 - Form Templates.
 
-Email Templates permite editar textos e idioma, declarar tokens de campos por nombre y aplicar una revisión concreta con vínculos explícitos a campos. Form Templates captura una definición portable desde un borrador guardado y crea formularios independientes mediante la misma revisión previa y remapeo de identidades que la importación. Editar o aplicar recursos respeta respectivamente `easyforms.resources.manage` y los permisos del formulario. Una plantilla no contiene respuestas, historial de envíos ni credenciales, ni publica automáticamente el nuevo formulario.
+Email Templates permite editar textos e idioma, declarar tokens de campos por nombre y aplicar una revisión concreta con vínculos explícitos a campos. Form Templates captura una definición portable desde un borrador guardado y crea formularios independientes mediante la misma revisión previa y remapeo de identidades que la importación. Editar o aplicar recursos respeta respectivamente `formstudio.resources.manage` y los permisos del formulario. Una plantilla no contiene respuestas, historial de envíos ni credenciales, ni publica automáticamente el nuevo formulario.
 
 ## 13. Registros
 
@@ -2866,7 +2866,7 @@ Secciones:
 
 Mostrar:
 
-- EasyForms package/component/module/library version;
+- FormStudio package/component/module/library version;
 - DB schema version;
 - supported FormSpec versions;
 - Joomla version;
@@ -2920,7 +2920,7 @@ fallos; el botón de envío permanece desactivado.
 
 # 12 — Frontend
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -2932,7 +2932,7 @@ fallos; el botón de envío permanece desactivado.
 
 El componente expondrá un Menu Item Type:
 
-`Nicode EasyForms → Formulario`
+`Nicode Form Studio → Formulario`
 
 Parámetro principal:
 
@@ -2941,7 +2941,7 @@ Parámetro principal:
 El Item de menú almacena el identificador del formulario, no una copia de sus campos.
 
 El selector nativo es compartido por menú y módulo. Muestra formularios publicados
-dentro del permiso administrativo `easyforms.forms.manage`; no expone títulos de
+dentro del permiso administrativo `formstudio.forms.manage`; no expone títulos de
 formularios fuera de ese ámbito. Conserva un ID previamente elegido aunque deje
 de estar disponible y lo indica sin revelar su título. No impone un máximo de
 formularios; recorre las páginas del servicio autorizado. La comprobación de
@@ -2950,7 +2950,7 @@ obligatoria en el runtime, independientemente de las opciones del selector.
 
 ## 2. Publicación como módulo
 
-`mod_nicode_easy_forms`
+`mod_nicode_form_studio`
 
 Parámetro principal:
 
@@ -3027,7 +3027,7 @@ Dependencias declaradas en `joomla.asset.json`.
 
 Por defecto se hereda el template Joomla.
 
-EasyForms aporta estilos mínimos estructurales.
+FormStudio aporta estilos mínimos estructurales.
 
 Opciones:
 
@@ -3089,7 +3089,7 @@ El componente solo activa CSS y JavaScript del runtime cuando obtiene HTML de un
 formulario. Un fallo de renderizado con respuesta 503 y correlación no activa esos
 assets por sí solo. Los módulos sanos de la misma página pueden necesitarlos y
 Joomla Web Asset Manager los incluye una sola vez. Las páginas ajenas sin instancias
-EasyForms no cargan sus assets; los assets administrativos no se activan en frontend.
+FormStudio no cargan sus assets; los assets administrativos no se activan en frontend.
 
 
 ---
@@ -3099,7 +3099,7 @@ EasyForms no cargan sus assets; los assets administrativos no se activan en fron
 # 13 — Seguridad
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -3241,13 +3241,13 @@ Las exportaciones respetan ACL y datos sensibles.
 
 ## 12. CAPTCHA
 
-EasyForms NO implementará un algoritmo CAPTCHA propio.
+FormStudio NO implementará un algoritmo CAPTCHA propio.
 
 Se integrará con el sistema/provider de CAPTCHA Joomla según `25_JOOMLA_CAPTCHA_ANTISPAM_SPEC.md`.
 
 ## 13. Rate limiting
 
-Si Joomla no ofrece un mecanismo genérico aplicable al caso, EasyForms podrá implementar un limiter propio como control anti-abuso, desacoplado mediante servicio/provider. No debe confundirse con CAPTCHA.
+Si Joomla no ofrece un mecanismo genérico aplicable al caso, FormStudio podrá implementar un limiter propio como control anti-abuso, desacoplado mediante servicio/provider. No debe confundirse con CAPTCHA.
 
 ## 14. Logs
 
@@ -3261,7 +3261,7 @@ No registrar por defecto:
 
 ## 15. Security headers
 
-EasyForms no debe romper CSP u otras políticas del sitio mediante inline JS innecesario. Assets y scripts deben diseñarse para integrarse con la política del sitio.
+FormStudio no debe romper CSP u otras políticas del sitio mediante inline JS innecesario. Assets y scripts deben diseñarse para integrarse con la política del sitio.
 
 ### Ventanas y caducidad del limiter
 
@@ -3286,7 +3286,7 @@ caducado se invalida como resultado desconocido antes de borrar los datos, para
 que un proceso interrumpido no bloquee indefinidamente la retención. Un worker
 tardío no puede confirmar ese intento ni sobrescribir el estado anonimizado.
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -3326,7 +3326,7 @@ El payload canónico 1.0 admite el objeto opcional `request_metadata` con `ip`
 y/o `user_agent`. Su ausencia mantiene la representación anterior. Estos datos
 no forman parte de valores de campos, índices, contexto de reglas, plantillas
 de Actions ni exportaciones. La consulta ordinaria solo indica su existencia;
-la revelación explícita exige `easyforms.submissions.view_sensitive` y registra
+la revelación explícita exige `formstudio.submissions.view_sensitive` y registra
 el evento `submission.reveal_sensitive`, sin incluir los datos en el log.
 Su metadata contiene `fields` (número de campos sensibles revelados, excluyendo
 los públicos) y `request_metadata_items` (número de datos técnicos revelados).
@@ -3439,7 +3439,7 @@ dura una hora; su consumo y la asociación a la respuesta son atómicos. Un job
 retira reservas caducadas y mantiene la obligación de limpieza física en el
 outbox. El borrado del formulario y la purga incluyen estas reservas. No se borra
 un archivo basándose únicamente en que su nombre o ruta parezca pertenecer a
-EasyForms. El panel distingue reservas abandonadas de archivos ya asociados.
+FormStudio. El panel distingue reservas abandonadas de archivos ya asociados.
 
 
 ---
@@ -3449,7 +3449,7 @@ EasyForms. El panel distingue reservas abandonadas de archivos ya asociados.
 # 15 — ACL
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -3460,7 +3460,7 @@ EasyForms. El panel distingue reservas abandonadas de archivos ya asociados.
 
 ## 1. Base
 
-EasyForms utilizará ACL Joomla.
+FormStudio utilizará ACL Joomla.
 
 Permisos de componente iniciales:
 
@@ -3474,20 +3474,20 @@ Permisos de componente iniciales:
 
 Permisos específicos propuestos:
 
-- `easyforms.forms.manage`;
-- `easyforms.forms.publish`;
-- `easyforms.submissions.view`;
-- `easyforms.submissions.manage`;
-- `easyforms.submissions.export`;
-- `easyforms.submissions.delete`;
-- `easyforms.submissions.view_sensitive`;
-- `easyforms.resources.manage`;
-- `easyforms.logs.view`;
-- `easyforms.jobs.manage`.
+- `formstudio.forms.manage`;
+- `formstudio.forms.publish`;
+- `formstudio.submissions.view`;
+- `formstudio.submissions.manage`;
+- `formstudio.submissions.export`;
+- `formstudio.submissions.delete`;
+- `formstudio.submissions.view_sensitive`;
+- `formstudio.resources.manage`;
+- `formstudio.logs.view`;
+- `formstudio.jobs.manage`.
 
 Los nombres anteriores se fijan como identificadores definitivos. Se añaden
-`easyforms.submissions.anonymize`, `easyforms.submissions.reindex` y
-`easyforms.submissions.retry` para separar operaciones privilegiadas.
+`formstudio.submissions.anonymize`, `formstudio.submissions.reindex` y
+`formstudio.submissions.retry` para separar operaciones privilegiadas.
 `Security/Permissions.php` enumera el contrato y `tools/acl.php` genera `access.xml`.
 Un Form sin asset hijo válido no concede permisos administrativos por fallback.
 
@@ -3519,8 +3519,8 @@ Comprobar en:
 Cada Controller comprueba autorización.
 
 Los servicios de administración de Forms exigen `core.manage` en el componente y
-`easyforms.forms.manage` sobre el Form, además de la capacidad concreta:
-`core.edit` para borradores e histórico; `easyforms.forms.publish` y
+`formstudio.forms.manage` sobre el Form, además de la capacidad concreta:
+`core.edit` para borradores e histórico; `formstudio.forms.publish` y
 `core.edit.state` para publicación/desactivación; `core.delete` adicional para
 enviar a papelera. Crear exige las capacidades de gestión y `core.create` en
 el componente. La creación del asset y el guardado se confirman en la misma
@@ -3531,17 +3531,17 @@ La View puede ocultar acciones no permitidas, pero eso es UX, no seguridad.
 Modificar reglas ACL por Form exige además `core.admin` en el componente. La
 operación modifica permisos de un grupo Joomla existente, conserva las reglas
 de los demás grupos, consume la revisión optimista del Form y comprueba una huella
-de las reglas del asset. Una modificación concurrente realizada fuera de EasyForms
+de las reglas del asset. Una modificación concurrente realizada fuera de FormStudio
 también debe provocar conflicto, aunque no haya cambiado la revisión del Form.
 El estado heredado se calcula mediante ACL Joomla; no se simula en JavaScript.
 
 
 
-Consultar respuestas exige core.manage en el componente y easyforms.submissions.view
+Consultar respuestas exige core.manage en el componente y formstudio.submissions.view
 en cada Form; no exige gestión ni edición de Forms. El scope de búsqueda se
 construye exclusivamente con assets y ACL del servidor. Añadir notas o cambiar
-estado exige además easyforms.submissions.manage. El historial de auditoría
-requiere easyforms.logs.view. Mostrar valores sensibles y descargar archivos
+estado exige además formstudio.submissions.manage. El historial de auditoría
+requiere formstudio.logs.view. Mostrar valores sensibles y descargar archivos
 sensibles comprueba view_sensitive sobre el Form; la revelación es explícita,
 mediante POST con CSRF y auditoría, y no se activa mediante parámetros GET.
 
@@ -3589,7 +3589,7 @@ acción y job. Es independiente de `audit_log` y no contiene texto libre ni PII.
 Sus índices cubren fecha, correlación y nivel; el visor usa paginación por ID.
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -3614,7 +3614,7 @@ No se creará una tabla por formulario ni una columna por campo.
 
 ## 2. Tablas conceptuales
 
-### `#__nicode_easyforms_forms`
+### `#__nicode_form_studio_forms`
 
 Cabecera del Form.
 
@@ -3643,7 +3643,7 @@ Campos conceptuales:
 - published_version;
 - modified.
 
-### `#__nicode_easyforms_elements`
+### `#__nicode_form_studio_elements`
 
 Árbol de Authoring.
 
@@ -3656,7 +3656,7 @@ Campos conceptuales:
 - properties;
 - state.
 
-### `#__nicode_easyforms_fields`
+### `#__nicode_form_studio_fields`
 
 Propiedades específicas del field.
 
@@ -3673,42 +3673,42 @@ Unique:
 
 `form_id + machine_name`.
 
-### `#__nicode_easyforms_field_options`
+### `#__nicode_form_studio_field_options`
 
 Opciones locales.
 
-### `#__nicode_easyforms_rules`
+### `#__nicode_form_studio_rules`
 
 Rules.
 
-### `#__nicode_easyforms_rule_conditions`
+### `#__nicode_form_studio_rule_conditions`
 
 Árbol/estructura normalizada de conditions o definición estructurada.
 
-### `#__nicode_easyforms_rule_effects`
+### `#__nicode_form_studio_rule_effects`
 
 Effects.
 
-### `#__nicode_easyforms_actions`
+### `#__nicode_form_studio_actions`
 
 Actions y configuración.
 
-### `#__nicode_easyforms_option_sets`
-### `#__nicode_easyforms_option_set_versions`
-### `#__nicode_easyforms_option_set_items`
+### `#__nicode_form_studio_option_sets`
+### `#__nicode_form_studio_option_set_versions`
+### `#__nicode_form_studio_option_set_items`
 
 Se separará la identidad del recurso de sus revisiones cuando sea necesario para histórico.
 
-### `#__nicode_easyforms_data_sources`
+### `#__nicode_form_studio_data_sources`
 
 Configuración sin secretos en claro.
 
-### `#__nicode_easyforms_email_templates`
-### `#__nicode_easyforms_form_templates`
+### `#__nicode_form_studio_email_templates`
+### `#__nicode_form_studio_form_templates`
 
 Recursos reutilizables.
 
-### `#__nicode_easyforms_form_versions`
+### `#__nicode_form_studio_form_versions`
 
 - ID;
 - form_id;
@@ -3724,7 +3724,7 @@ Unique:
 
 `form_id + revision`.
 
-### `#__nicode_easyforms_submissions`
+### `#__nicode_form_studio_submissions`
 
 Cabecera de alto volumen.
 
@@ -3756,7 +3756,7 @@ Campos conceptuales:
 - `(user_id, received_at, id)` si se utiliza;
 - `(action_status, received_at, id)` si la consulta operativa lo justifica.
 
-### `#__nicode_easyforms_submission_index`
+### `#__nicode_form_studio_submission_index`
 
 Proyección tipada SOLO de campos configurados/indexables.
 
@@ -3783,7 +3783,7 @@ No todos los motores requieren exactamente las mismas columnas; el diseño defin
 
 `form_id + field identity + typed value + submission_id`.
 
-### `#__nicode_easyforms_submission_files`
+### `#__nicode_form_studio_submission_files`
 
 - submission;
 - field;
@@ -3796,7 +3796,7 @@ No todos los motores requieren exactamente las mismas columnas; el diseño defin
 - metadata;
 - timestamps.
 
-### `#__nicode_easyforms_action_runs`
+### `#__nicode_form_studio_action_runs`
 
 - submission_id;
 - action_uuid/type;
@@ -3812,15 +3812,15 @@ No todos los motores requieren exactamente las mismas columnas; el diseño defin
 - `(submission_id, action_uuid)`;
 - `(state, created_at)` para fallos/jobs.
 
-### `#__nicode_easyforms_audit_log`
+### `#__nicode_form_studio_audit_log`
 
 Eventos administrativos.
 
-### `#__nicode_easyforms_jobs`
+### `#__nicode_form_studio_jobs`
 
 Para exportaciones, reindexados, retención, acciones masivas y procesos que no deban vivir en una petición web.
 
-### `#__nicode_easyforms_job_items` (opcional)
+### `#__nicode_form_studio_job_items` (opcional)
 
 Solo si el Job subsystem necesita granularidad.
 
@@ -3933,7 +3933,7 @@ comprueba sus claves únicas e índices antes de retirar solo esos juegos de pru
 # 17 — Instalación, actualización y desinstalación
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -3946,15 +3946,15 @@ comprueba sus claves únicas e índices antes de retirar solo esos juegos de pru
 
 Artefacto distribuible:
 
-`pkg_nicode_easy_forms.zip`
+`pkg_nicode_form_studio.zip`
 
 Constituyentes iniciales:
 
-- `com_nicode_easy_forms`;
-- `mod_nicode_easy_forms`;
-- `lib_nicode_easy_forms`.
-- `plg_task_nicode_easy_forms`, para el ejecutor de jobs nativo.
-- `plg_extension_nicode_easy_forms`, para auditar guardados de configuración
+- `com_nicode_form_studio`;
+- `mod_nicode_form_studio`;
+- `lib_nicode_form_studio`.
+- `plg_task_nicode_form_studio`, para el ejecutor de jobs nativo.
+- `plg_extension_nicode_form_studio`, para auditar guardados de configuración
   nativa; habilitado al instalar y con estado respetado en actualizaciones.
 
 Las dependencias internas deberán quedar declaradas.
@@ -4032,7 +4032,7 @@ Eliminar:
 
 - schema;
 - cache;
-- archivos propiedad inequívoca de EasyForms según política;
+- archivos propiedad inequívoca de FormStudio según política;
 - temporales.
 
 ### Preserve data
@@ -4095,7 +4095,7 @@ de confirmación incluye la cantidad de subidas pendientes de asociación/limpie
 
 # 18 — Extension Points
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -4105,7 +4105,7 @@ de confirmación incluye la cantidad de subidas pendientes de asociación/limpie
 
 ## 1. Objetivo
 
-Extender EasyForms sin modificar core.
+Extender FormStudio sin modificar core.
 
 ## 2. Registries
 
@@ -4164,7 +4164,7 @@ Eventos conceptuales:
 
 Los nombres y tipos finales deben ajustarse al sistema de eventos Joomla actual.
 
-Los eventos nativos se llaman `onEasyForms` seguido del nombre conceptual y
+Los eventos nativos se llaman `onFormStudio` seguido del nombre conceptual y
 reciben un `LifecycleEvent` tipado. `phase` y `context` son de solo lectura.
 El contexto expone identificadores, versión, canal, idioma y resultado técnico;
 no expone respuestas, credenciales, tokens de sesión ni rutas privadas. Los
@@ -4189,8 +4189,8 @@ Cuando una capacidad encaje naturalmente en el ecosistema Joomla, se preferirá 
 
 CAPTCHA es caso obligatorio de esta estrategia.
 
-El grupo de plugins `easyforms` registra providers mediante
-`onEasyFormsRegisterProviders(ProviderRegistrationEvent $event)`.
+El grupo de plugins `formstudio` registra providers mediante
+`onFormStudioRegisterProviders(ProviderRegistrationEvent $event)`.
 El evento expone `kind` y `registry` como propiedades tipadas de solo lectura;
 el registro admite altas durante el evento y queda cerrado al terminar.
 Los tipos son `fields`, `validators`, `operators`, `effects`, `sources`,
@@ -4264,7 +4264,7 @@ Ver ADR 0013 para transacciones, recuperación y contrato de limpieza.
 # 19 — Internacionalización
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -4354,7 +4354,7 @@ El runtime deriva una proyección de presentación sin sustituir la identidad cr
 # 20 — Accesibilidad
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -4435,7 +4435,7 @@ ni toma el foco cuando la actualización empezó fuera del formulario.
 
 ## 7. CAPTCHA
 
-La accesibilidad dependerá del provider Joomla seleccionado; EasyForms debe renderizarlo correctamente y no degradar su soporte.
+La accesibilidad dependerá del provider Joomla seleccionado; FormStudio debe renderizarlo correctamente y no degradar su soporte.
 
 ## 8. Builder Administrator
 
@@ -4443,7 +4443,7 @@ El Builder deberá ofrecer alternativa suficiente a drag & drop mediante control
 
 ## 9. Contraste y CSS
 
-EasyForms no fijará colores que impidan al template cumplir contraste.
+FormStudio no fijará colores que impidan al template cumplir contraste.
 
 ## 10. Testing
 
@@ -4462,7 +4462,7 @@ no se declara ejecutada esa comprobación ni una certificación WCAG.
 # 21 — Testing
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -4592,7 +4592,7 @@ Se ampliará cuando se definan SLOs.
 # 22 — Release y Definition of Done
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -4687,7 +4687,7 @@ esta prueba no habilita una release mientras queden gates de producto abiertos.
 # 23 — Submissions, búsqueda y escala
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -4698,7 +4698,7 @@ esta prueba no habilita una release mientras queden gates de producto abiertos.
 
 ## 1. Requisito principal
 
-EasyForms debe seguir siendo operable cuando existan:
+FormStudio debe seguir siendo operable cuando existan:
 
 - cientos de Forms;
 - millones de Submissions;
@@ -5049,7 +5049,7 @@ Los cursores SQL previos conservan su propia validación de consulta y permisos.
 # 24 — Post-submit, mensajes y experiencia posterior
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -5307,7 +5307,7 @@ El constructor permite crear condiciones tipadas, mensajes y un orden explícito
 # 25 — Integración Joomla CAPTCHA y anti-spam
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -5318,7 +5318,7 @@ El constructor permite crear condiciones tipadas, mensajes y un orden explícito
 
 ## 1. Decisión
 
-Nicode EasyForms **NO implementará un CAPTCHA propio**.
+Nicode Form Studio **NO implementará un CAPTCHA propio**.
 
 Utilizará la infraestructura CAPTCHA de Joomla y los proveedores/plugins CAPTCHA instalados y habilitados.
 
@@ -5339,7 +5339,7 @@ La integración debe poder:
 - renderizar mediante la API/Field de CAPTCHA actual;
 - validar mediante el provider Joomla actual.
 
-## 3. Configuración global EasyForms
+## 3. Configuración global FormStudio
 
 `Default CAPTCHA policy`:
 
@@ -5350,7 +5350,7 @@ La integración debe poder:
 
 ## 4. Configuración por Form
 
-- inherit EasyForms default;
+- inherit FormStudio default;
 - Joomla default;
 - specific installed provider;
 - none si permitido.
@@ -5395,7 +5395,7 @@ El orden definitivo deberá evitar tanto bypass como trabajo innecesario.
 
 ## 9. Joomla y proveedores
 
-EasyForms no debe asumir reCAPTCHA, hCaptcha, Turnstile u otra marca.
+FormStudio no debe asumir reCAPTCHA, hCaptcha, Turnstile u otra marca.
 
 El provider lo decide el sitio Joomla.
 
@@ -5408,7 +5408,7 @@ CAPTCHA no reemplaza:
 - duplicate protection;
 - input validation.
 
-EasyForms podrá ofrecer controles complementarios como:
+FormStudio podrá ofrecer controles complementarios como:
 
 - timing;
 - honeypot si se decide;
@@ -5420,7 +5420,7 @@ pero, cuando Joomla ofrezca una capacidad equivalente reutilizable, se preferir�
 
 ## 11. Honeypot
 
-Si se incorpora un honeypot EasyForms, debe considerarse una heurística anti-spam, no un CAPTCHA.
+Si se incorpora un honeypot FormStudio, debe considerarse una heurística anti-spam, no un CAPTCHA.
 
 También podría suministrarse por un provider CAPTCHA Joomla, por lo que no debe ser requisito obligatorio duplicarlo.
 
@@ -5442,7 +5442,7 @@ No almacenar challenge tokens/secret responses salvo requisito técnico temporal
 
 ## 15. Actualización futura
 
-Joomla ha evolucionado su API CAPTCHA; EasyForms debe usar la API moderna disponible en Joomla 6 y encapsularla en un `CaptchaAdapter` interno para reducir acoplamiento.
+Joomla ha evolucionado su API CAPTCHA; FormStudio debe usar la API moderna disponible en Joomla 6 y encapsularla en un `CaptchaAdapter` interno para reducir acoplamiento.
 
 
 ---
@@ -5451,7 +5451,7 @@ Joomla ha evolucionado su API CAPTCHA; EasyForms debe usar la API moderna dispon
 
 # 26 — Import, export y versionado
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -5508,7 +5508,7 @@ Pipeline:
 
 Nunca publicar automáticamente un Form importado sin validación/decisión explícita.
 
-El sobre JSON de intercambio usa `nicode.easyforms.definition`, versión `1.0`,
+El sobre JSON de intercambio usa `nicode.formstudio.definition`, versión `1.0`,
 con hash SHA-256 de la definición canónica y un máximo de 2 MiB. Versiones de
 esquema desconocidas se rechazan; no se interpreta código ni SQL. Los providers
 propios pueden declarar `PortableProviderInterface`; las credenciales se eliminan
@@ -5619,7 +5619,7 @@ encola mediante los jobs de limpieza existentes. Los filtros usan versión fijad
 cursor estable y límite superior de respuestas; no se envían millones de IDs desde
 el navegador. Se revalidan permisos del creador en cada lote.
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -5677,7 +5677,7 @@ Eventos:
 
 Separado del technical log.
 
-El visor global requiere `core.manage` y `easyforms.logs.view` sobre el componente.
+El visor global requiere `core.manage` y `formstudio.logs.view` sobre el componente.
 Muestra eventos, actor, fecha y referencias estables, sin consultar respuestas ni
 exponer metadatos de texto libre. Filtra por formulario, actor, tipo de evento,
 UUID de respuesta, correlación y días UTC inclusivos. Usa páginas de 100 registros
@@ -5740,8 +5740,8 @@ La implementación podrá apoyarse en mecanismos Joomla apropiados como CLI/plug
 
 No se dependerá de que el usuario mantenga una pestaña abierta para operaciones masivas.
 
-El package incluye `plg_task_nicode_easy_forms`, una rutina del programador nativo
-con identificador `nicode.easyforms.jobs`. El administrador del sitio activa el
+El package incluye `plg_task_nicode_form_studio`, una rutina del programador nativo
+con identificador `nicode.formstudio.jobs`. El administrador del sitio activa el
 plugin y configura la tarea; el instalador no crea una planificación oculta.
 La tarea permite 1–50 lotes de 1–500 registros por ejecución y deja de iniciar
 lotes nuevos tras 20 segundos. Cada lote conserva su lease y checkpoint. La
@@ -5750,7 +5750,7 @@ la planificación normal de Joomla. Los handlers revalidan los permisos del auto
 original; el ejecutor no sustituye esa identidad por la de un superusuario.
 
 El administrador ofrece listado de trabajos propios, listado global con
-`easyforms.jobs.manage`, cancelación y descarga privada de CSV completados durante
+`formstudio.jobs.manage`, cancelación y descarga privada de CSV completados durante
 24 horas. No expone parámetros, tokens de lease ni rutas de almacenamiento.
 Las peticiones públicas solo pueden encolar exportación, reindexado y operaciones
 masivas permitidas; los trabajos de borrado físico son internos.
@@ -5777,7 +5777,7 @@ Jobs resumibles deben evitar reprocesar destructivamente el mismo bloque.
 
 ## 8. Diagnóstico
 
-El diagnóstico nativo requiere `core.manage` y `easyforms.logs.view` sobre el
+El diagnóstico nativo requiere `core.manage` y `formstudio.logs.view` sobre el
 componente. Sus sondas son de solo lectura y muestran códigos seguros, nunca
 rutas privadas, credenciales ni mensajes de excepción. Los recuentos de backlog
 son muestras limitadas a 100 registros y se identifican como `100+` si hay más.
@@ -5930,7 +5930,7 @@ ocupados se recuperan en una ejecución posterior. El checkpoint y las eliminaci
 comparten la transacción del worker. No elimina intentos de idempotencia activos.
 
 
-El plugin nativo plg_extension_nicode_easy_forms audita cada guardado confirmado
+El plugin nativo plg_extension_nicode_form_studio audita cada guardado confirmado
 de configuración global como `config.security_saved`, incluidos permisos.
 No almacena parámetros ni valores. Se habilita en su primera instalación y
 Health avisa si está desactivado. Véase ADR 0017.
@@ -5943,7 +5943,7 @@ comprobaciones conocidas, recuentos acotados y las directivas PHP ya permitidas.
 No serializa la configuración ni los detalles libres de providers: excluye rutas,
 direcciones, credenciales, excepciones, filas SQL y contenido de respuestas.
 No se transmite automáticamente ni añade un endpoint público. Conserva los
-permisos core.manage y easyforms.logs.view exigidos por SystemHealth. La proyección
+permisos core.manage y formstudio.logs.view exigidos por SystemHealth. La proyección
 se realiza mediante una lista explícita, independiente de futuras ampliaciones
 del reporte interno. Valores malformados se representan como no disponibles.
 
@@ -5970,7 +5970,7 @@ de cada motor también en el instante exacto del corte.
 # 28 — Decisiones y no-objetivos
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -6048,7 +6048,7 @@ Estas capacidades podrán integrarse mediante providers o Actions cuando tenga s
 # 29 — Requirements Traceability
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -6243,7 +6243,7 @@ Estas capacidades podrán integrarse mediante providers o Actions cuando tenga s
 # 99 — Referencias técnicas
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -6290,7 +6290,7 @@ La documentación actual indica que el Form Field CAPTCHA accede a un plugin CAP
 ### Requisitos técnicos Joomla 6.x
 - https://manual.joomla.org/docs/next/get-started/technical-requirements/
 
-En la revisión de 2026-09-26 la documentación de Joomla 6.x enumera PHP 8.3 como versión soportada mínima y MySQL, MariaDB y PostgreSQL entre las bases de datos soportadas. La matriz exacta de Nicode EasyForms se fijará independientemente y se probará.
+En la revisión de 2026-09-26 la documentación de Joomla 6.x enumera PHP 8.3 como versión soportada mínima y MySQL, MariaDB y PostgreSQL entre las bases de datos soportadas. La matriz exacta de Nicode Form Studio se fijará independientemente y se probará.
 
 ### Cambios/deprecations CAPTCHA
 - https://manual.joomla.org/updates/53-54/changed-deprecations/

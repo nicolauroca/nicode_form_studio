@@ -20,26 +20,26 @@ foreach (['integer', 'decimal', 'number', 'currency'] as $index => $type) {
 }
 $sliderRevision = $api('save', ['id' => $sliderForm['id'], 'revision' => $sliderRevision, 'draft' => $sliderDraft])['revision'];
 $api('publish', ['id' => $sliderForm['id'], 'revision' => $sliderRevision]);
-$sliderPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_easy_forms&view=form&id=' . $sliderForm['id']);
-$sliderXpath = $dom($sliderPage['body']); $sliderNode = $sliderXpath->query('//form[@data-nef-form]')->item(0);
+$sliderPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_form_studio&view=form&id=' . $sliderForm['id']);
+$sliderXpath = $dom($sliderPage['body']); $sliderNode = $sliderXpath->query('//form[@data-nfs-form]')->item(0);
 $assert($sliderPage['status'] === 200 && $sliderNode instanceof DOMElement, 'Slider form failed to render.');
 $sliderInput = $sliderXpath->query('.//input[@type="range"]', $sliderNode)->item(0);
 foreach (['min' => '0', 'max' => '100', 'step' => '1'] as $key => $value) { $assert($sliderInput instanceof DOMElement && $sliderInput->getAttribute($key) === $value, 'Slider default attribute mismatch.'); }
-$sliderPost = ['format' => 'json', 'nef' => [$sliderUuid => '50'] + $numericValues];
+$sliderPost = ['format' => 'json', 'nfs' => [$sliderUuid => '50'] + $numericValues];
 foreach ($numericIds as $type => $uuid) {
-    $input = $sliderXpath->query('.//input[@data-nef-input="' . $uuid . '"]', $sliderNode)->item(0);
+    $input = $sliderXpath->query('.//input[@data-nfs-input="' . $uuid . '"]', $sliderNode)->item(0);
     $assert($input instanceof DOMElement && $input->getAttribute('type') === 'number', 'Numeric native input is missing.');
 }
 foreach ($sliderXpath->query('.//input[@type="hidden"]', $sliderNode) as $input) { $sliderPost[$input->getAttribute('name')] = $input->getAttribute('value'); }
 $sliderDestination = 'http://127.0.0.1:13371' . $sliderNode->getAttribute('action');
 foreach (['-1', '101', '0.5'] as $invalid) {
-    $invalidPost = $sliderPost; $invalidPost['nef'][$sliderUuid] = $invalid;
+    $invalidPost = $sliderPost; $invalidPost['nfs'][$sliderUuid] = $invalid;
     $response = $visitorRequest($sliderDestination, $invalidPost); $result = json_decode($response['body'], true, 512, JSON_THROW_ON_ERROR);
     $assert($response['status'] === 422 && isset($result['errors'][$sliderUuid]), 'Direct POST bypassed slider defaults.');
 }
 foreach ($numericIds as $type => $uuid) {
     foreach ($type === 'integer' ? ['0.5', '9', '12', '9223372036854775808'] : ['100.05', '12.51', '1.234', '1e2'] as $invalid) {
-        $invalidPost = $sliderPost; $invalidPost['nef'][$uuid] = $invalid;
+        $invalidPost = $sliderPost; $invalidPost['nfs'][$uuid] = $invalid;
         $response = $visitorRequest($sliderDestination, $invalidPost); $result = json_decode($response['body'], true, 512, JSON_THROW_ON_ERROR);
         $assert($response['status'] === 422 && isset($result['errors'][$uuid]), 'Direct POST bypassed numeric normalization or limits.');
     }

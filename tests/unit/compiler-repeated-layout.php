@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Compiler\RepeatedLayoutValidator;
-use Nicode\EasyForms\Domain\Uuid;
+use Nicode\FormStudio\Compiler\RepeatedLayoutValidator;
+use Nicode\FormStudio\Domain\Uuid;
 
 function repeatedCompilerFixture(): array {
     $draft=definition(); [$group,$nested,$sibling,$root,$child,$deep,$other]=array_map(static fn()=>Uuid::create(),range(1,7));
@@ -23,7 +23,7 @@ test('compiler and repeated runtime bound aggregate condition trees at the same 
     $errors=$validator->validate($draft,11);
     same(['rule.repeatable.condition_budget'],array_column($errors,'code')); same('/rules/1/when',$errors[0]->path);
     $rows=[$group=>[$one,$two]]; $values=[$group.'/'.$one.'/'.$field=>'keep',$group.'/'.$two.'/'.$field=>'keep'];
-    $spec=new Nicode\EasyForms\Domain\FormSpec($draft);
+    $spec=new Nicode\FormStudio\Domain\FormSpec($draft);
     same($values,rules()->evaluateInstances($spec,$rows,$values,[],[],12)->values);
     try { rules()->evaluateInstances($spec,$rows,$values,[],[],11); throw new RuntimeException('Expanded conditions exceeded the shared budget.'); }
     catch(InvalidArgumentException $error) { same('Expanded rule condition budget exceeded.',$error->getMessage()); }
@@ -44,15 +44,15 @@ test('compiler combines field and form validator calls at the same boundary as r
     $draft['validators']=[$check];
     $rows=[$group=>[$one,$two]]; $values=[$group.'/'.$one.'/'.$field=>'A',$group.'/'.$two.'/'.$field=>'B'];
     $compiler=new RepeatedLayoutValidator();
-    $engine=new Nicode\EasyForms\Validation\ValidationEngine(registry(),rules(),Nicode\EasyForms\Registry\ValidatorRegistry::core());
+    $engine=new Nicode\FormStudio\Validation\ValidationEngine(registry(),rules(),Nicode\FormStudio\Registry\ValidatorRegistry::core());
     same([],$compiler->validate($draft,6));
-    same([],$engine->validateInstances(new Nicode\EasyForms\Domain\FormSpec($draft),$rows,$values,budget:6)->errors);
+    same([],$engine->validateInstances(new Nicode\FormStudio\Domain\FormSpec($draft),$rows,$values,budget:6)->errors);
     $draft['validators'][]=$check;
     $errors=$compiler->validate($draft,6);
     same(['validator.repeatable.budget'],array_column($errors,'code')); same('/validators/1',$errors[0]->path);
-    raises(InvalidArgumentException::class,fn()=>$engine->validateInstances(new Nicode\EasyForms\Domain\FormSpec($draft),$rows,$values,budget:6));
+    raises(InvalidArgumentException::class,fn()=>$engine->validateInstances(new Nicode\FormStudio\Domain\FormSpec($draft),$rows,$values,budget:6));
     same([],$compiler->validate($draft,8));
-    same([],$engine->validateInstances(new Nicode\EasyForms\Domain\FormSpec($draft),$rows,$values,budget:8)->errors);
+    same([],$engine->validateInstances(new Nicode\FormStudio\Domain\FormSpec($draft),$rows,$values,budget:8)->errors);
 });
 
 test('repeated compiler validates limits and maximum expansion without allocating row identities',function():void {
@@ -128,7 +128,7 @@ test('repeated rules use target scope while form conditions and validators requi
     }
     $bad=$draft; $bad['actions'][0]['config']['email_field']=$id['child'];
     same(['action.repeatable.recipient'],array_column($validator->validate($bad),'code'));
-    foreach (Nicode\EasyForms\Actions\EmailAction::ROW_SELECTIONS as $selection) {
+    foreach (Nicode\FormStudio\Actions\EmailAction::ROW_SELECTIONS as $selection) {
         $bad['actions'][0]['config']['email_field_selection']=$selection; same([],$validator->validate($bad));
     }
     $bad=$draft; $bad['rules'][0]['effects']=array_fill(0,4,['type'=>'hide','target'=>$id['deep']]);

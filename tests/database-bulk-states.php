@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 (static function () use ($connection, $forms, $jobs, $search, $maintenance, $submissions, $bulkForm, $bulkVersion, $bulkSpec, $bulkField, $atomicWorker): void {
-    $states = Nicode\EasyForms\Application\SubmissionAdministration::STATES;
-    $administration = new Nicode\EasyForms\Application\SubmissionAdministration($connection, static fn (): bool => true);
+    $states = Nicode\FormStudio\Application\SubmissionAdministration::STATES;
+    $administration = new Nicode\FormStudio\Application\SubmissionAdministration($connection, static fn (): bool => true);
     $audit = static fn (string $uuid): array => $connection->rows('SELECT actor_id, form_id, safe_metadata FROM ' . $connection->table('audit_log') . " WHERE submission_uuid = :uuid AND event_type = 'submission.state' ORDER BY id", [':uuid' => $uuid]);
     $parameters = static fn (string $token, string $state): array => [
         'form_id' => $bulkForm, 'version_id' => $bulkVersion, 'operation' => 'state', 'state' => $state,
@@ -43,12 +43,12 @@ declare(strict_types=1);
         }
     }
 
-    foreach (['core.manage', 'easyforms.submissions.view', 'easyforms.submissions.manage'] as $revoked) {
+    foreach (['core.manage', 'formstudio.submissions.view', 'formstudio.submissions.manage'] as $revoked) {
         $denied = null;
         $permission = static function (int $actor, ?int $form, string $permission) use (&$denied): bool { return $actor === 1 && $permission !== $denied; };
-        $handlers = new Nicode\EasyForms\Registry\JobHandlerRegistry();
-        $handlers->register(new Nicode\EasyForms\Jobs\BulkSubmissionHandler($connection, $forms, $jobs, $search, new Nicode\EasyForms\Application\SubmissionAdministration($connection, $permission), $maintenance, $permission));
-        $worker = new Nicode\EasyForms\Jobs\JobWorker($jobs, $handlers, $connection);
+        $handlers = new Nicode\FormStudio\Registry\JobHandlerRegistry();
+        $handlers->register(new Nicode\FormStudio\Jobs\BulkSubmissionHandler($connection, $forms, $jobs, $search, new Nicode\FormStudio\Application\SubmissionAdministration($connection, $permission), $maintenance, $permission));
+        $worker = new Nicode\FormStudio\Jobs\JobWorker($jobs, $handlers, $connection);
         $token = 'bulk-revocation-' . bin2hex(random_bytes(8)); $responses = [];
         for ($i = 0; $i < 3; $i++) { $responses[] = $submissions->persist($bulkForm, $bulkVersion, $bulkSpec, [$bulkField => $token], hash('sha256', random_bytes(32))); }
         $job = $jobs->enqueue('submission-bulk', $parameters($token, 'processed'), 1);

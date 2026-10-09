@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 test('repeatable groups cannot silently compile as nonrepeating containers', function (): void {
-    $draft = definition(); $uuid = Nicode\EasyForms\Domain\Uuid::create();
+    $draft = definition(); $uuid = Nicode\FormStudio\Domain\Uuid::create();
     $draft['elements'][] = ['uuid'=>$uuid,'type'=>'repeatable-group'];
     $draft['elements'][0]['parent_uuid'] = $uuid;
     $result = compiler()->compile($draft); same(false, $result->successful());
@@ -15,22 +15,22 @@ test('compiler depth boundary matches renderer including empty deepest container
     $build = static function (int $levels, bool $field): array {
         $draft = definition(); $draft['elements'] = []; $parent = null;
         for ($i = 0; $i < $levels; $i++) {
-            $uuid = Nicode\EasyForms\Domain\Uuid::create();
+            $uuid = Nicode\FormStudio\Domain\Uuid::create();
             $draft['elements'][] = ['uuid'=>$uuid, 'type'=>'group', 'parent_uuid'=>$parent]; $parent = $uuid;
         }
         if ($field) $draft['elements'][] = ['uuid'=>$draft['fields'][0]['uuid'], 'type'=>'field', 'parent_uuid'=>$parent];
         else $draft['fields'] = [];
         return $draft;
     };
-    $renderers = new Nicode\EasyForms\Rendering\FieldRendererRegistry();
-    $renderers->register('text', new Nicode\EasyForms\Rendering\CoreFieldRenderer());
-    $renderer = new Nicode\EasyForms\Rendering\FormRenderer($renderers, new Nicode\EasyForms\Rendering\PublicSpec(registry()));
+    $renderers = new Nicode\FormStudio\Rendering\FieldRendererRegistry();
+    $renderers->register('text', new Nicode\FormStudio\Rendering\CoreFieldRenderer());
+    $renderer = new Nicode\FormStudio\Rendering\FormRenderer($renderers, new Nicode\FormStudio\Rendering\PublicSpec(registry()));
     foreach ([false, true] as $field) {
         foreach ([0, 1, 63, 64] as $levels) {
             $draft = $build($levels, $field); $compiled = compiler()->compile($draft);
             same(true, $compiled->successful());
-            $html = $renderer->render($compiled->spec, new Nicode\EasyForms\Rendering\RenderContext('depth', 1, 2, 'index.php?task=form.submit', 'csrf', 'attempt'), rules()->evaluate($compiled->spec, []));
-            same($levels, substr_count($html, 'class="nef-element nef-group"'));
+            $html = $renderer->render($compiled->spec, new Nicode\FormStudio\Rendering\RenderContext('depth', 1, 2, 'index.php?task=form.submit', 'csrf', 'attempt'), rules()->evaluate($compiled->spec, []));
+            same($levels, substr_count($html, 'class="nfs-element nfs-group"'));
         }
         foreach ([65, 100] as $levels) {
             $draft = $build($levels, $field); $compiled = compiler()->compile($draft);

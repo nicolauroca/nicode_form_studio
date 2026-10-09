@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 (static function () use ($connection, $registry, $submissions, $runs, $conditionEngine, $validationEngine, $postSubmit, $attemptTokens, $captchaFixture, $storageProviders, $requestContext): void {
-    $provider = new class($connection) implements Nicode\EasyForms\Contract\ActionInterface {
+    $provider = new class($connection) implements Nicode\FormStudio\Contract\ActionInterface {
         public int $calls = 0;
         public int $submissionId = 0;
         public function __construct(private $db) {}
@@ -10,28 +10,28 @@ declare(strict_types=1);
         public function version(): string { return '1.0.0'; }
         public function metadata(): array { return ['retry' => 'definite_failure_only']; }
         public function validateConfiguration(array $configuration, string $path): array { return []; }
-        public function execute(array $configuration, Nicode\EasyForms\Actions\ActionContext $context): Nicode\EasyForms\Actions\ActionOutcome {
+        public function execute(array $configuration, Nicode\FormStudio\Actions\ActionContext $context): Nicode\FormStudio\Actions\ActionOutcome {
             $this->calls++;
             $values = $context->values;
             if (count($values) !== 1 || !str_starts_with(reset($values), 'private-answer-')) { throw new LogicException('Action lost its non-retained input.'); }
             $row = $this->db->row('SELECT id, canonical_payload FROM ' . $this->db->table('submissions') . ' WHERE uuid=:uuid', [':uuid' => $context->reference]);
             if ($row === null || json_decode($row['canonical_payload'], true, flags: JSON_THROW_ON_ERROR)['values'] !== []) { throw new LogicException('Non-retaining action had stored answers while executing.'); }
             $this->submissionId = (int) $row['id'];
-            if ($configuration['outcome'] === 'definite') { throw new Nicode\EasyForms\Actions\ActionFailure('fixture_failed'); }
-            if ($configuration['outcome'] === 'unknown') { throw new Nicode\EasyForms\Actions\ActionFailure('fixture_unknown', true); }
+            if ($configuration['outcome'] === 'definite') { throw new Nicode\FormStudio\Actions\ActionFailure('fixture_failed'); }
+            if ($configuration['outcome'] === 'unknown') { throw new Nicode\FormStudio\Actions\ActionFailure('fixture_unknown', true); }
             if ($configuration['outcome'] === 'unexpected') { throw new RuntimeException(reset($values)); }
-            return new Nicode\EasyForms\Actions\ActionOutcome('fixture_success');
+            return new Nicode\FormStudio\Actions\ActionOutcome('fixture_success');
         }
     };
-    $actions = new Nicode\EasyForms\Registry\ActionRegistry(); $actions->register($provider);
-    $compiler = new Nicode\EasyForms\Compiler\FormCompiler($registry, $actions, new Nicode\EasyForms\Registry\ProviderRegistry(), new Nicode\EasyForms\Registry\ProviderRegistry());
-    $forms = new Nicode\EasyForms\Infrastructure\Database\FormRepository($connection, $compiler);
-    $engine = new Nicode\EasyForms\Actions\ActionEngine($actions, $runs, $conditionEngine, $registry);
-    $pipeline = new Nicode\EasyForms\Application\SubmissionPipeline($forms, $submissions, new Nicode\EasyForms\Security\PublicAccess(), $attemptTokens, $captchaFixture, new Nicode\EasyForms\Infrastructure\Database\RateLimiter($connection), $validationEngine, $engine, $postSubmit, $storageProviders);
+    $actions = new Nicode\FormStudio\Registry\ActionRegistry(); $actions->register($provider);
+    $compiler = new Nicode\FormStudio\Compiler\FormCompiler($registry, $actions, new Nicode\FormStudio\Registry\ProviderRegistry(), new Nicode\FormStudio\Registry\ProviderRegistry());
+    $forms = new Nicode\FormStudio\Infrastructure\Database\FormRepository($connection, $compiler);
+    $engine = new Nicode\FormStudio\Actions\ActionEngine($actions, $runs, $conditionEngine, $registry);
+    $pipeline = new Nicode\FormStudio\Application\SubmissionPipeline($forms, $submissions, new Nicode\FormStudio\Security\PublicAccess(), $attemptTokens, $captchaFixture, new Nicode\FormStudio\Infrastructure\Database\RateLimiter($connection), $validationEngine, $engine, $postSubmit, $storageProviders);
     foreach (['metadata', 'none'] as $mode) {
         foreach ([['success', 'non_blocking', 'success'], ['definite', 'blocking', 'action_blocking_failure'], ['definite', 'non_blocking', 'action_partial_failure'], ['unknown', 'non_blocking', 'action_partial_failure'], ['unexpected', 'blocking', 'action_blocking_failure']] as [$outcome, $policy, $category]) {
             $form = $forms->create('Non-retaining outcomes', 'nonretaining-' . bin2hex(random_bytes(6)), 1);
-            $draft = $forms->draft($form); $field = Nicode\EasyForms\Domain\Uuid::create(); $action = Nicode\EasyForms\Domain\Uuid::create();
+            $draft = $forms->draft($form); $field = Nicode\FormStudio\Domain\Uuid::create(); $action = Nicode\FormStudio\Domain\Uuid::create();
             $draft['elements'] = [['uuid' => $field, 'type' => 'field']];
             $draft['fields'] = [['uuid' => $field, 'name' => 'answer', 'type' => 'text', 'index' => true, 'config' => ['max_length' => 255]]];
             $draft['persistence']['mode'] = $mode;
@@ -42,7 +42,7 @@ declare(strict_types=1);
             $revision = $forms->saveDraft($form, 0, $draft, 1); $version = $forms->publish($form, $revision, 1);
             $marker = 'private-answer-' . bin2hex(random_bytes(16));
             $token = $attemptTokens->issue($form, $version, 'session-fixture:component');
-            $request = new Nicode\EasyForms\Submission\SubmitRequest($form, $version, $token, [$field => $marker]);
+            $request = new Nicode\FormStudio\Submission\SubmitRequest($form, $version, $token, [$field => $marker]);
             $calls = $provider->calls; $response = $pipeline->submit($request, $requestContext);
             if (!($response['accepted'] ?? false) || $response['category'] !== $category || $provider->calls !== $calls + 1) { throw new RuntimeException('Non-retaining outcome did not complete: ' . $mode . '/' . $outcome); }
             if ($response['message'] !== 'Configured ' . $category . ' ' . $response['reference']) { throw new RuntimeException('Action outcome lost its configured message or reference token.'); }
@@ -68,7 +68,7 @@ declare(strict_types=1);
         $persisted = $submissions->persist($form, $version, $spec, [$field => $marker], $hash, ['channel' => 'component', 'locale' => 'en-GB']);
         $lease = $runs->claim($persisted->id, $action, $provider->id());
         if ($lease === null) { throw new RuntimeException('Interrupted-action fixture did not obtain a lease.'); }
-        $request = new Nicode\EasyForms\Submission\SubmitRequest($form, $version, $token, [$field => $marker]);
+        $request = new Nicode\FormStudio\Submission\SubmitRequest($form, $version, $token, [$field => $marker]);
         $calls = $provider->calls; $pending = $pipeline->submit($request, $requestContext);
         if (($pending['category'] ?? '') !== 'processing_pending' || $provider->calls !== $calls || $submissions->response($form, $hash) !== null) { throw new RuntimeException('Live action lease was replayed or prematurely completed.'); }
         if ($pending['message'] !== 'Configured processing_pending ' . $persisted->uuid) { throw new RuntimeException('Pending action lost its configured message.'); }

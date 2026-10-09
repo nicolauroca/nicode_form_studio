@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 use Joomla\CMS\Cache\Cache;
-use Nicode\EasyForms\Infrastructure\Joomla\SourceCache;
+use Nicode\FormStudio\Infrastructure\Joomla\SourceCache;
 
 test('Joomla source cache shares JSON entries with exact expiry and safe outage fallback', function (): void {
     $backend = new class extends Cache {

@@ -16,13 +16,13 @@ $presentationRevision = $api('save', ['id' => $presentationForm['id'], 'revision
 $api('publish', ['id' => $presentationForm['id'], 'revision' => $presentationRevision]);
 $presentationPreview = $api('preview', query: ['id' => $presentationForm['id']]);
 $previewXpath = $dom($presentationPreview['html']);
-$previewHtmlNode = $previewXpath->query('//*[@data-nef-element="' . $presentationIds['safe-html'] . '"]')->item(0);
+$previewHtmlNode = $previewXpath->query('//*[@data-nfs-element="' . $presentationIds['safe-html'] . '"]')->item(0);
 $assert($previewHtmlNode instanceof DOMElement && $previewXpath->query('.//strong', $previewHtmlNode)->length === 1 && $previewXpath->query('.//script|.//img|.//svg|.//input|.//*[@onclick or @onerror or @onload or @style]', $previewHtmlNode)->length === 0, 'Administrator preview did not apply the same safe HTML policy.');
-$presentationPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_easy_forms&view=form&id=' . $presentationForm['id']);
-$presentationXpath = $dom($presentationPage['body']); $presentationNode = $presentationXpath->query('//form[@data-nef-form]')->item(0);
+$presentationPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_form_studio&view=form&id=' . $presentationForm['id']);
+$presentationXpath = $dom($presentationPage['body']); $presentationNode = $presentationXpath->query('//form[@data-nfs-form]')->item(0);
 $assert($presentationPage['status'] === 200 && $presentationNode instanceof DOMElement, 'Presentation fixture did not render.');
 foreach ($presentationIds as $type => $uuid) {
-    $element = $presentationXpath->query('.//*[@data-nef-element="' . $uuid . '"]', $presentationNode)->item(0);
+    $element = $presentationXpath->query('.//*[@data-nfs-element="' . $uuid . '"]', $presentationNode)->item(0);
     $assert($element instanceof DOMElement, 'Missing presentation element: ' . $type);
     $assert($element->tagName === match ($type) { 'heading' => 'h2', 'subheading' => 'h3', 'paragraph' => 'p', default => 'div' }, 'Presentation semantics changed.');
     if (in_array($type, ['heading', 'subheading', 'paragraph', 'notice'], true)) { $assert($element->textContent === $type . ' <literal>' && $presentationXpath->query('.//*', $element)->length === 0, 'Plain presentation text became markup.'); }
@@ -34,7 +34,7 @@ foreach ($presentationIds as $type => $uuid) {
         foreach ($presentationXpath->query('.//a[@href]', $element) as $link) { $assert(!str_contains(strtolower($link->getAttribute('href')), 'javascript:'), 'Unsafe link protocol survived filtering.'); }
     }
 }
-$presentationPost = ['format' => 'json', 'nef' => [$presentationAnswer => 'accepted', ...array_fill_keys(array_values($presentationIds), 'forged presentation answer')]];
+$presentationPost = ['format' => 'json', 'nfs' => [$presentationAnswer => 'accepted', ...array_fill_keys(array_values($presentationIds), 'forged presentation answer')]];
 foreach ($presentationXpath->query('.//input[@type="hidden"]', $presentationNode) as $input) { $presentationPost[$input->getAttribute('name')] = $input->getAttribute('value'); }
 $presentationResponse = $visitorRequest('http://127.0.0.1:13371' . $presentationNode->getAttribute('action'), $presentationPost);
 $presentationResult = json_decode($presentationResponse['body'], true, flags: JSON_THROW_ON_ERROR);

@@ -13,11 +13,11 @@ if (-not (Test-Path -LiteralPath $credentialFile)) {
     $passwordFile = Join-Path $testRoot 'postgresql-init-password.txt'
     Set-Content -LiteralPath $passwordFile -Value $testPassword -NoNewline
     try {
-        & (Join-Path $serverRoot 'bin/initdb.exe') -D $dataRoot -U easyforms_test "--pwfile=$passwordFile" --auth=scram-sha-256 --encoding=UTF8 --locale=C *> (Join-Path $testRoot 'postgresql-bootstrap.log')
+        & (Join-Path $serverRoot 'bin/initdb.exe') -D $dataRoot -U formstudio_test "--pwfile=$passwordFile" --auth=scram-sha-256 --encoding=UTF8 --locale=C *> (Join-Path $testRoot 'postgresql-bootstrap.log')
         if ($LASTEXITCODE -ne 0) { throw 'PostgreSQL initialization failed; inspect build/postgresql-bootstrap.log.' }
     } finally { Remove-Item -LiteralPath $passwordFile }
     Add-Content -LiteralPath (Join-Path $dataRoot 'postgresql.conf') -Value "`nlisten_addresses = '127.0.0.1'`nport = 13368`ntimezone = 'UTC'`n"
-    @{host='127.0.0.1';port=13368;database='easyforms_test_pg';user='easyforms_test';password=$testPassword} | ConvertTo-Json | Set-Content -LiteralPath $credentialFile
+    @{host='127.0.0.1';port=13368;database='formstudio_test_pg';user='formstudio_test';password=$testPassword} | ConvertTo-Json | Set-Content -LiteralPath $credentialFile
 }
 $pidFile = Join-Path $testRoot 'postgresql-process.json'
 if (Test-Path -LiteralPath $pidFile) {

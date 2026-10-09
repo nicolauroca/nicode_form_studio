@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Contract\SearchProviderInterface;
-use Nicode\EasyForms\Domain\{FormSpec, Uuid};
-use Nicode\EasyForms\Registry\SearchProviderRegistry;
-use Nicode\EasyForms\Search\{CursorCodec, SearchPage, SearchRequest, SearchScope, SelectedSearch};
+use Nicode\FormStudio\Contract\SearchProviderInterface;
+use Nicode\FormStudio\Domain\{FormSpec, Uuid};
+use Nicode\FormStudio\Registry\SearchProviderRegistry;
+use Nicode\FormStudio\Search\{CursorCodec, SearchPage, SearchRequest, SearchScope, SelectedSearch};
 
 final class SelectionSearchFixture implements SearchProviderInterface
 {

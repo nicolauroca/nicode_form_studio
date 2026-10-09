@@ -1,7 +1,7 @@
 # 20 — Accesibilidad
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -82,7 +82,7 @@ ni toma el foco cuando la actualización empezó fuera del formulario.
 
 ## 7. CAPTCHA
 
-La accesibilidad dependerá del provider Joomla seleccionado; EasyForms debe renderizarlo correctamente y no degradar su soporte.
+La accesibilidad dependerá del provider Joomla seleccionado; FormStudio debe renderizarlo correctamente y no degradar su soporte.
 
 ## 8. Builder Administrator
 
@@ -90,7 +90,7 @@ El Builder deberá ofrecer alternativa suficiente a drag & drop mediante control
 
 ## 9. Contraste y CSS
 
-EasyForms no fijará colores que impidan al template cumplir contraste.
+FormStudio no fijará colores que impidan al template cumplir contraste.
 
 ## 10. Testing
 

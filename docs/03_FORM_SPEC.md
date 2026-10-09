@@ -1,6 +1,6 @@
 # 03 — FormSpec
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -10,7 +10,7 @@
 
 ## 1. Propósito
 
-`Nicode EasyForms FormSpec` será el contrato lógico, portable y versionado que describe un formulario ejecutable.
+`Nicode Form Studio FormSpec` será el contrato lógico, portable y versionado que describe un formulario ejecutable.
 
 No será un volcado de tablas SQL.
 
@@ -33,13 +33,13 @@ mutables durante el runtime. Su política de compatibilidad se define en SPEC-18
 
 Se distinguirán siempre:
 
-1. versión de Nicode EasyForms;
+1. versión de Nicode Form Studio;
 2. versión del schema FormSpec;
 3. revisión/version del formulario.
 
 Ejemplo:
 
-- EasyForms `1.4.0`;
+- FormStudio `1.4.0`;
 - FormSpec schema `1.1`;
 - Form revision `27`.
 

@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-$jobAdmin = new Nicode\EasyForms\Application\JobAdministration($connection, $forms, $jobs, $handlerRegistry, $search, $bulkPermission);
+$jobAdmin = new Nicode\FormStudio\Application\JobAdministration($connection, $forms, $jobs, $handlerRegistry, $search, $bulkPermission);
 $adminJobId = $jobAdmin->enqueue(1, $bulkForm, 'export-csv', ['fields' => [$bulkField], 'creator_id' => 99, 'version_id' => 9999]);
 $adminJob = $jobs->get($adminJobId); $adminParameters = json_decode($adminJob['parameters'], true, 512, JSON_THROW_ON_ERROR);
 if ((int) $adminJob['creator_id'] !== 1 || $adminParameters['version_id'] !== $bulkVersion || $adminParameters['query']['filters']['form_id'] !== $bulkForm) { throw new RuntimeException('Job request forged its trusted identity/schema/scope.'); }
@@ -9,7 +9,7 @@ foreach (['file-cleanup', 'export-cleanup', 'retention', 'test-atomic-rollback']
 }
 try { $jobAdmin->enqueue(1, $bulkForm, 'export-csv', ['fields' => [$bulkField], 'query' => ['filters' => ['form_id' => $bulkForm + 1], 'fields' => []]]); throw new RuntimeException('Cross-form query accepted.'); } catch (InvalidArgumentException) {}
 try { $jobAdmin->enqueue(2, $bulkForm, 'reindex', []); throw new RuntimeException('Denied actor enqueued job.'); } catch (DomainException) {}
-$ownerOnly = new Nicode\EasyForms\Application\JobAdministration($connection, $forms, $jobs, $handlerRegistry, $search, static fn (int $actor, ?int $form, string $permission): bool => $permission === 'core.manage');
+$ownerOnly = new Nicode\FormStudio\Application\JobAdministration($connection, $forms, $jobs, $handlerRegistry, $search, static fn (int $actor, ?int $form, string $permission): bool => $permission === 'core.manage');
 if ($ownerOnly->listing(2)['can_run'] || $ownerOnly->listing(2)['rows'] === []) { throw new RuntimeException('Owner listing or worker capability failed.'); }
 foreach ($ownerOnly->listing(2)['rows'] as $row) { if ((int) $row['creator_id'] !== 2) { throw new RuntimeException('Foreign job listing disclosure.'); } }
 try { $ownerOnly->record(2, $adminJobId); throw new RuntimeException('Foreign job detail disclosure.'); } catch (OutOfBoundsException) {}

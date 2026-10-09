@@ -14,17 +14,17 @@ $tasks = [
     'template.create', 'template.save', 'template.bind', 'template.capture', 'template.preview', 'template.apply',
     'definition.preview', 'definition.import',
 ];
-$pdo = new PDO('mysql:host=127.0.0.1;port=13367;dbname=easyforms_joomla', $configuration->user, $configuration->password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$pdo = new PDO('mysql:host=127.0.0.1;port=13367;dbname=formstudio_joomla', $configuration->user, $configuration->password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 $snapshot = static function () use ($pdo): array {
     $result = [];
     foreach (['forms', 'form_versions', 'submissions', 'action_runs', 'jobs', 'audit_log'] as $table) {
-        $result[$table] = $pdo->query('SELECT COUNT(*) AS total, MAX(id) AS last_id FROM j6_nicode_easyforms_' . $table)->fetch(PDO::FETCH_ASSOC);
+        $result[$table] = $pdo->query('SELECT COUNT(*) AS total, MAX(id) AS last_id FROM j6_nicode_form_studio_' . $table)->fetch(PDO::FETCH_ASSOC);
     }
     return $result;
 };
 $before = $snapshot(); $checks = 0;
 foreach ($tasks as $task) {
-    $url = $base . '?' . http_build_query(['option' => 'com_nicode_easy_forms', 'task' => $task, 'format' => 'json']);
+    $url = $base . '?' . http_build_query(['option' => 'com_nicode_form_studio', 'task' => $task, 'format' => 'json']);
     foreach (['missing' => [], 'wrong_value' => [$token => '0'], 'array_value' => [$token => ['1']], 'wrong_name' => [hash('sha256', $token) => '1'], 'query_only' => []] as $case => $fields) {
         // Empty payload deliberately cannot identify or authorize destructive work
         // even if a regression were to reach the action closure.

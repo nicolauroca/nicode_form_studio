@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Domain\{Uuid, FormSpec, FieldAddress};
-use Nicode\EasyForms\Rules\PresentationState;
+use Nicode\FormStudio\Domain\{Uuid, FormSpec, FieldAddress};
+use Nicode\FormStudio\Rules\PresentationState;
 
 test('repeated presentation initializes each row and preserves retry authority without restoring cleared answers', function (): void {
     [$group,$editable,$copy,$password,$query,$one,$two] = array_map(static fn()=>Uuid::create(),range(1,7));

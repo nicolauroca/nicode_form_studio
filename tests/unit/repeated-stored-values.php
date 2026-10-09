@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Domain\{Uuid, FormSpec, FieldAddress};
-use Nicode\EasyForms\Submission\StoredValues;
-use Nicode\EasyForms\Validation\ValidationResult;
+use Nicode\FormStudio\Domain\{Uuid, FormSpec, FieldAddress};
+use Nicode\FormStudio\Submission\StoredValues;
+use Nicode\FormStudio\Validation\ValidationResult;
 
 test('stored repeated values apply persistence policy and consent evidence independently by address', function (): void {
     [$group,$text,$password,$transient,$consent,$one,$two] = array_map(static fn()=>Uuid::create(),range(1,7));

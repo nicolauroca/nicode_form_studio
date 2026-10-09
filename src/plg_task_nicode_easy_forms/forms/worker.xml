@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<form><fields name="params"><fieldset name="basic">
-  <field name="batches" type="number" label="PLG_TASK_NICODE_EASY_FORMS_BATCHES" default="5" min="1" max="50" filter="integer" required="true" />
-  <field name="chunk_size" type="number" label="PLG_TASK_NICODE_EASY_FORMS_CHUNK_SIZE" default="100" min="1" max="500" filter="integer" required="true" />
-</fieldset></fields></form>

@@ -2,25 +2,25 @@
 declare(strict_types=1);
 
 test('webhook preparation rejects expanded limits and invalid secrets before transport but preserves uncertain outcomes',function():void {
-    $http=new class implements Nicode\EasyForms\Contract\HttpTransportInterface {
+    $http=new class implements Nicode\FormStudio\Contract\HttpTransportInterface {
         public array $requests=[]; public ?Throwable $failure=null;
-        public function request(string $url,string $method,array $headers,string $body,int $timeout=10):Nicode\EasyForms\Http\HttpResponse {
+        public function request(string $url,string $method,array $headers,string $body,int $timeout=10):Nicode\FormStudio\Http\HttpResponse {
             $this->requests[]=compact('headers','body'); if($this->failure!==null) { throw $this->failure; }
-            return new Nicode\EasyForms\Http\HttpResponse(204,'');
+            return new Nicode\FormStudio\Http\HttpResponse(204,'');
         }
     };
-    $secrets=new class implements Nicode\EasyForms\Contract\SecretStoreInterface {
+    $secrets=new class implements Nicode\FormStudio\Contract\SecretStoreInterface {
         public string $value='synthetic-token'; public int $calls=0;
         public function get(string $reference):string { $this->calls++; return $this->value; }
     };
-    $action=new Nicode\EasyForms\Actions\WebhookAction($http,new Nicode\EasyForms\Http\DestinationPolicy(['hooks.example.com']),$secrets,new Nicode\EasyForms\Actions\TokenTemplate());
+    $action=new Nicode\FormStudio\Actions\WebhookAction($http,new Nicode\FormStudio\Http\DestinationPolicy(['hooks.example.com']),$secrets,new Nicode\FormStudio\Actions\TokenTemplate());
     $draft=definition(); $field=$draft['fields'][0]['uuid']; $spec=compiler()->compile($draft)->spec;
-    $context=static fn(string $value)=>(new Nicode\EasyForms\Actions\ActionContext($spec,[$field=>$value],'reference','date'))->forAction('action-1');
+    $context=static fn(string $value)=>(new Nicode\FormStudio\Actions\ActionContext($spec,[$field=>$value],'reference','date'))->forAction('action-1');
     $token='{{field.'.$field.'.value}}'; $base=['url'=>'https://hooks.example.com/hook'];
     $reject=static function(array $config,string $value,string $code)use($action,$context,$http):void {
         $before=count($http->requests);
         try { $action->execute($config,$context($value)); throw new RuntimeException('Expected preflight rejection.'); }
-        catch(Nicode\EasyForms\Actions\ActionFailure $failure) { same($code,$failure->resultCode); same(false,$failure->unknownOutcome); same($code,$failure->getMessage()); }
+        catch(Nicode\FormStudio\Actions\ActionFailure $failure) { same($code,$failure->resultCode); same(false,$failure->unknownOutcome); same($code,$failure->getMessage()); }
         same($before,count($http->requests));
     };
     $reject($base+['headers'=>['X-Test'=>$token]],"value\r\nInjected: yes",'webhook_preparation_failed');
@@ -43,7 +43,7 @@ test('webhook preparation rejects expanded limits and invalid secrets before tra
     $secrets->value=str_repeat('x',8185);
     $action->execute($base+['bearer_secret'=>'fixture.token'],$context('value'));
     same(8192,strlen($http->requests[2]['headers']['Authorization']));
-    foreach([new RuntimeException('Uncertain external transport'),new Nicode\EasyForms\Actions\ActionFailure('http_delivery_unknown',true)] as $failure) {
+    foreach([new RuntimeException('Uncertain external transport'),new Nicode\FormStudio\Actions\ActionFailure('http_delivery_unknown',true)] as $failure) {
         $http->failure=$failure;
         try { $action->execute($base,$context('value')); throw new LogicException('Expected transport exception.'); }
         catch(Throwable $caught) { same($failure,$caught); }

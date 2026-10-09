@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Domain\{Uuid, FormSpec, FieldAddress, RepeatedInstances};
-use Nicode\EasyForms\Validation\AddressedFieldValidator;
+use Nicode\FormStudio\Domain\{Uuid, FormSpec, FieldAddress, RepeatedInstances};
+use Nicode\FormStudio\Validation\AddressedFieldValidator;
 
 test('repeated rules isolate row conditions inherited activation and derived values', function (): void {
     [$group,$trigger,$container,$answer,$copy,$outside,$one,$two] = array_map(static fn()=>Uuid::create(), range(1,8));
@@ -58,8 +58,8 @@ test('repeated dependent sources retain provider UUID bindings and independent d
     ]]];
     $fields = [['uuid'=>$parent,'type'=>'text'],['uuid'=>$child,'type'=>'select','source'=>$source,'prefill'=>['type'=>'source']]];
     $spec = new FormSpec(['schema_version'=>'1.0','elements'=>$elements,'fields'=>$fields,'rules'=>[]]);
-    $sources = new Nicode\EasyForms\Registry\DataSourceRegistry(); $sources->register(new Nicode\EasyForms\DataSource\StaticDataSource());
-    $engine = new Nicode\EasyForms\Rules\RuleEngine(new Nicode\EasyForms\Rules\ConditionEvaluator(Nicode\EasyForms\Registry\RuleOperatorRegistry::core()),Nicode\EasyForms\Registry\RuleEffectRegistry::core(),registry(),64,new Nicode\EasyForms\DataSource\OptionResolver($sources,new Nicode\EasyForms\DataSource\RequestCache()));
+    $sources = new Nicode\FormStudio\Registry\DataSourceRegistry(); $sources->register(new Nicode\FormStudio\DataSource\StaticDataSource());
+    $engine = new Nicode\FormStudio\Rules\RuleEngine(new Nicode\FormStudio\Rules\ConditionEvaluator(Nicode\FormStudio\Registry\RuleOperatorRegistry::core()),Nicode\FormStudio\Registry\RuleEffectRegistry::core(),registry(),64,new Nicode\FormStudio\DataSource\OptionResolver($sources,new Nicode\FormStudio\DataSource\RequestCache()));
     $key = static fn($field,$row)=>(new FieldAddress($field,[['group'=>$group,'instance'=>$row]]))->key();
     $result = $engine->evaluateInstances($spec,[$group=>[$one,$two]],[$key($parent,$one)=>'ES',$key($parent,$two)=>'PT'],[],[$key($child,$one)=>true,$key($child,$two)=>true]);
     same('MAD',$result->values[$key($child,$one)]); same('LIS',$result->values[$key($child,$two)]);

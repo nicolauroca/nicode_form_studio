@@ -5,7 +5,7 @@ caducado se invalida como resultado desconocido antes de borrar los datos, para
 que un proceso interrumpido no bloquee indefinidamente la retención. Un worker
 tardío no puede confirmar ese intento ni sobrescribir el estado anonimizado.
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -45,7 +45,7 @@ El payload canónico 1.0 admite el objeto opcional `request_metadata` con `ip`
 y/o `user_agent`. Su ausencia mantiene la representación anterior. Estos datos
 no forman parte de valores de campos, índices, contexto de reglas, plantillas
 de Actions ni exportaciones. La consulta ordinaria solo indica su existencia;
-la revelación explícita exige `easyforms.submissions.view_sensitive` y registra
+la revelación explícita exige `formstudio.submissions.view_sensitive` y registra
 el evento `submission.reveal_sensitive`, sin incluir los datos en el log.
 Su metadata contiene `fields` (número de campos sensibles revelados, excluyendo
 los públicos) y `request_metadata_items` (número de datos técnicos revelados).
@@ -158,4 +158,4 @@ dura una hora; su consumo y la asociación a la respuesta son atómicos. Un job
 retira reservas caducadas y mantiene la obligación de limpieza física en el
 outbox. El borrado del formulario y la purga incluyen estas reservas. No se borra
 un archivo basándose únicamente en que su nombre o ruta parezca pertenecer a
-EasyForms. El panel distingue reservas abandonadas de archivos ya asociados.
+FormStudio. El panel distingue reservas abandonadas de archivos ya asociados.

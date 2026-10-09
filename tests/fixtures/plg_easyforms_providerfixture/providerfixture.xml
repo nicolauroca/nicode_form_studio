@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<extension type="plugin" group="easyforms" method="upgrade">
-  <name>EasyForms isolated provider fixture</name>
-  <version>1.0.0</version>
-  <description>Local acceptance fixture. Never included in the product package.</description>
-  <namespace path="src">NicodeFixture\Plugin\Easyforms\ProviderFixture</namespace>
-  <files><folder plugin="providerfixture">services</folder><folder>src</folder></files>
-  <media destination="plg_easyforms_providerfixture" folder="media"><folder>js</folder><folder>css</folder></media>
-</extension>

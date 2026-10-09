@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-$attemptForms = $runtime->get(Nicode\EasyForms\Infrastructure\Database\FormRepository::class);
-$attemptResponses = $runtime->get(Nicode\EasyForms\Infrastructure\Database\SubmissionRepository::class);
+$attemptForms = $runtime->get(Nicode\FormStudio\Infrastructure\Database\FormRepository::class);
+$attemptResponses = $runtime->get(Nicode\FormStudio\Infrastructure\Database\SubmissionRepository::class);
 $attemptCases = [];
 foreach (['none', 'metadata', 'full'] as $mode) {
     $fixtureForm = $administration->create('Scheduled attempt cleanup', 'scheduled-attempt-' . bin2hex(random_bytes(6)), (int) $admin->id);
-    $draft = $administration->edit($fixtureForm, (int) $admin->id)['draft']; $uuid = Nicode\EasyForms\Domain\Uuid::create();
+    $draft = $administration->edit($fixtureForm, (int) $admin->id)['draft']; $uuid = Nicode\FormStudio\Domain\Uuid::create();
     $draft['elements'] = [['uuid' => $uuid, 'type' => 'field']]; $draft['fields'] = [['uuid' => $uuid, 'name' => 'answer', 'type' => 'text']];
     $draft['actions'] = []; $draft['persistence']['mode'] = $mode; $draft['security']['captcha'] = ['mode' => 'none'];
     $revision = $administration->save($fixtureForm, 0, $draft, (int) $admin->id); $version = $administration->publish($fixtureForm, $revision, (int) $admin->id);

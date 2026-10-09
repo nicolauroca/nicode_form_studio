@@ -19,8 +19,8 @@ $deletionAsset = (int) $deletingRecord['form']['asset_id'];
 $jobApi('cancel', ['id' => $deletionJob], expected: 403);
 $api('deactivate', ['id' => $deletionId, 'revision' => 2, 'state' => 'unpublished'], expected: 409);
 $jobApi('enqueue', ['payload' => json_encode(['form_id' => $deletionId, 'type' => 'reindex'])], expected: 403);
-$deletingPage = $request($base . '?option=com_nicode_easy_forms&view=jobs');
-$assert(!str_contains($deletingPage['body'], 'data-nef-job-cancel="' . $deletionJob . '"'), 'Irreversible job offers cancellation.');
+$deletingPage = $request($base . '?option=com_nicode_form_studio&view=jobs');
+$assert(!str_contains($deletingPage['body'], 'data-nfs-job-cancel="' . $deletionJob . '"'), 'Irreversible job offers cancellation.');
 for ($batch = 0; $batch < 60; $batch++) {
     $deletionStatus = $jobApi('record', query: ['id' => $deletionJob]);
     if ($deletionStatus['state'] === 'completed') { break; }
@@ -28,7 +28,7 @@ for ($batch = 0; $batch < 60; $batch++) {
 }
 $assert($deletionStatus['state'] === 'completed', 'Native form deletion did not complete.');
 $api('record', query: ['id' => $deletionId], expected: 403);
-$verifyDatabase = new PDO('mysql:host=127.0.0.1;port=13367;dbname=easyforms_joomla;charset=utf8mb4', $configuration->user, $configuration->password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$verifyDatabase = new PDO('mysql:host=127.0.0.1;port=13367;dbname=formstudio_joomla;charset=utf8mb4', $configuration->user, $configuration->password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 $verifyAsset = $verifyDatabase->prepare('SELECT id FROM j6_assets WHERE id = ?'); $verifyAsset->execute([$deletionAsset]);
 $assert($verifyAsset->fetchColumn() === false, 'Permanent deletion retained the Joomla asset.');
 $assert((int) $verifyDatabase->query('SELECT COUNT(*) FROM j6_assets WHERE lft >= rgt')->fetchColumn() === 0, 'Native asset deletion damaged tree boundaries.');

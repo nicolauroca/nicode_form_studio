@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="component" method="upgrade">
+  <name>com_nicode_form_studio</name>
+  <version>1.0.4</version>
+  <author>Nicode</author>
+  <creationDate>2026-09</creationDate>
+  <license>GPL-2.0-or-later</license>
+  <description>COM_NICODE_FORM_STUDIO_XML_DESCRIPTION</description>
+  <namespace path="src">Nicode\Component\FormStudio</namespace>
+  <scriptfile>script.php</scriptfile>
+  <install><sql>
+    <file driver="mysql" charset="utf8">sql/mysql/install.sql</file>
+    <file driver="postgresql" charset="utf8">sql/postgresql/install.sql</file>
+  </sql></install>
+  <update><schemas>
+    <schemapath type="mysql">sql/mysql/updates</schemapath>
+    <schemapath type="postgresql">sql/postgresql/updates</schemapath>
+  </schemas></update>
+  <files folder="site"><folder>src</folder><folder>tmpl</folder><folder>language</folder></files>
+  <languages folder="site">
+    <language tag="en-GB">language/en-GB/com_nicode_form_studio.ini</language>
+    <language tag="es-ES">language/es-ES/com_nicode_form_studio.ini</language>
+  </languages>
+  <media destination="com_nicode_form_studio" folder="media"><filename>joomla.asset.json</filename><folder>js</folder><folder>css</folder></media>
+  <administration>
+    <menu link="option=com_nicode_form_studio&amp;view=dashboard">COM_NICODE_FORM_STUDIO</menu>
+    <submenu>
+      <menu link="option=com_nicode_form_studio&amp;view=dashboard">COM_NICODE_FORM_STUDIO_DASH_TITLE</menu>
+      <menu link="option=com_nicode_form_studio&amp;view=forms">COM_NICODE_FORM_STUDIO_FORMS</menu>
+      <menu link="option=com_nicode_form_studio&amp;view=submissions">COM_NICODE_FORM_STUDIO_SUBMISSIONS</menu>
+      <menu link="option=com_nicode_form_studio&amp;view=jobs">COM_NICODE_FORM_STUDIO_JOBS</menu>
+      <menu link="option=com_nicode_form_studio&amp;view=resources">COM_NICODE_FORM_STUDIO_OPTION_SETS</menu>
+      <menu link="option=com_nicode_form_studio&amp;view=datasources">COM_NICODE_FORM_STUDIO_DATA_SOURCES</menu>
+      <menu link="option=com_nicode_form_studio&amp;view=templates&amp;kind=email">COM_NICODE_FORM_STUDIO_EMAIL_TEMPLATES</menu>
+      <menu link="option=com_nicode_form_studio&amp;view=templates&amp;kind=form">COM_NICODE_FORM_STUDIO_FORM_TEMPLATES</menu>
+      <menu link="option=com_nicode_form_studio&amp;view=health">COM_NICODE_FORM_STUDIO_HEALTH</menu>
+      <menu link="option=com_nicode_form_studio&amp;view=logs">COM_NICODE_FORM_STUDIO_TECHNICAL_LOG</menu>
+      <menu link="option=com_nicode_form_studio&amp;view=audit">COM_NICODE_FORM_STUDIO_AUDIT</menu>
+    </submenu>
+    <files folder="administrator"><filename>purgeguard.php</filename><filename>access.xml</filename><filename>config.xml</filename><folder>services</folder><folder>src</folder><folder>sql</folder><folder>tmpl</folder><folder>language</folder></files>
+    <languages folder="administrator">
+      <language tag="en-GB">language/en-GB/com_nicode_form_studio.sys.ini</language>
+      <language tag="es-ES">language/es-ES/com_nicode_form_studio.sys.ini</language>
+      <language tag="en-GB">language/en-GB/com_nicode_form_studio.ini</language>
+      <language tag="es-ES">language/es-ES/com_nicode_form_studio.ini</language>
+    </languages>
+  </administration>
+</extension>

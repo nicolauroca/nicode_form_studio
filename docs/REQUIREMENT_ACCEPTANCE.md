@@ -1,3 +1,5 @@
+> Current status (2026-10-09): Nicode Form Studio is in development, pending functional and visual review. The closure/acceptance records below describe the predecessor before the rename; they are historical evidence, not acceptance of the renamed package.
+
 # Requirement acceptance audit
 
 The complete product remains in progress. This ledger closes individual normative
@@ -652,7 +654,7 @@ renderer contract, not every browser's CSS geometry.
 On native Joomla fixture 1584, First name was changed from 12/6/4 to absent/4/8
 (mobile/tablet/desktop), saved and reloaded. Keyboard Home/Enter selected the
 mobile default. The inspector retained all three choices; compiled preview emitted
-only `nef-desktop-8 nef-tablet-4` and the tablet rendering showed the narrower
+only `nfs-desktop-8 nfs-tablet-4` and the tablet rendering showed the narrower
 first field. Evidence: `joomla-width-editor.png` and `joomla-width-preview.png`.
 217 PHP tests and 121 JavaScript tests pass. LAYOUT-003 remains partial pending
 the complete responsive geometry and authoring acceptance matrix.
@@ -2036,7 +2038,7 @@ ID filter for response 2331, opens Export and bulk actions and submits Export
 JSON with only Export answer selected and sensitive inclusion unchecked. Job
 1421 appears pending, then the native Process one batch action completes it with
 one processed response and zero failures. The native Download button produces
-`easyforms-1745fcac-38cf-48b4-b172-05b54f07bea1.json`.
+`formstudio-1745fcac-38cf-48b4-b172-05b54f07bea1.json`.
 
 Parsing the downloaded file confirms exactly one response, reference
 `f4234caf-f8f6-405d-8cc2-6592b4124ad1`, original version 2898 and only selected
@@ -2893,7 +2895,7 @@ authenticated-user ACL-change acceptance remain unproven by this fixture.
 ### Native module POST revalidation and channel binding
 
 The same fixture now repeats all eight availability/version changes through an
-actual Joomla module. It creates a published mod_nicode_easy_forms instance with
+actual Joomla module. It creates a published mod_nicode_form_studio instance with
 cache disabled, assigns it to the site, renders it alongside the component and
 selects its own form by form ID and module channel. The final run passes all 32
 stale JSON/HTML POST rejections across both channels, with the same zero-write
@@ -3742,7 +3744,7 @@ test certification. Current status: 127 COMPLETE, 6 PARTIAL, 0 PENDING.
 At a measured 390px viewport, the native explorer and jobs have 375px client/page
 width and 343px scrollable table panels. The dashboard initially overflowed to
 469px because its two tables lacked that container. Both now reuse
-`nef-admin-table`; after rebuilding/installing, page width is 375px and the two
+`nfs-admin-table`; after rebuilding/installing, page width is 375px and the two
 343px panels contain their 410px/453px tables. No global overflow-hiding rule was
 introduced. `build/native-responsive-admin-results.json` records all three views;
 `tests/artifacts/native-explorer-mobile.png` shows the mobile presentation.
@@ -3800,7 +3802,7 @@ All six software manifests now declare 1.0.0. `dist/pkg_nicode_easy_forms-1.0.0.
 
 The acceptance inventory is 133 COMPLETE, 0 PARTIAL, 0 PENDING. Functional verification includes PHP 295/0, JavaScript 161/0, the declared three-engine database evidence, native Administrator/public scenarios and the million-response scale fixture. Accessibility closure uses the user's explicit acceptance above; no actual screen-reader execution or WCAG certification is claimed. Mail acceptance captures prepared MIME without external delivery; CAPTCHA acceptance uses the native Joomla adapter with a synthetic provider. No production traffic/SLO or other PHP/Joomla version beyond the recorded environments is asserted.
 
-OPS-008 is COMPLETE. Installation: use Joomla's extension installer with the versioned dist ZIP. Rebuild: `php tools/build-release.php`. Documentation: ADMIN_USER_GUIDE.md, BUILD_AND_RELEASE.md and DEVELOPER_GUIDE.md. Source package/software 1.0.0, database update scripts 1.0.0 and FormSpec schema 1.0 are distinct version domains. No earlier stable EasyForms release exists; tested upgrades are from the development installation and same-version reinstalls.
+OPS-008 is COMPLETE. Installation: use Joomla's extension installer with the versioned dist ZIP. Rebuild: `php tools/build-release.php`. Documentation: ADMIN_USER_GUIDE.md, BUILD_AND_RELEASE.md and DEVELOPER_GUIDE.md. Source package/software 1.0.0, database update scripts 1.0.0 and FormSpec schema 1.0 are distinct version domains. No earlier stable FormStudio release exists; tested upgrades are from the development installation and same-version reinstalls.
 
 
 ## 1.0.1 — native administration and installation presentation (2026-09-28)
@@ -3823,7 +3825,7 @@ Final package SHA-256: `401358aa343cf4f8d4938c6d96ab91905e6202cca7ec101e251bfeb6
 
 Reproduced the reported blank Structure and Properties by serving the 1.0.1 translation module with the 1.0.2 tab markup in the isolated Joomla installation. Its obsolete details listener aborts initialization before privacy, security, confirmation and the initial tree/inspector render. The existing palette listener remains active, explaining why adding a field makes the tree appear. The previous 1.0.2 checks did not cover mixed cached module versions.
 
-Joomla now emits content-hashed import maps for every EasyForms module in administration and public runtime pages, including transitive imports. Translation controls render immediately as well as when reopening the tab. Browser verification on saved complex form 4676 covers all twelve panels, existing field properties without adding fields, saved rules/actions, privacy/security/confirmation, translations, publication/permissions, three historical versions and the saved preview. Returning to Fields retains the selected Email properties. Screenshot: ignored local tests/artifacts/editor-initialization-1.0.3.png. The cache failure was simulated locally; no access to the reporting production browser is claimed.
+Joomla now emits content-hashed import maps for every FormStudio module in administration and public runtime pages, including transitive imports. Translation controls render immediately as well as when reopening the tab. Browser verification on saved complex form 4676 covers all twelve panels, existing field properties without adding fields, saved rules/actions, privacy/security/confirmation, translations, publication/permissions, three historical versions and the saved preview. Returning to Fields retains the selected Email properties. Screenshot: ignored local tests/artifacts/editor-initialization-1.0.3.png. The cache failure was simulated locally; no access to the reporting production browser is claimed.
 
 PHP/Joomla: 297 tests pass; JavaScript: 167 tests pass. Added regression coverage for content identity changes, subdirectory import URLs and initial saved translations without draft mutation. Native web installation/navigation verifies emitted import maps against source hashes. Reproducibility and nested archive tamper rejection pass. All forty product acceptance steps pass on the exact 1.0.3 ZIP, SHA-256 `d0e3dad345f1b0d003d399f920f529fd15044bef1ed9cc5df25328685a97812e`, with captured local mail and synthetic CAPTCHA.
 

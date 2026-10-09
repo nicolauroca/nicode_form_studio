@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require_once $root . '/src/lib_nicode_easy_forms/autoload.php';
+require_once $root . '/src/lib_nicode_form_studio/autoload.php';
 $cookie = $root . '/build/success-cookie-' . bin2hex(random_bytes(6)) . '.txt'; $id = null;
 $http = static function (string $url, ?array $post = null) use ($cookie): array {
     if (!str_starts_with($url, 'http://127.0.0.1:13371/')) { throw new RuntimeException('Unexpected success fixture destination.'); }
@@ -16,7 +16,7 @@ try {
     $id = $api('create', ['name' => 'Native success acceptance', 'alias' => 'native-success-' . bin2hex(random_bytes(6))])['id'];
     $draft = $api('record', query: ['id' => $id])['draft']; $draft['elements'] = []; $draft['fields'] = [];
     foreach (['authorized', 'private', 'unselected'] as $name) {
-        $uuid = Nicode\EasyForms\Domain\Uuid::create(); $ids[$name] = $uuid;
+        $uuid = Nicode\FormStudio\Domain\Uuid::create(); $ids[$name] = $uuid;
         $draft['elements'][] = ['uuid' => $uuid, 'type' => 'field'];
         $draft['fields'][] = ['uuid' => $uuid, 'type' => 'text', 'name' => $name, 'sensitive' => $name === 'private', 'config' => ['label' => '<b>' . $name . '</b>']];
     }
@@ -25,10 +25,10 @@ try {
     $saved = $api('save', ['id' => $id, 'revision' => 0, 'draft' => $draft]); $api('publish', ['id' => $id, 'revision' => $saved['revision']]);
     $checks = [];
     foreach (['json', 'html'] as $format) {
-        $page = $http('http://127.0.0.1:13371/index.php?option=com_nicode_easy_forms&view=form&id=' . $id); $xp = $dom($page['body']); $form = $xp->query('//form[@data-nef-form]')->item(0);
+        $page = $http('http://127.0.0.1:13371/index.php?option=com_nicode_form_studio&view=form&id=' . $id); $xp = $dom($page['body']); $form = $xp->query('//form[@data-nfs-form]')->item(0);
         $assert($page['status'] === 200 && $form instanceof DOMElement, 'Success form did not render.'); $post = [];
         foreach ($xp->query('.//input[@type="hidden"]', $form) as $input) { $post[$input->getAttribute('name')] = $input->getAttribute('value'); }
-        $post['nef'] = [$ids['authorized'] => '<img src=x onerror=alert(1)>', $ids['private'] => 'SECRET-MUST-NOT-APPEAR', $ids['unselected'] => 'UNSELECTED-MUST-NOT-APPEAR'];
+        $post['nfs'] = [$ids['authorized'] => '<img src=x onerror=alert(1)>', $ids['private'] => 'SECRET-MUST-NOT-APPEAR', $ids['unselected'] => 'UNSELECTED-MUST-NOT-APPEAR'];
         if ($format === 'json') { $post['format'] = 'json'; }
         $response = $http('http://127.0.0.1:13371' . $form->getAttribute('action'), $post);
         $assert($response['status'] === 200, 'Success request failed: ' . $format . '/' . $response['status']);
@@ -39,7 +39,7 @@ try {
             $assert($result['heading'] === '<script>Native success acceptance</script>', 'Heading tokens not rendered.');
             $assert($result['summary'] === [['label' => '<b>authorized</b>', 'value' => '<img src=x onerror=alert(1)>']], 'JSON summary not explicit.');
         } else {
-            $xp = $dom($response['body']); $result = $xp->query('//div[contains(@class,"nef-confirmation")]')->item(0);
+            $xp = $dom($response['body']); $result = $xp->query('//div[contains(@class,"nfs-confirmation")]')->item(0);
             $assert($result instanceof DOMElement, 'Traditional confirmation missing.');
             $assert($xp->evaluate('string(.//h2)', $result) === '<script>Native success acceptance</script>', 'HTML heading missing or unsafe.');
             $assert($xp->evaluate('string(.//dt)', $result) === '<b>authorized</b>' && $xp->evaluate('string(.//dd)', $result) === '<img src=x onerror=alert(1)>', 'HTML summary missing or unsafe.');

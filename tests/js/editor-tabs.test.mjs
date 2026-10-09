@@ -1,19 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mountEditorTabs} from '../../src/com_nicode_easy_forms/media/js/editor-tabs.js';
+import {mountEditorTabs} from '../../src/com_nicode_form_studio/media/js/editor-tabs.js';
 
 function fixture() {
   const activated = [], shown = [], focused = [];
   const names = ['fields','logic','preview'];
   const tabs = names.map(name => {
     const element = new EventTarget();
-    return Object.assign(element, {dataset:{nefTab:name}, attrs:{}, setAttribute(key,value) { this.attrs[key]=value; }, focus() { focused.push(name); }});
+    return Object.assign(element, {dataset:{nfsTab:name}, attrs:{}, setAttribute(key,value) { this.attrs[key]=value; }, focus() { focused.push(name); }});
   });
   const panels = names.map(name => {
-    const element = Object.assign(new EventTarget(), {dataset:{nefTabPanel:name}, hidden:name !== 'fields', draftInput:{value:'unsaved draft'}});
-    element.addEventListener('nef:panelshown', () => shown.push(name)); return element;
+    const element = Object.assign(new EventTarget(), {dataset:{nfsTabPanel:name}, hidden:name !== 'fields', draftInput:{value:'unsaved draft'}});
+    element.addEventListener('nfs:panelshown', () => shown.push(name)); return element;
   });
-  const root = Object.assign(new EventTarget(), {querySelectorAll: selector => selector === '[data-nef-tab]' ? tabs : panels, ownerDocument:{documentElement:{dir:'ltr'}}});
+  const root = Object.assign(new EventTarget(), {querySelectorAll: selector => selector === '[data-nfs-tab]' ? tabs : panels, ownerDocument:{documentElement:{dir:'ltr'}}});
   const controller = mountEditorTabs(root, name => activated.push(name));
   return {tabs,panels,activated,shown,focused,controller};
 }

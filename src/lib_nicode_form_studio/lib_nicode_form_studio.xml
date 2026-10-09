@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="library" method="upgrade">
+  <name>lib_nicode_form_studio</name>
+  <libraryname>nicode_form_studio</libraryname>
+  <version>1.0.4</version>
+  <author>Nicode</author>
+  <creationDate>2026-09</creationDate>
+  <license>GPL-2.0-or-later</license>
+  <description>Nicode Form Studio shared runtime and extension APIs</description>
+  <files><filename>autoload.php</filename><folder>src</folder></files>
+</extension>

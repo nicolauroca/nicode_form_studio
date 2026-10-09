@@ -14,22 +14,22 @@ foreach (['source' => 'text', 'hidden' => 'hidden', 'locked' => 'hidden', 'syste
 }
 $derivedRevision = $api('save', ['id' => $derivedForm['id'], 'revision' => 0, 'draft' => $derivedDraft])['revision'];
 $api('publish', ['id' => $derivedForm['id'], 'revision' => $derivedRevision]);
-$derivedPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_easy_forms&view=form&id=' . $derivedForm['id']);
-$derivedXpath = $dom($derivedPage['body']); $derivedNode = $derivedXpath->query('//form[@data-nef-form]')->item(0);
+$derivedPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_form_studio&view=form&id=' . $derivedForm['id']);
+$derivedXpath = $dom($derivedPage['body']); $derivedNode = $derivedXpath->query('//form[@data-nfs-form]')->item(0);
 $assert($derivedPage['status'] === 200 && $derivedNode instanceof DOMElement, 'Derived fixture failed to render.');
 foreach (['hidden' => 'initial', 'locked' => 'locked-server', 'system' => 'system-server'] as $name => $value) {
-    $input = $derivedXpath->query('.//input[@data-nef-input="' . $derivedIds[$name] . '"]', $derivedNode)->item(0);
+    $input = $derivedXpath->query('.//input[@data-nfs-input="' . $derivedIds[$name] . '"]', $derivedNode)->item(0);
     $assert($input instanceof DOMElement && $input->getAttribute('type') === 'hidden' && $input->getAttribute('value') === $value, 'Hidden/system prefill rendering failed.');
 }
-$assert($derivedXpath->query('.//output[@data-nef-output="' . $derivedIds['calculated'] . '"]', $derivedNode)->item(0)?->textContent === 'initial', 'Calculated initial output did not resolve its source.');
-$derivedPost = ['format' => 'json', 'nef' => array_fill_keys(array_values($derivedIds), 'forged')];
-foreach ($derivedXpath->query('.//input[@type="hidden" and not(@data-nef-input)]', $derivedNode) as $input) { $derivedPost[$input->getAttribute('name')] = $input->getAttribute('value'); }
+$assert($derivedXpath->query('.//output[@data-nfs-output="' . $derivedIds['calculated'] . '"]', $derivedNode)->item(0)?->textContent === 'initial', 'Calculated initial output did not resolve its source.');
+$derivedPost = ['format' => 'json', 'nfs' => array_fill_keys(array_values($derivedIds), 'forged')];
+foreach ($derivedXpath->query('.//input[@type="hidden" and not(@data-nfs-input)]', $derivedNode) as $input) { $derivedPost[$input->getAttribute('name')] = $input->getAttribute('value'); }
 $derivedDestination = 'http://127.0.0.1:13371' . $derivedNode->getAttribute('action');
-$invalidDerived = $derivedPost; $invalidDerived['nef'][$derivedIds['hidden']] = str_repeat('a', 33);
+$invalidDerived = $derivedPost; $invalidDerived['nfs'][$derivedIds['hidden']] = str_repeat('a', 33);
 $invalidDerivedResponse = $visitorRequest($derivedDestination, $invalidDerived); $invalidDerivedResult = json_decode($invalidDerivedResponse['body'], true, flags: JSON_THROW_ON_ERROR);
 $assert($invalidDerivedResponse['status'] === 422 && isset($invalidDerivedResult['errors'][$derivedIds['hidden']]), 'Hidden input bypassed normal validation.');
-$derivedPost['nef'][$derivedIds['source']] = '  accepted source  '; $derivedPost['nef'][$derivedIds['hidden']] = 'edited hidden';
-$derivedPost['nef'][$derivedIds['locked']] = ['forged']; $derivedPost['nef'][$derivedIds['system']] = ['forged']; $derivedPost['nef'][$derivedIds['calculated']] = ['forged'];
+$derivedPost['nfs'][$derivedIds['source']] = '  accepted source  '; $derivedPost['nfs'][$derivedIds['hidden']] = 'edited hidden';
+$derivedPost['nfs'][$derivedIds['locked']] = ['forged']; $derivedPost['nfs'][$derivedIds['system']] = ['forged']; $derivedPost['nfs'][$derivedIds['calculated']] = ['forged'];
 $derivedResponse = $visitorRequest($derivedDestination, $derivedPost); $derivedResult = json_decode($derivedResponse['body'], true, flags: JSON_THROW_ON_ERROR);
 $assert($derivedResponse['status'] === 200 && $derivedResult['category'] === 'success', 'Authoritative values depended on forged POST shape.');
 $prefillStatement->execute([$derivedForm['id'], $derivedResult['reference']]); $derivedPayload = json_decode($prefillStatement->fetchColumn(), true, flags: JSON_THROW_ON_ERROR);

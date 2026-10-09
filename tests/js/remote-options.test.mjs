@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {RemoteOptions} from '../../src/com_nicode_easy_forms/media/js/remote-options.js';
+import {RemoteOptions} from '../../src/com_nicode_form_studio/media/js/remote-options.js';
 
 const fixture = () => {
   const node = () => ({hidden: false, textContent: '', setAttribute() {}, addEventListener() {}, before() {}});
-  const form = {isConnected: true, action: 'http://localhost/index.php?option=com_nicode_easy_forms&task=form.submit', dataset: {}, ownerDocument: {baseURI: 'http://localhost/', createElement: node}, querySelector: node};
+  const form = {isConnected: true, action: 'http://localhost/index.php?option=com_nicode_form_studio&task=form.submit', dataset: {}, ownerDocument: {baseURI: 'http://localhost/', createElement: node}, querySelector: node};
   let updates = 0;
   const state = new RemoteOptions(form, [{uuid: 'province', source: {type: 'remote'}, options: [{value: 'old', label: 'Old'}]}], () => updates++, (_key, fallback) => fallback);
   return {state, form, updates: () => updates};
@@ -28,7 +28,7 @@ test('remote options discard out-of-order responses and never send file bodies',
   const {state, updates} = fixture();
   const originalFetch = globalThis.fetch, originalFormData = globalThis.FormData;
   const requests = [];
-  globalThis.FormData = class { *[Symbol.iterator]() { yield ['csrf', '1']; yield ['nef[parent]', 'ES']; yield ['file', new Blob(['private upload'])]; } };
+  globalThis.FormData = class { *[Symbol.iterator]() { yield ['csrf', '1']; yield ['nfs[parent]', 'ES']; yield ['file', new Blob(['private upload'])]; } };
   globalThis.fetch = (url, options) => new Promise(resolve => requests.push({url, options, resolve}));
   try {
     state.sync({country: 'ES'});
@@ -90,7 +90,7 @@ test('remote option default flags are typed and multi-field updates commit atomi
 });
 
 test('preview remote options use the administrator transport and retain stale-response protection', async () => {
-  const {state,form,updates} = fixture(); form.dataset.nefPreview = 'true';
+  const {state,form,updates} = fixture(); form.dataset.nfsPreview = 'true';
   const pending = [];
   state.previewOptions = (values,signal) => new Promise(resolve => pending.push({values,signal,resolve}));
   state.sync({parent:'initial'}); state.sync({parent:'first'}); clearTimeout(state.timer);
@@ -103,7 +103,7 @@ test('preview remote options use the administrator transport and retain stale-re
 });
 
 test('remote refresh watches declared dependencies, conditions and activity rather than unrelated answers', async () => {
-  const {remoteOptionInputs} = await import('../../src/com_nicode_easy_forms/media/js/remote-options.js');
+  const {remoteOptionInputs} = await import('../../src/com_nicode_form_studio/media/js/remote-options.js');
   const inputs = remoteOptionInputs({fields:[
     {uuid:'country'}, {uuid:'province',source:{type:'remote',dependencies:['country']}},
     {uuid:'derived',prefill:{type:'field',field:'source'}},
@@ -129,7 +129,7 @@ test('remote refresh watches declared dependencies, conditions and activity rath
 });
 
 test('remote chains refresh when a selected remote value is another source dependency', async () => {
-  const {remoteOptionInputs} = await import('../../src/com_nicode_easy_forms/media/js/remote-options.js');
+  const {remoteOptionInputs} = await import('../../src/com_nicode_form_studio/media/js/remote-options.js');
   const {state} = fixture();
   state.inputFields = remoteOptionInputs({fields:[
     {uuid:'province',source:{type:'remote',dependencies:['country']}},

@@ -3,7 +3,7 @@ declare(strict_types=1);
 $temporalForm = $forms->create('Temporal SQL acceptance', 'temporal-sql-' . bin2hex(random_bytes(5)), 1);
 $temporalDraft = $forms->draft($temporalForm); $temporalValues = []; $temporalFieldIds = [];
 foreach (['date' => '1000-01-01', 'time' => '12:00', 'datetime-local' => '9999-12-31T23:59:59', 'month' => '2026-09', 'week' => '2020-W53'] as $type => $value) {
-    $uuid = Nicode\EasyForms\Domain\Uuid::create(); $temporalFieldIds[$type] = $uuid; $temporalValues[$uuid] = $value;
+    $uuid = Nicode\FormStudio\Domain\Uuid::create(); $temporalFieldIds[$type] = $uuid; $temporalValues[$uuid] = $value;
     $temporalDraft['elements'][] = ['uuid' => $uuid, 'type' => 'field', 'parent_uuid' => null];
     $temporalDraft['fields'][] = ['uuid' => $uuid, 'name' => str_replace('-', '_', $type), 'type' => $type, 'index' => true, 'config' => []];
 }

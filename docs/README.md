@@ -1,7 +1,7 @@
-# Nicode EasyForms — documentación de producto y arquitectura
+# Nicode Form Studio — documentación de producto y arquitectura
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -10,11 +10,11 @@
 > Todo cambio funcional deberá modificar primero o simultáneamente la especificación correspondiente y sus criterios de aceptación.
 
 
-Esta carpeta es la fuente documental de Nicode EasyForms. El objetivo es que el repositorio pueda construirse a partir de especificaciones explícitas, trazables y versionadas, sin depender de conocimiento implícito ni de formularios codificados individualmente.
+Esta carpeta es la fuente documental de Nicode Form Studio. El objetivo es que el repositorio pueda construirse a partir de especificaciones explícitas, trazables y versionadas, sin depender de conocimiento implícito ni de formularios codificados individualmente.
 
 ## Idea central
 
-Nicode EasyForms es un **motor genérico de formularios para Joomla**. El código implementa capacidades; los datos describen cada formulario. Crear, editar, publicar, despublicar, duplicar, versionar, importar, exportar o eliminar un formulario no debe requerir modificar PHP, JavaScript, SQL ni desplegar una nueva versión del paquete.
+Nicode Form Studio es un **motor genérico de formularios para Joomla**. El código implementa capacidades; los datos describen cada formulario. Crear, editar, publicar, despublicar, duplicar, versionar, importar, exportar o eliminar un formulario no debe requerir modificar PHP, JavaScript, SQL ni desplegar una nueva versión del paquete.
 
 Un formulario debe poder publicarse al menos de dos formas:
 
@@ -85,4 +85,4 @@ En caso de conflicto:
 - Toda submission quedará asociada a la versión exacta contra la que se envió.
 - El sistema debe poder gestionar cientos de formularios y desde cientos hasta millones de submissions.
 - La administración de respuestas debe permitir búsqueda, filtrado, visualización, exportación, acciones masivas y explotación operativa sin obligar a descargar todo el dataset.
-- CAPTCHA debe integrarse preferentemente mediante la infraestructura de proveedores/plugins CAPTCHA de Joomla; EasyForms no debe inventar un algoritmo CAPTCHA propio.
+- CAPTCHA debe integrarse preferentemente mediante la infraestructura de proveedores/plugins CAPTCHA de Joomla; FormStudio no debe inventar un algoritmo CAPTCHA propio.

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="plugin" group="extension" method="upgrade">
+  <name>plg_extension_nicode_form_studio</name><version>1.0.4</version><author>Nicode</author><creationDate>2026-09</creationDate><license>GPL-2.0-or-later</license>
+  <description>PLG_EXTENSION_NICODE_FORM_STUDIO_DESCRIPTION</description>
+  <namespace path="src">Nicode\Plugin\Extension\FormStudio</namespace>
+  <scriptfile>script.php</scriptfile>
+  <files><folder plugin="nicode_form_studio">services</folder><folder>src</folder></files>
+  <languages><language tag="en-GB">language/en-GB/plg_extension_nicode_form_studio.ini</language><language tag="en-GB">language/en-GB/plg_extension_nicode_form_studio.sys.ini</language><language tag="es-ES">language/es-ES/plg_extension_nicode_form_studio.ini</language><language tag="es-ES">language/es-ES/plg_extension_nicode_form_studio.sys.ini</language></languages>
+</extension>

@@ -30,7 +30,7 @@ must be explicit and require an idempotency strategy.
 
 Files and generated exports live in a configured private directory outside the
 public web root with opaque storage keys. Storage repositories own only files
-registered to EasyForms. Download authorization is always checked by a controller.
+registered to FormStudio. Download authorization is always checked by a controller.
 Retaining form definitions never implies retaining visitor personal data.
 
 ## Consequences

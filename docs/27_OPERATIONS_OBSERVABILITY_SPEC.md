@@ -8,7 +8,7 @@ encola mediante los jobs de limpieza existentes. Los filtros usan versión fijad
 cursor estable y límite superior de respuestas; no se envían millones de IDs desde
 el navegador. Se revalidan permisos del creador en cada lote.
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -66,7 +66,7 @@ Eventos:
 
 Separado del technical log.
 
-El visor global requiere `core.manage` y `easyforms.logs.view` sobre el componente.
+El visor global requiere `core.manage` y `formstudio.logs.view` sobre el componente.
 Muestra eventos, actor, fecha y referencias estables, sin consultar respuestas ni
 exponer metadatos de texto libre. Filtra por formulario, actor, tipo de evento,
 UUID de respuesta, correlación y días UTC inclusivos. Usa páginas de 100 registros
@@ -129,8 +129,8 @@ La implementación podrá apoyarse en mecanismos Joomla apropiados como CLI/plug
 
 No se dependerá de que el usuario mantenga una pestaña abierta para operaciones masivas.
 
-El package incluye `plg_task_nicode_easy_forms`, una rutina del programador nativo
-con identificador `nicode.easyforms.jobs`. El administrador del sitio activa el
+El package incluye `plg_task_nicode_form_studio`, una rutina del programador nativo
+con identificador `nicode.formstudio.jobs`. El administrador del sitio activa el
 plugin y configura la tarea; el instalador no crea una planificación oculta.
 La tarea permite 1–50 lotes de 1–500 registros por ejecución y deja de iniciar
 lotes nuevos tras 20 segundos. Cada lote conserva su lease y checkpoint. La
@@ -139,7 +139,7 @@ la planificación normal de Joomla. Los handlers revalidan los permisos del auto
 original; el ejecutor no sustituye esa identidad por la de un superusuario.
 
 El administrador ofrece listado de trabajos propios, listado global con
-`easyforms.jobs.manage`, cancelación y descarga privada de CSV completados durante
+`formstudio.jobs.manage`, cancelación y descarga privada de CSV completados durante
 24 horas. No expone parámetros, tokens de lease ni rutas de almacenamiento.
 Las peticiones públicas solo pueden encolar exportación, reindexado y operaciones
 masivas permitidas; los trabajos de borrado físico son internos.
@@ -166,7 +166,7 @@ Jobs resumibles deben evitar reprocesar destructivamente el mismo bloque.
 
 ## 8. Diagnóstico
 
-El diagnóstico nativo requiere `core.manage` y `easyforms.logs.view` sobre el
+El diagnóstico nativo requiere `core.manage` y `formstudio.logs.view` sobre el
 componente. Sus sondas son de solo lectura y muestran códigos seguros, nunca
 rutas privadas, credenciales ni mensajes de excepción. Los recuentos de backlog
 son muestras limitadas a 100 registros y se identifican como `100+` si hay más.
@@ -319,7 +319,7 @@ ocupados se recuperan en una ejecución posterior. El checkpoint y las eliminaci
 comparten la transacción del worker. No elimina intentos de idempotencia activos.
 
 
-El plugin nativo plg_extension_nicode_easy_forms audita cada guardado confirmado
+El plugin nativo plg_extension_nicode_form_studio audita cada guardado confirmado
 de configuración global como `config.security_saved`, incluidos permisos.
 No almacena parámetros ni valores. Se habilita en su primera instalación y
 Health avisa si está desactivado. Véase ADR 0017.
@@ -332,7 +332,7 @@ comprobaciones conocidas, recuentos acotados y las directivas PHP ya permitidas.
 No serializa la configuración ni los detalles libres de providers: excluye rutas,
 direcciones, credenciales, excepciones, filas SQL y contenido de respuestas.
 No se transmite automáticamente ni añade un endpoint público. Conserva los
-permisos core.manage y easyforms.logs.view exigidos por SystemHealth. La proyección
+permisos core.manage y formstudio.logs.view exigidos por SystemHealth. La proyección
 se realiza mediante una lista explícita, independiente de futuras ampliaciones
 del reporte interno. Valores malformados se representan como no disponibles.
 

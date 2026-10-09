@@ -3,7 +3,7 @@ declare(strict_types=1);
 $identityForm = $formAdministration->create('Machine name identity', 'identity-' . bin2hex(random_bytes(5)), 731);
 $identityEdit = $formAdministration->edit($identityForm, 731);
 if ($identityEdit['published_names'] !== []) { throw new RuntimeException('Unpublished fields have a published rename baseline.'); }
-$identityDraft = $identityEdit['draft']; $identityField = Nicode\EasyForms\Domain\Uuid::create();
+$identityDraft = $identityEdit['draft']; $identityField = Nicode\FormStudio\Domain\Uuid::create();
 $identityDraft['elements'] = [['uuid' => $identityField, 'type' => 'field', 'parent_uuid' => null]];
 $identityDraft['fields'] = [['uuid' => $identityField, 'type' => 'text', 'name' => 'original_name', 'config' => ['label' => 'Original label']]];
 $identityRevision = $formAdministration->save($identityForm, 0, $identityDraft, 731);

@@ -5,7 +5,7 @@ test('text lengths count Unicode code points without native UTF16 truncation', f
         foreach (['text', 'textarea', 'password', 'search', 'telephone'] as $type) { same($case['errors'], registry()->get($type)->validate($case['value'], $case['config'])); }
     }
     foreach (['text', 'textarea', 'password', 'search', 'telephone'] as $type) {
-        $html = (new Nicode\EasyForms\Rendering\CoreFieldRenderer())->render(['uuid' => 'unicode', 'name' => 'unicode', 'type' => $type, 'config' => ['min_length' => 1, 'max_length' => 1]], 'fixture', '😀');
+        $html = (new Nicode\FormStudio\Rendering\CoreFieldRenderer())->render(['uuid' => 'unicode', 'name' => 'unicode', 'type' => $type, 'config' => ['min_length' => 1, 'max_length' => 1]], 'fixture', '😀');
         same(false, str_contains($html, 'maxlength=')); same(false, str_contains($html, 'minlength='));
     }
 });

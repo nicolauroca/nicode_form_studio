@@ -4,7 +4,7 @@ declare(strict_types=1);
 // last so the following privacy fixture continues to target these same two rows.
 $bulkStates = ['new', 'viewed', 'processed', 'error', 'archived', 'spam', 'reviewed'];
 $bulkRecord = static function (int $id) use ($request, $base, $jobFixture, $assert): array {
-    $response = $request($base . '?' . http_build_query(['option' => 'com_nicode_easy_forms', 'task' => 'submission.record', 'form_id' => $jobFixture['form_id'], 'id' => $id]));
+    $response = $request($base . '?' . http_build_query(['option' => 'com_nicode_form_studio', 'task' => 'submission.record', 'form_id' => $jobFixture['form_id'], 'id' => $id]));
     $assert($response['status'] === 200, 'Bulk state readback failed.');
     return json_decode($response['body'], true, flags: JSON_THROW_ON_ERROR)['data'];
 };
@@ -13,7 +13,7 @@ foreach ([$responsesPage['body'], $retryDetail['body']] as $html) {
     $dom = new DOMDocument(); $prior = libxml_use_internal_errors(true);
     try { $dom->loadHTML($html); } finally { libxml_clear_errors(); libxml_use_internal_errors($prior); }
     $xpath = new DOMXPath($dom);
-    $options = $xpath->query('//form[@data-nef-state or @data-operation="state"]//select[@name="state"]/option');
+    $options = $xpath->query('//form[@data-nfs-state or @data-operation="state"]//select[@name="state"]/option');
     $actual = [];
     foreach ($options as $option) {
         $actual[] = $option->getAttribute('value');

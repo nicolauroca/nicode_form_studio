@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
-$responseAdmin = new Nicode\EasyForms\Application\SubmissionAdministration($connection, static fn (int $actor, ?int $form, string $permission): bool => $actor === 1);
+$responseAdmin = new Nicode\FormStudio\Application\SubmissionAdministration($connection, static fn (int $actor, ?int $form, string $permission): bool => $actor === 1);
 $target = $submissions->persist($id, $indexedVersion, $spec, [$uuid => 'State fixture'], hash('sha256', random_bytes(32)));
 try { $responseAdmin->changeState(2, $id, $target->id, 'new', 'reviewed'); throw new RuntimeException('Unauthorized response state edit.'); } catch (DomainException) {}
 try { $responseAdmin->addNote(1, $multiForm, $target->id, 'wrong form'); throw new RuntimeException('Cross-form note added.'); } catch (OutOfBoundsException) {}
 $canonicalBefore = $submissions->get($id, $target->id)['canonical_payload'];
 $responseAdmin->changeState(1, $id, $target->id, 'new', 'reviewed');
-try { $responseAdmin->changeState(1, $id, $target->id, 'new', 'spam'); throw new RuntimeException('Stale response state overwritten.'); } catch (Nicode\EasyForms\Domain\ConcurrentEdit) {}
+try { $responseAdmin->changeState(1, $id, $target->id, 'new', 'spam'); throw new RuntimeException('Stale response state overwritten.'); } catch (Nicode\FormStudio\Domain\ConcurrentEdit) {}
 $noteId = $responseAdmin->addNote(1, $id, $target->id, 'Literal <script>alert(1)</script> note');
 $noteRow = $connection->row('SELECT body, created_by FROM ' . $connection->table('submission_notes') . ' WHERE id = :id', [':id' => $noteId]);
 if ($noteRow['body'] !== 'Literal <script>alert(1)</script> note' || (int) $noteRow['created_by'] !== 1 || $submissions->get($id, $target->id)['canonical_payload'] !== $canonicalBefore) { throw new RuntimeException('Administrative edit changed canonical answers or note ownership.'); }
@@ -18,7 +18,7 @@ try { $responseAdmin->addNote(1, $id, $target->id, 'after erasure'); throw new R
 echo "Response administration: per-form permissions, optimistic state, literal notes, minimal audit and anonymization boundary verified.\n";
 
 (static function()use($connection,$submissions,$responseAdmin,$id,$indexedVersion,$spec,$uuid,$multiForm):void {
-    $states=Nicode\EasyForms\Application\SubmissionAdministration::STATES;
+    $states=Nicode\FormStudio\Application\SubmissionAdministration::STATES;
     foreach($states as $from) {
         foreach($states as $to) {
             $response=$submissions->persist($id,$indexedVersion,$spec,[$uuid=>'State transition private value'],hash('sha256',random_bytes(32)));
@@ -32,13 +32,13 @@ echo "Response administration: per-form permissions, optimistic state, literal n
             if($from!==$to) {
                 $event=end($events); $metadata=json_decode($event['safe_metadata'],true,flags:JSON_THROW_ON_ERROR);
                 if($metadata!==['from'=>$from,'to'=>$to] || (int)$event['actor_id']!==1 || (int)$event['form_id']!==$id) { throw new RuntimeException('State audit lost typed origin/destination or trusted ownership.'); }
-                $viewer=new Nicode\EasyForms\Application\AuditLog($connection,static fn():bool=>true);
+                $viewer=new Nicode\FormStudio\Application\AuditLog($connection,static fn():bool=>true);
                 $visible=$viewer->page(1,['submission_uuid'=>$response->uuid,'event_type'=>'submission.state']);
                 if($visible['rows'][0]['details']!==$metadata) { throw new RuntimeException('Audit viewer omitted state transition details.'); }
-                try { $responseAdmin->changeState(1,$id,$response->id,$from,$from); throw new LogicException('Stale transition overwrote current state.'); } catch(Nicode\EasyForms\Domain\ConcurrentEdit) {}
+                try { $responseAdmin->changeState(1,$id,$response->id,$from,$from); throw new LogicException('Stale transition overwrote current state.'); } catch(Nicode\FormStudio\Domain\ConcurrentEdit) {}
             }
-            foreach(['core.manage','easyforms.submissions.view','easyforms.submissions.manage'] as $denied) {
-                $restricted=new Nicode\EasyForms\Application\SubmissionAdministration($connection,static fn(int $actor,?int $scope,string $permission):bool=>$permission!==$denied);
+            foreach(['core.manage','formstudio.submissions.view','formstudio.submissions.manage'] as $denied) {
+                $restricted=new Nicode\FormStudio\Application\SubmissionAdministration($connection,static fn(int $actor,?int $scope,string $permission):bool=>$permission!==$denied);
                 try { $restricted->changeState(1,$id,$response->id,$to,'new'); throw new LogicException('Independent state permission bypassed.'); } catch(DomainException) {}
             }
             try { $responseAdmin->changeState(1,$multiForm,$response->id,$to,'new'); throw new LogicException('Cross-form transition accepted.'); } catch(OutOfBoundsException) {}

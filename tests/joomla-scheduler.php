@@ -1,18 +1,18 @@
 <?php
 declare(strict_types=1);
 require __DIR__ . '/joomla-jobs.php';
-$db->execute('UPDATE ' . $db->quote('#__extensions') . " SET enabled = 1 WHERE type = 'plugin' AND folder = 'task' AND element = 'nicode_easy_forms'");
+$db->execute('UPDATE ' . $db->quote('#__extensions') . " SET enabled = 1 WHERE type = 'plugin' AND folder = 'task' AND element = 'nicode_form_studio'");
 $taskComponent = $app->bootComponent('com_scheduler');
 $taskModel = $taskComponent->getMVCFactory()->createModel('Task', 'Administrator', ['ignore_request' => true]);
 $taskModel->setCurrentUser($admin);
-$taskData = ['title' => 'EasyForms isolated worker ' . bin2hex(random_bytes(3)), 'type' => 'nicode.easyforms.jobs', 'state' => 1, 'priority' => 0, 'params' => ['batches' => 2, 'chunk_size' => 1], 'execution_rules' => ['rule-type' => 'manual', 'exec-day' => gmdate('d'), 'exec-time' => gmdate('H:i')]];
+$taskData = ['title' => 'FormStudio isolated worker ' . bin2hex(random_bytes(3)), 'type' => 'nicode.formstudio.jobs', 'state' => 1, 'priority' => 0, 'params' => ['batches' => 2, 'chunk_size' => 1], 'execution_rules' => ['rule-type' => 'manual', 'exec-day' => gmdate('d'), 'exec-time' => gmdate('H:i')]];
 if (!$taskModel->save($taskData)) { throw new RuntimeException('Unable to prepare isolated scheduler task.'); }
 $taskId = (int) $taskModel->getState('task.id');
 if ($taskId < 1) { throw new RuntimeException('Scheduler fixture identity missing.'); }
-$job = $runtime->get(Nicode\EasyForms\Application\JobAdministration::class)->enqueue((int) $admin->id, $form, 'export-csv', ['fields' => [$field]]);
+$job = $runtime->get(Nicode\FormStudio\Application\JobAdministration::class)->enqueue((int) $admin->id, $form, 'export-csv', ['fields' => [$field]]);
 file_put_contents($root . '/build/native-scheduler-fixture.json', json_encode(['task_id' => $taskId, 'job_id' => $job, 'form_id' => $form], JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
 echo "Manual isolated scheduler task prepared for explicit CLI execution.\n";
-$repository = $runtime->get(Nicode\EasyForms\Infrastructure\Database\JobRepository::class);
+$repository = $runtime->get(Nicode\FormStudio\Infrastructure\Database\JobRepository::class);
 $sawPending = false;
 for ($run = 0; $run < 12; $run++) {
     $before = $repository->get($job);
@@ -26,11 +26,11 @@ for ($run = 0; $run < 12; $run++) {
 }
 $finished = $repository->get($job);
 if (!$sawPending || $finished['state'] !== 'completed' || (int) $finished['processed'] !== 3) { throw new RuntimeException('Scheduler failed to resume export across CLI processes.'); }
-$download = $runtime->get(Nicode\EasyForms\Application\ExportDownloads::class)->open($job, (int) $admin->id);
+$download = $runtime->get(Nicode\FormStudio\Application\ExportDownloads::class)->open($job, (int) $admin->id);
 $rows = []; while (($csvRow = fgetcsv($download->stream, escape: '')) !== false) { $rows[] = $csvRow; } fclose($download->stream);
 if (count($rows) !== 4 || count(array_unique(array_column(array_slice($rows, 1), 0))) !== 3) { throw new RuntimeException('Scheduler export repeated or lost a response.'); }
 $db->execute('UPDATE ' . $db->table('jobs') . ' SET expires_at = :past WHERE id = :id', [':past' => '2000-01-01 00:00:00', ':id' => $job]);
-$cleanupQueue = new Nicode\EasyForms\Infrastructure\Joomla\JobMaintenance($db, $repository, static fn (): int => time() + 3601);
+$cleanupQueue = new Nicode\FormStudio\Infrastructure\Joomla\JobMaintenance($db, $repository, static fn (): int => time() + 3601);
 $cleanupJob = $cleanupQueue->queueExportCleanup();
 if ($cleanupJob === null || $cleanupQueue->queueExportCleanup() !== null) { throw new RuntimeException('Scheduled cleanup deduplication failed.'); }
 // Other hourly maintenance shares this worker; cleanup is queued, not an

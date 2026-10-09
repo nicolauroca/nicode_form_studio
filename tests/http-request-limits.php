@@ -5,12 +5,12 @@ declare(strict_types=1);
 // Prepare the 1,500-field fixture with tests/http-admin.php before running this.
 $root = dirname(__DIR__); $site = $root . '/build/joomla-6.0.0';
 require $site . '/configuration.php'; $configuration = new JConfig();
-if ($configuration->db !== 'easyforms_joomla' || $configuration->host !== '127.0.0.1:13367' || $configuration->dbprefix !== 'j6_') { throw new RuntimeException('Refusing non-isolated request-limit fixture.'); }
+if ($configuration->db !== 'formstudio_joomla' || $configuration->host !== '127.0.0.1:13367' || $configuration->dbprefix !== 'j6_') { throw new RuntimeException('Refusing non-isolated request-limit fixture.'); }
 $fixture = json_decode(file_get_contents($root . '/build/native-large-form-fixture.json'), true, flags: JSON_THROW_ON_ERROR);
 if (($fixture['fields'] ?? null) !== 1500 || !is_int($fixture['form_id'] ?? null)) { throw new RuntimeException('Prepare the native large-form fixture first.'); }
-$db = new PDO('mysql:host=127.0.0.1;port=13367;dbname=easyforms_joomla;charset=utf8mb4', $configuration->user, $configuration->password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-$count = $db->prepare('SELECT COUNT(*) FROM j6_nicode_easyforms_submissions WHERE form_id = ?');
-$latest = $db->prepare('SELECT canonical_payload FROM j6_nicode_easyforms_submissions WHERE form_id = ? ORDER BY id DESC LIMIT 1');
+$db = new PDO('mysql:host=127.0.0.1;port=13367;dbname=formstudio_joomla;charset=utf8mb4', $configuration->user, $configuration->password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$count = $db->prepare('SELECT COUNT(*) FROM j6_nicode_form_studio_submissions WHERE form_id = ?');
+$latest = $db->prepare('SELECT canonical_payload FROM j6_nicode_form_studio_submissions WHERE form_id = ? ORDER BY id DESC LIMIT 1');
 $results = [];
 $cases = [
     'legacy-variable-cap' => ['vars' => 1000, 'parts' => -1, 'bytes' => '8M', 'packed' => false, 'accepted' => false],
@@ -48,15 +48,15 @@ foreach ($cases as $name => $case) {
             curl_setopt($handle, CURLOPT_COOKIELIST, 'FLUSH');
             return ['status' => $status, 'body' => $body];
         };
-        $page = $request('option=com_nicode_easy_forms&view=form&id=' . $fixture['form_id']);
+        $page = $request('option=com_nicode_form_studio&view=form&id=' . $fixture['form_id']);
         $document = new DOMDocument(); $previous = libxml_use_internal_errors(true);
         try { $document->loadHTML($page['body']); } finally { libxml_clear_errors(); libxml_use_internal_errors($previous); }
-        $xpath = new DOMXPath($document); $form = $xpath->query('//form[@data-nef-form]')->item(0);
+        $xpath = new DOMXPath($document); $form = $xpath->query('//form[@data-nfs-form]')->item(0);
         if ($page['status'] !== 200 || !$form instanceof DOMElement) { throw new RuntimeException('Native large form did not render under the selected budget.'); }
         $post = []; $values = []; $seenEnvelope = false;
         foreach ($xpath->query('.//input[@name and not(@disabled)]', $form) as $input) {
             $fieldName = $input->getAttribute('name'); $value = $input->getAttribute('value');
-            if (preg_match('/^nef\[([0-9a-f-]{36})\]$/D', $fieldName, $match)) {
+            if (preg_match('/^nfs\[([0-9a-f-]{36})\]$/D', $fieldName, $match)) {
                 if ($seenEnvelope) { throw new RuntimeException('Security envelope no longer follows all answer fields.'); }
                 $values[$match[1]] = $value;
             } elseif ($fieldName === 'form_id') { $seenEnvelope = true; }
@@ -64,12 +64,12 @@ foreach ($cases as $name => $case) {
         }
         if (count($values) !== 1500 || !$seenEnvelope) { throw new RuntimeException('Large-form controls or trailing envelope missing.'); }
         if ($case['packed']) {
-            $post = array_filter($post, static fn (string $key): bool => !str_starts_with($key, 'nef['), ARRAY_FILTER_USE_KEY);
-            $post['nef_values'] = json_encode($values, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+            $post = array_filter($post, static fn (string $key): bool => !str_starts_with($key, 'nfs['), ARRAY_FILTER_USE_KEY);
+            $post['nfs_values'] = json_encode($values, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
         }
         $count->execute([$fixture['form_id']]); $before = (int) $count->fetchColumn();
         if ($case['json'] ?? false) { $post['format'] = 'json'; }
-        $response = $request('option=com_nicode_easy_forms&task=form.submit', $post, $case['json'] ?? false);
+        $response = $request('option=com_nicode_form_studio&task=form.submit', $post, $case['json'] ?? false);
         $count->execute([$fixture['form_id']]); $after = (int) $count->fetchColumn();
         if ($case['accepted']) {
             if ($response['status'] !== 200 || !str_contains($response['body'], 'Your response has been received.') || $after !== $before + 1) { throw new RuntimeException('Sufficient legacy request budget did not accept exactly one response.'); }

@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 
-use Nicode\EasyForms\Registry\RuleOperatorRegistry;
-use Nicode\EasyForms\Validation\SafePattern;
+use Nicode\FormStudio\Registry\RuleOperatorRegistry;
+use Nicode\FormStudio\Validation\SafePattern;
 
 foreach (json_decode(file_get_contents(__DIR__ . '/../fixtures/operators.json'), true, 512, JSON_THROW_ON_ERROR) as $index => $case) {
     test('shared operator ' . $index . ': ' . $case['operator'], static function () use ($case): void {

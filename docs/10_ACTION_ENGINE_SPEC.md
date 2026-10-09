@@ -1,7 +1,7 @@
 # 10 — Action Engine
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -237,7 +237,7 @@ Debe contemplar:
 - logging sin secretos.
 
 Las cabeceras personalizadas `X-*` tienen nombres únicos sin distinguir
-mayúsculas. `X-EasyForms-Signature` y `X-EasyForms-Timestamp` están reservadas al
+mayúsculas. `X-FormStudio-Signature` y `X-FormStudio-Timestamp` están reservadas al
 firmado del runtime, incluso cuando una acción no configura firma. El compilador
 y la validación previa a ejecutar rechazan esas colisiones. El transporte HTTP
 también rechaza nombres duplicados sin distinguir mayúsculas antes de resolver

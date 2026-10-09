@@ -5,7 +5,7 @@ declare(strict_types=1);
 $bfForm = $forms->create('Historical backfill', 'historical-backfill-' . bin2hex(random_bytes(6)), 1); $fixtureForms[] = $bfForm;
 $bfDraft = $forms->draft($bfForm); $bfFields = [];
 foreach (['answer', 'consented_secret', 'unconsented_secret'] as $name) {
-    $uuid = Nicode\EasyForms\Domain\Uuid::create(); $bfFields[$name] = $uuid;
+    $uuid = Nicode\FormStudio\Domain\Uuid::create(); $bfFields[$name] = $uuid;
     $bfDraft['elements'][] = ['uuid' => $uuid, 'type' => 'field'];
     $bfDraft['fields'][] = ['uuid' => $uuid, 'type' => 'text', 'name' => $name, 'index' => false, 'sensitive' => $name !== 'answer', 'allow_sensitive_index' => $name === 'consented_secret', 'config' => ['max_length' => 255]];
 }
@@ -22,8 +22,8 @@ $bfCurrentVersion = $bfPublish(); $bfCurrent = $forms->version($bfForm, $bfCurre
 $bfLatestJob = static fn (): int => (int) $db->row('SELECT MAX(id) AS id FROM ' . $db->table('jobs') . ' WHERE form_id = :form', [':form' => $bfForm])['id'];
 $bfPending = static fn (): int => (int) $db->row('SELECT COUNT(*) AS total FROM ' . $db->table('submissions') . ' WHERE form_id = :form AND index_pending = 1', [':form' => $bfForm])['total'];
 $assert($bfPending() === 2 && $jobs->get($bfLatestJob())['state'] === 'pending', 'Publication failed to atomically mark and enqueue historical indexing.');
-$bfQuery = static fn (string $name, string $operator = 'equals'): Nicode\EasyForms\Search\SearchRequest => new Nicode\EasyForms\Search\SearchRequest(['form_id' => $bfForm], [['field' => $bfFields[$name], 'operator' => $operator, 'value' => 'historical-1']]);
-$bfScope = new Nicode\EasyForms\Search\SearchScope([$bfForm => false]); $bfSensitive = new Nicode\EasyForms\Search\SearchScope([$bfForm => true]);
+$bfQuery = static fn (string $name, string $operator = 'equals'): Nicode\FormStudio\Search\SearchRequest => new Nicode\FormStudio\Search\SearchRequest(['form_id' => $bfForm], [['field' => $bfFields[$name], 'operator' => $operator, 'value' => 'historical-1']]);
+$bfScope = new Nicode\FormStudio\Search\SearchScope([$bfForm => false]); $bfSensitive = new Nicode\FormStudio\Search\SearchScope([$bfForm => true]);
 $assert($search->search($bfQuery('answer', 'not_equals'), $bfScope, $bfCurrent)->rows === [], 'Pending projection produced a false negative match.');
 $run($bfLatestJob());
 $assert($bfPending() === 0 && count($search->search($bfQuery('answer'), $bfScope, $bfCurrent)->rows) === 1, 'Backfill failed to make an old non-indexed value searchable.');

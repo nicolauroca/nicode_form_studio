@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-$historyCorrelation = Nicode\EasyForms\Domain\Uuid::create();
+$historyCorrelation = Nicode\FormStudio\Domain\Uuid::create();
 for ($historyIndex = 0; $historyIndex < 12; $historyIndex++) { $connection->insert('audit_log', ['correlation_id' => $historyCorrelation, 'actor_id' => 1, 'event_type' => 'fixture.history', 'form_id' => null, 'submission_uuid' => null, 'created_at' => '1999-01-01 00:00:00', 'safe_metadata' => '{}']); }
 $historyFresh = $connection->insert('audit_log', ['correlation_id' => $historyCorrelation, 'actor_id' => 1, 'event_type' => 'fixture.history', 'form_id' => null, 'submission_uuid' => null, 'created_at' => gmdate('Y-m-d H:i:s'), 'safe_metadata' => '{}']);
 $historyDays = 30;
-$historyCleaner = new Nicode\EasyForms\Jobs\OperationalHistoryCleanupHandler($connection, 'audit', static function () use (&$historyDays): int { return $historyDays; });
-$historyLease = new Nicode\EasyForms\Jobs\JobLease(1, Nicode\EasyForms\Domain\Uuid::create(), 'audit-history-cleanup', 0, ['days' => 30], [], str_repeat('a', 64), 1, 0, 0);
+$historyCleaner = new Nicode\FormStudio\Jobs\OperationalHistoryCleanupHandler($connection, 'audit', static function () use (&$historyDays): int { return $historyDays; });
+$historyLease = new Nicode\FormStudio\Jobs\JobLease(1, Nicode\FormStudio\Domain\Uuid::create(), 'audit-history-cleanup', 0, ['days' => 30], [], str_repeat('a', 64), 1, 0, 0);
 try { $connection->transaction(function () use ($historyCleaner, $historyLease): void { $historyCleaner->run($historyLease, 5); throw new RuntimeException('History rollback.'); }); }
 catch (RuntimeException $error) { if ($error->getMessage() !== 'History rollback.') { throw $error; } }
 if ((int) $connection->row('SELECT COUNT(*) AS total FROM ' . $connection->table('audit_log') . ' WHERE correlation_id = :uuid', [':uuid' => $historyCorrelation])['total'] !== 13) { throw new RuntimeException('Audit cleanup escaped rollback.'); }
@@ -16,7 +16,7 @@ foreach ([0, 60] as $historyDays) {
 }
 $historyDays = 30; $historyCursor = []; $historyProcessed = 0;
 for ($historyBatch = 0; $historyBatch < 1000; $historyBatch++) {
-    $historyLease = new Nicode\EasyForms\Jobs\JobLease(1, Nicode\EasyForms\Domain\Uuid::create(), 'audit-history-cleanup', 0, ['days' => 30], $historyCursor, str_repeat('a', 64), 1, $historyProcessed, 0);
+    $historyLease = new Nicode\FormStudio\Jobs\JobLease(1, Nicode\FormStudio\Domain\Uuid::create(), 'audit-history-cleanup', 0, ['days' => 30], $historyCursor, str_repeat('a', 64), 1, $historyProcessed, 0);
     $historyProgress = $connection->transaction(fn () => $historyCleaner->run($historyLease, 5));
     if ($historyProgress->processed > 5) { throw new RuntimeException('History cleanup exceeded candidate bound.'); }
     $historyCursor = $historyProgress->cursor; $historyProcessed += $historyProgress->processed;
@@ -26,16 +26,16 @@ $historyRemaining = $connection->rows('SELECT id FROM ' . $connection->table('au
 if (!$historyProgress->complete || array_map('intval', array_column($historyRemaining, 'id')) !== [$historyFresh]) { throw new RuntimeException('Audit retention lost fresh records or skipped expired records.'); }
 
 $actionHistoryForm = $forms->create('Action history retention', 'action-history-' . bin2hex(random_bytes(6)), 1);
-$actionHistoryDraft = $forms->draft($actionHistoryForm); $actionHistoryField = Nicode\EasyForms\Domain\Uuid::create();
+$actionHistoryDraft = $forms->draft($actionHistoryForm); $actionHistoryField = Nicode\FormStudio\Domain\Uuid::create();
 $actionHistoryDraft['elements'] = [['uuid' => $actionHistoryField, 'type' => 'field', 'parent_uuid' => null]];
 $actionHistoryDraft['fields'] = [['uuid' => $actionHistoryField, 'name' => 'value', 'type' => 'text', 'config' => []]];
 $actionHistoryRevision = $forms->saveDraft($actionHistoryForm, 0, $actionHistoryDraft, 1);
 $actionHistoryVersion = $forms->publish($actionHistoryForm, $actionHistoryRevision, 1);
 $actionHistorySubmission = $submissions->persist($actionHistoryForm, $actionHistoryVersion, $forms->version($actionHistoryForm, $actionHistoryVersion), [$actionHistoryField => 'test'], hash('sha256', random_bytes(32)));
-$actionHistoryRuns = new Nicode\EasyForms\Infrastructure\Database\ActionRunRepository($connection);
+$actionHistoryRuns = new Nicode\FormStudio\Infrastructure\Database\ActionRunRepository($connection);
 $actionHistoryIds = []; $actionHistoryActions = [];
 foreach (['succeeded', 'failed', 'running'] as $terminal) {
-    $action = Nicode\EasyForms\Domain\Uuid::create(); $actionHistoryActions[$terminal] = $action;
+    $action = Nicode\FormStudio\Domain\Uuid::create(); $actionHistoryActions[$terminal] = $action;
     for ($attempt = 1; $attempt <= 3; $attempt++) {
         $lease = $actionHistoryRuns->claim($actionHistorySubmission->id, $action, 'fixture.history', $attempt > 1);
         $actionHistoryIds[] = $lease->id;
@@ -43,10 +43,10 @@ foreach (['succeeded', 'failed', 'running'] as $terminal) {
     }
 }
 $connection->execute('UPDATE ' . $connection->table('action_runs') . ' SET created_at = :date WHERE submission_id = :submission', [':date' => '1999-01-01 00:00:00', ':submission' => $actionHistorySubmission->id]);
-$actionCleaner = new Nicode\EasyForms\Jobs\OperationalHistoryCleanupHandler($connection, 'action', static fn (): int => 30);
+$actionCleaner = new Nicode\FormStudio\Jobs\OperationalHistoryCleanupHandler($connection, 'action', static fn (): int => 30);
 $actionCursor = []; $actionProcessed = 0;
 for ($batch = 0; $batch < 1000; $batch++) {
-    $lease = new Nicode\EasyForms\Jobs\JobLease(1, Nicode\EasyForms\Domain\Uuid::create(), 'action-history-cleanup', 0, ['days' => 30], $actionCursor, str_repeat('a', 64), 1, $actionProcessed, 0);
+    $lease = new Nicode\FormStudio\Jobs\JobLease(1, Nicode\FormStudio\Domain\Uuid::create(), 'action-history-cleanup', 0, ['days' => 30], $actionCursor, str_repeat('a', 64), 1, $actionProcessed, 0);
     $progress = $connection->transaction(fn () => $actionCleaner->run($lease, 4));
     if ($progress->processed > 4) { throw new RuntimeException('Action history candidate bound exceeded.'); }
     $actionCursor = $progress->cursor; $actionProcessed += $progress->processed;

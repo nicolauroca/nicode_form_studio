@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require dirname(__DIR__) . '/src/lib_nicode_easy_forms/autoload.php';
+require dirname(__DIR__) . '/src/lib_nicode_form_studio/autoload.php';
 if (!is_dir(__DIR__ . '/artifacts')) { mkdir(__DIR__ . '/artifacts', 0770, true); }
 
 $tests = [];

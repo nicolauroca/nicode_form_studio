@@ -5,9 +5,9 @@ use Joomla\CMS\Captcha\CaptchaProviderInterface;
 use Joomla\CMS\Captcha\CaptchaRegistry;
 use Joomla\CMS\Form\FormField;
 use Joomla\Event\Dispatcher;
-use Nicode\EasyForms\Infrastructure\Joomla\CaptchaAdapter;
-use Nicode\EasyForms\Security\CaptchaException;
-use Nicode\EasyForms\Security\CaptchaPolicy;
+use Nicode\FormStudio\Infrastructure\Joomla\CaptchaAdapter;
+use Nicode\FormStudio\Security\CaptchaException;
+use Nicode\FormStudio\Security\CaptchaPolicy;
 
 /** Test double for the installed third-party plugin boundary, never shipped. */
 final class TestCaptchaProvider implements CaptchaProviderInterface

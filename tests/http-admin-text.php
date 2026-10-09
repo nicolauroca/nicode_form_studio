@@ -16,26 +16,26 @@ foreach (['email' => 'User+tag@example.test', 'url' => 'https://example.test/pat
 }
 $textRevision = $api('save', ['id' => $textForm['id'], 'revision' => 0, 'draft' => $textDraft])['revision'];
 $api('publish', ['id' => $textForm['id'], 'revision' => $textRevision]);
-$textPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_easy_forms&view=form&id=' . $textForm['id']);
-$textXpath = $dom($textPage['body']); $textNode = $textXpath->query('//form[@data-nef-form]')->item(0);
+$textPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_form_studio&view=form&id=' . $textForm['id']);
+$textXpath = $dom($textPage['body']); $textNode = $textXpath->query('//form[@data-nfs-form]')->item(0);
 $assert($textPage['status'] === 200 && $textNode instanceof DOMElement, 'Text type fixture failed to render.');
 foreach (['text', 'textarea'] as $type) {
-    $control = $textXpath->query('.//*[@data-nef-input="' . $textIds[$type] . '"]', $textNode)->item(0);
+    $control = $textXpath->query('.//*[@data-nfs-input="' . $textIds[$type] . '"]', $textNode)->item(0);
     $assert($control instanceof DOMElement && !$control->hasAttribute('maxlength') && !$control->hasAttribute('minlength'), 'Native UTF16 length constraints would truncate Unicode input.');
 }
 foreach (['email' => 'email', 'url' => 'url', 'color' => 'color', 'text' => 'text', 'telephone' => 'tel', 'search' => 'search', 'password' => 'password'] as $type => $htmlType) {
-    $control = $textXpath->query('.//input[@data-nef-input="' . $textIds[$type] . '"]', $textNode)->item(0);
+    $control = $textXpath->query('.//input[@data-nfs-input="' . $textIds[$type] . '"]', $textNode)->item(0);
     $assert($control instanceof DOMElement && $control->getAttribute('type') === $htmlType, 'Text provider lost its native input type: ' . $type);
     if (in_array($type, ['telephone', 'search'], true)) {
         $assert($control->getAttribute('inputmode') === $htmlType && $control->getAttribute('autocomplete') === ($type === 'telephone' ? 'tel' : 'off'), 'Configured text input hints were lost.');
     }
 }
-$textPost = ['format' => 'json', 'nef' => $textValues];
+$textPost = ['format' => 'json', 'nfs' => $textValues];
 foreach ($textXpath->query('.//input[@type="hidden"]', $textNode) as $input) { $textPost[$input->getAttribute('name')] = $input->getAttribute('value'); }
 $textDestination = 'http://127.0.0.1:13371' . $textNode->getAttribute('action');
 foreach (['email' => ['invalid', 'a@localhost', "user@example.test\r\nBcc:another@example.test"], 'url' => ['ftp://example.test/', 'javascript:alert(1)', 'https://mañana.test/', 'https://'], 'color' => ['red', '#abc', '#11223344'], 'text' => ['😀😀', "n\u{0303}"], 'textarea' => ['ab'], 'telephone' => ['', '12', str_repeat('1', 33)], 'search' => ['', str_repeat('a', 11)], 'password' => ['', 'x', ' xxxx ']] as $type => $invalids) {
     foreach ($invalids as $invalid) {
-        $invalidPost = $textPost; $invalidPost['nef'][$textIds[$type]] = $invalid;
+        $invalidPost = $textPost; $invalidPost['nfs'][$textIds[$type]] = $invalid;
         $response = $visitorRequest($textDestination, $invalidPost); $result = json_decode($response['body'], true, 512, JSON_THROW_ON_ERROR);
         $assert($response['status'] === 422 && isset($result['errors'][$textIds[$type]]), 'Direct POST bypassed text type validation.');
     }
@@ -51,12 +51,12 @@ file_put_contents($root . '/build/native-text-fixture.json', json_encode(['form_
 // Each accepted response consumes its own attempt; fetch fresh forms so this
 // also proves these values traverse the actual native ingress and storage.
 foreach (['"user"@example.test', 'user@[192.0.2.1]', 'user@[IPv6:2001:db8::1]'] as $specialEmail) {
-    $specialPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_easy_forms&view=form&id=' . $textForm['id']);
-    $specialXpath = $dom($specialPage['body']); $specialNode = $specialXpath->query('//form[@data-nef-form]')->item(0);
-    $specialPost = ['format' => 'json', 'nef' => $textValues]; $specialPost['nef'][$textIds['email']] = $specialEmail;
+    $specialPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_form_studio&view=form&id=' . $textForm['id']);
+    $specialXpath = $dom($specialPage['body']); $specialNode = $specialXpath->query('//form[@data-nfs-form]')->item(0);
+    $specialPost = ['format' => 'json', 'nfs' => $textValues]; $specialPost['nfs'][$textIds['email']] = $specialEmail;
     foreach ($specialXpath->query('.//input[@type="hidden"]', $specialNode) as $input) { $specialPost[$input->getAttribute('name')] = $input->getAttribute('value'); }
     foreach (['"unterminated@example.test', 'user@[999.0.0.1]', 'user@[IPv6:invalid]'] as $invalidEmail) {
-        $invalidPost = $specialPost; $invalidPost['nef'][$textIds['email']] = $invalidEmail;
+        $invalidPost = $specialPost; $invalidPost['nfs'][$textIds['email']] = $invalidEmail;
         $invalidResponse = $visitorRequest($textDestination, $invalidPost); $invalidResult = json_decode($invalidResponse['body'], true, 512, JSON_THROW_ON_ERROR);
         $assert($invalidResponse['status'] === 422 && isset($invalidResult['errors'][$textIds['email']]), 'Special email syntax validation failed: HTTP ' . $invalidResponse['status'] . ', category ' . ($invalidResult['category'] ?? 'missing') . ', code ' . ($invalidResult['code'] ?? 'missing'));
     }

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 test('compiler rejects incompatible core comparisons at their original scope', function (): void {
-    $compiler = new Nicode\EasyForms\Compiler\FormCompiler(registry(), new Nicode\EasyForms\Registry\ProviderRegistry(), new Nicode\EasyForms\Registry\ProviderRegistry(), Nicode\EasyForms\Registry\ValidatorRegistry::core());
+    $compiler = new Nicode\FormStudio\Compiler\FormCompiler(registry(), new Nicode\FormStudio\Registry\ProviderRegistry(), new Nicode\FormStudio\Registry\ProviderRegistry(), Nicode\FormStudio\Registry\ValidatorRegistry::core());
     $cases = [
         ['integer', 'text', 'equals', false], ['text', 'integer', 'equals', false],
         ['integer', 'decimal', 'greater', true], ['decimal', 'integer', 'range', true],
@@ -34,8 +34,8 @@ test('compiler rejects incompatible core comparisons at their original scope', f
 });
 
 test('custom validator with a core identifier retains its own comparison contract', function (): void {
-    $validators = new Nicode\EasyForms\Registry\ProviderRegistry();
-    $validators->register(new class implements Nicode\EasyForms\Contract\ValidatorInterface {
+    $validators = new Nicode\FormStudio\Registry\ProviderRegistry();
+    $validators->register(new class implements Nicode\FormStudio\Contract\ValidatorInterface {
         public function id(): string { return 'equals'; }
         public function version(): string { return '1.0.0'; }
         public function metadata(): array { return ['id' => $this->id(), 'version' => $this->version()]; }
@@ -44,6 +44,6 @@ test('custom validator with a core identifier retains its own comparison contrac
     });
     $draft = withSecond(definition(), 'integer');
     $draft['validators'] = [['type' => 'equals', 'config' => ['fields' => array_column($draft['fields'], 'uuid')]]];
-    $compiler = new Nicode\EasyForms\Compiler\FormCompiler(registry(), new Nicode\EasyForms\Registry\ProviderRegistry(), new Nicode\EasyForms\Registry\ProviderRegistry(), $validators);
+    $compiler = new Nicode\FormStudio\Compiler\FormCompiler(registry(), new Nicode\FormStudio\Registry\ProviderRegistry(), new Nicode\FormStudio\Registry\ProviderRegistry(), $validators);
     same(true, $compiler->compile($draft)->successful());
 });

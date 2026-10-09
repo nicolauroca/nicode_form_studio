@@ -1,6 +1,6 @@
 # 11 — Administrator UX
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -10,7 +10,7 @@
 
 ## 1. Menú principal
 
-`Nicode EasyForms`
+`Nicode Form Studio`
 
 - Panel de control
 - Formularios
@@ -93,7 +93,7 @@ Columnas mínimas:
 
 El recuento de campos corresponde al borrador guardado. El recuento de respuestas
 cuenta filas persistidas, sin duplicar reintentos idempotentes, y se oculta si el
-actor no tiene `easyforms.submissions.view` en ese formulario. Ambos se agregan
+actor no tiene `formstudio.submissions.view` en ese formulario. Ambos se agregan
 solo para los formularios autorizados de la página visible mediante índices por
 `form_id`; no se leen payloads de respuestas para construir el listado.
 
@@ -314,7 +314,7 @@ Subsecciones:
 - Email Templates;
 - Form Templates.
 
-Email Templates permite editar textos e idioma, declarar tokens de campos por nombre y aplicar una revisión concreta con vínculos explícitos a campos. Form Templates captura una definición portable desde un borrador guardado y crea formularios independientes mediante la misma revisión previa y remapeo de identidades que la importación. Editar o aplicar recursos respeta respectivamente `easyforms.resources.manage` y los permisos del formulario. Una plantilla no contiene respuestas, historial de envíos ni credenciales, ni publica automáticamente el nuevo formulario.
+Email Templates permite editar textos e idioma, declarar tokens de campos por nombre y aplicar una revisión concreta con vínculos explícitos a campos. Form Templates captura una definición portable desde un borrador guardado y crea formularios independientes mediante la misma revisión previa y remapeo de identidades que la importación. Editar o aplicar recursos respeta respectivamente `formstudio.resources.manage` y los permisos del formulario. Una plantilla no contiene respuestas, historial de envíos ni credenciales, ni publica automáticamente el nuevo formulario.
 
 ## 13. Registros
 
@@ -345,7 +345,7 @@ Secciones:
 
 Mostrar:
 
-- EasyForms package/component/module/library version;
+- FormStudio package/component/module/library version;
 - DB schema version;
 - supported FormSpec versions;
 - Joomla version;

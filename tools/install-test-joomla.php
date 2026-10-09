@@ -6,7 +6,7 @@ $postgres = in_array('--postgresql', $argv, true);
 $mysql8 = in_array('--mysql8', $argv, true);
 if ($postgres && $mysql8) { throw new InvalidArgumentException('Choose one database fixture.'); }
 $site = $root . ($postgres ? '/build/joomla-postgresql' : ($mysql8 ? '/build/joomla-mysql8' : ($lifecycle ? '/build/joomla-lifecycle' : '/build/joomla-6.0.0')));
-$databaseName = $postgres ? 'easyforms_joomla_pg' : ($mysql8 ? 'easyforms_joomla_mysql8' : ($lifecycle ? 'easyforms_lifecycle' : 'easyforms_joomla'));
+$databaseName = $postgres ? 'formstudio_joomla_pg' : ($mysql8 ? 'formstudio_joomla_mysql8' : ($lifecycle ? 'formstudio_lifecycle' : 'formstudio_joomla'));
 $fixturePrefix = $postgres ? 'pg_' : ($mysql8 ? 'my_' : ($lifecycle ? 'lc_' : 'j6_'));
 $fixtureName = $postgres ? 'joomla-postgresql' : ($mysql8 ? 'joomla-mysql8' : ($lifecycle ? 'joomla-lifecycle' : 'joomla'));
 $port = $postgres ? 13368 : ($mysql8 ? 13373 : 13367);
@@ -24,11 +24,11 @@ $database = json_decode(ltrim(file_get_contents($root . '/build/database-test' .
 if ($database['host'] !== '127.0.0.1' || $database['port'] !== $port) { throw new RuntimeException('Refusing non-isolated database.'); }
 $pdo = new PDO($postgres ? 'pgsql:host=127.0.0.1;port=13368;dbname=postgres' : 'mysql:host=127.0.0.1;port=' . $port . ';charset=utf8mb4', $database['user'], $database['password'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 if ($postgres) {
-    if (!$pdo->query("SELECT 1 FROM pg_database WHERE datname = 'easyforms_joomla_pg'")->fetchColumn()) { $pdo->exec("CREATE DATABASE easyforms_joomla_pg ENCODING 'UTF8'"); }
+    if (!$pdo->query("SELECT 1 FROM pg_database WHERE datname = 'formstudio_joomla_pg'")->fetchColumn()) { $pdo->exec("CREATE DATABASE formstudio_joomla_pg ENCODING 'UTF8'"); }
 } else { $pdo->exec('CREATE DATABASE IF NOT EXISTS ' . $databaseName . ' CHARACTER SET utf8mb4 COLLATE utf8mb4_bin'); }
-$credentials = ['username' => 'easyforms-test-admin', 'password' => bin2hex(random_bytes(24)), 'site' => $site];
+$credentials = ['username' => 'formstudio-test-admin', 'password' => bin2hex(random_bytes(24)), 'site' => $site];
 file_put_contents($root . '/build/' . $fixtureName . '-test.json', json_encode($credentials, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
-$command = [PHP_BINARY, ...$phpOptions, '-d', 'extension=gd', $site . '/installation/joomla.php', 'install', '--site-name=Nicode EasyForms isolated acceptance', '--admin-user=EasyForms Test Administrator', '--admin-username=' . $credentials['username'], '--admin-password=' . $credentials['password'], '--admin-email=admin@example.test', '--db-type=' . ($postgres ? 'pgsql' : 'mysql'), '--db-host=127.0.0.1:' . $database['port'], '--db-user=' . $database['user'], '--db-pass=' . $database['password'], '--db-name=' . $databaseName, '--db-prefix=' . $fixturePrefix, '--no-interaction'];
+$command = [PHP_BINARY, ...$phpOptions, '-d', 'extension=gd', $site . '/installation/joomla.php', 'install', '--site-name=Nicode Form Studio isolated acceptance', '--admin-user=FormStudio Test Administrator', '--admin-username=' . $credentials['username'], '--admin-password=' . $credentials['password'], '--admin-email=admin@example.test', '--db-type=' . ($postgres ? 'pgsql' : 'mysql'), '--db-host=127.0.0.1:' . $database['port'], '--db-user=' . $database['user'], '--db-pass=' . $database['password'], '--db-name=' . $databaseName, '--db-prefix=' . $fixturePrefix, '--no-interaction'];
 $process = proc_open($command, [0 => ['pipe', 'r'], 1 => ['file', $root . '/build/' . $fixtureName . '-install.log', 'w'], 2 => ['file', $root . '/build/' . $fixtureName . '-install-errors.log', 'w']], $pipes, $site);
 if (!is_resource($process)) { throw new RuntimeException('Unable to start Joomla installer.'); }
 fclose($pipes[0]); $code = proc_close($process);

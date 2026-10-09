@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 
-use Nicode\EasyForms\Security\AttemptTokens;
-use Nicode\EasyForms\Security\PublicAccess;
+use Nicode\FormStudio\Security\AttemptTokens;
+use Nicode\FormStudio\Security\PublicAccess;
 
 test('attempt tokens bind form version session elapsed time and expiration', function (): void {
     $now = 1800000000; $tokens = new AttemptTokens(str_repeat('k', 32), static function () use (&$now): int { return $now; });

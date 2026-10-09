@@ -2,15 +2,15 @@
 declare(strict_types=1);
 
 (static function () use ($connection, $privateStorage): void {
-    $provider = new class($privateStorage) implements Nicode\EasyForms\Contract\StorageProviderInterface {
+    $provider = new class($privateStorage) implements Nicode\FormStudio\Contract\StorageProviderInterface {
         public ?string $failKey = null;
         public array $deleted = [];
-        public function __construct(private Nicode\EasyForms\Contract\StorageProviderInterface $delegate) {}
+        public function __construct(private Nicode\FormStudio\Contract\StorageProviderInterface $delegate) {}
         public function id(): string { return 'fixture.cleanup'; }
         public function version(): string { return '1.0.0'; }
         public function metadata(): array { return []; }
         public function validateConfiguration(array $configuration, string $path): array { return []; }
-        public function put($stream, int $maxBytes): Nicode\EasyForms\Storage\StoredFile { return $this->delegate->put($stream, $maxBytes); }
+        public function put($stream, int $maxBytes): Nicode\FormStudio\Storage\StoredFile { return $this->delegate->put($stream, $maxBytes); }
         public function open(string $key) { return $this->delegate->open($key); }
         public function exists(string $key): bool { return $this->delegate->exists($key); }
         public function delete(string $key): void {
@@ -25,11 +25,11 @@ declare(strict_types=1);
             try { $keys[] = $privateStorage->put($stream, 100)->key; } finally { fclose($stream); }
         }
         $now = time();
-        $jobs = new Nicode\EasyForms\Infrastructure\Database\JobRepository($connection, static function () use (&$now): int { return $now; });
-        $storage = new Nicode\EasyForms\Registry\StorageProviderRegistry(); $storage->register($provider);
-        $handlers = new Nicode\EasyForms\Registry\JobHandlerRegistry();
-        $handlers->register(new Nicode\EasyForms\Jobs\FileCleanupHandler($storage, $jobs));
-        $worker = new Nicode\EasyForms\Jobs\JobWorker($jobs, $handlers);
+        $jobs = new Nicode\FormStudio\Infrastructure\Database\JobRepository($connection, static function () use (&$now): int { return $now; });
+        $storage = new Nicode\FormStudio\Registry\StorageProviderRegistry(); $storage->register($provider);
+        $handlers = new Nicode\FormStudio\Registry\JobHandlerRegistry();
+        $handlers->register(new Nicode\FormStudio\Jobs\FileCleanupHandler($storage, $jobs));
+        $worker = new Nicode\FormStudio\Jobs\JobWorker($jobs, $handlers);
         $parameters = ['objects' => array_map(static fn (string $key): array => ['provider' => $provider->id(), 'storage_key' => $key], array_slice($keys, 0, 2))];
         $id = $jobs->enqueue('file-cleanup', $parameters, 1);
         $provider->failKey = $keys[1]; $worker->tick(2);

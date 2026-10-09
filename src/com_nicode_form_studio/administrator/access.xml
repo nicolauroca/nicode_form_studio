@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<access>
+  <section name="component">
+    <action name="core.admin" title="COM_NICODE_FORM_STUDIO_PERMISSION_CORE_ADMIN"/>
+    <action name="core.options" title="COM_NICODE_FORM_STUDIO_PERMISSION_CORE_OPTIONS"/>
+    <action name="core.manage" title="COM_NICODE_FORM_STUDIO_PERMISSION_CORE_MANAGE"/>
+    <action name="core.create" title="COM_NICODE_FORM_STUDIO_PERMISSION_CORE_CREATE"/>
+    <action name="core.edit" title="COM_NICODE_FORM_STUDIO_PERMISSION_CORE_EDIT"/>
+    <action name="core.edit.state" title="COM_NICODE_FORM_STUDIO_PERMISSION_CORE_EDIT_STATE"/>
+    <action name="core.delete" title="COM_NICODE_FORM_STUDIO_PERMISSION_CORE_DELETE"/>
+    <action name="formstudio.forms.manage" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_FORMS_MANAGE"/>
+    <action name="formstudio.forms.publish" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_FORMS_PUBLISH"/>
+    <action name="formstudio.submissions.view" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_SUBMISSIONS_VIEW"/>
+    <action name="formstudio.submissions.manage" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_SUBMISSIONS_MANAGE"/>
+    <action name="formstudio.submissions.export" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_SUBMISSIONS_EXPORT"/>
+    <action name="formstudio.submissions.delete" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_SUBMISSIONS_DELETE"/>
+    <action name="formstudio.submissions.anonymize" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_SUBMISSIONS_ANONYMIZE"/>
+    <action name="formstudio.submissions.reindex" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_SUBMISSIONS_REINDEX"/>
+    <action name="formstudio.submissions.retry" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_SUBMISSIONS_RETRY"/>
+    <action name="formstudio.submissions.view_sensitive" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_SUBMISSIONS_VIEW_SENSITIVE"/>
+    <action name="formstudio.resources.manage" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_RESOURCES_MANAGE"/>
+    <action name="formstudio.logs.view" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_LOGS_VIEW"/>
+    <action name="formstudio.jobs.manage" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_JOBS_MANAGE"/>
+  </section>
+  <section name="form">
+    <action name="core.manage" title="COM_NICODE_FORM_STUDIO_PERMISSION_CORE_MANAGE"/>
+    <action name="core.create" title="COM_NICODE_FORM_STUDIO_PERMISSION_CORE_CREATE"/>
+    <action name="core.edit" title="COM_NICODE_FORM_STUDIO_PERMISSION_CORE_EDIT"/>
+    <action name="core.edit.state" title="COM_NICODE_FORM_STUDIO_PERMISSION_CORE_EDIT_STATE"/>
+    <action name="core.delete" title="COM_NICODE_FORM_STUDIO_PERMISSION_CORE_DELETE"/>
+    <action name="formstudio.forms.manage" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_FORMS_MANAGE"/>
+    <action name="formstudio.forms.publish" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_FORMS_PUBLISH"/>
+    <action name="formstudio.submissions.view" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_SUBMISSIONS_VIEW"/>
+    <action name="formstudio.submissions.manage" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_SUBMISSIONS_MANAGE"/>
+    <action name="formstudio.submissions.export" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_SUBMISSIONS_EXPORT"/>
+    <action name="formstudio.submissions.delete" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_SUBMISSIONS_DELETE"/>
+    <action name="formstudio.submissions.anonymize" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_SUBMISSIONS_ANONYMIZE"/>
+    <action name="formstudio.submissions.reindex" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_SUBMISSIONS_REINDEX"/>
+    <action name="formstudio.submissions.retry" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_SUBMISSIONS_RETRY"/>
+    <action name="formstudio.submissions.view_sensitive" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_SUBMISSIONS_VIEW_SENSITIVE"/>
+    <action name="formstudio.logs.view" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_LOGS_VIEW"/>
+    <action name="formstudio.jobs.manage" title="COM_NICODE_FORM_STUDIO_PERMISSION_FORMSTUDIO_JOBS_MANAGE"/>
+  </section>
+</access>

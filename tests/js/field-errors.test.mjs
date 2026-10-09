@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {updateFieldError, activeFieldErrors} from '../../src/com_nicode_easy_forms/media/js/field-errors.js';
+import {updateFieldError, activeFieldErrors} from '../../src/com_nicode_form_studio/media/js/field-errors.js';
 
 test('rule deactivation removes only inactive field errors without mutating the original errors', () => {
   const errors = {hidden:['Required'],visible:['Invalid'],server:['Other']};

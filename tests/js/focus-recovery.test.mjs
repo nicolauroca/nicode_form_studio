@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {recoverRuleFocus} from '../../src/com_nicode_easy_forms/media/js/focus-recovery.js';
+import {recoverRuleFocus} from '../../src/com_nicode_form_studio/media/js/focus-recovery.js';
 
 function fixture() {
   const focused = [], nodes = Array.from({length:4},(_,index)=>({isConnected:true,index,disabled:false,type:'text',hidden:false,

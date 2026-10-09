@@ -1,9 +1,9 @@
 {
-  "name": "nicode/easyforms",
+  "name": "nicode/form-studio",
   "description": "Declarative form runtime for Joomla 6",
   "type": "project",
   "license": "GPL-2.0-or-later",
   "require": {"php": ">=8.3", "ext-json": "*", "ext-mbstring": "*", "ext-bcmath": "*"},
-  "autoload": {"psr-4": {"Nicode\\EasyForms\\": "src/lib_nicode_easy_forms/src/"}},
+  "autoload": {"psr-4": {"Nicode\\FormStudio\\": "src/lib_nicode_form_studio/src/"}},
   "scripts": {"test": "php tests/run.php", "lint": "php tools/lint.php", "docs": "php tools/docs.php"}
 }

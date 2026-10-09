@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-use Nicode\EasyForms\Compiler\FormCompiler;
-use Nicode\EasyForms\Registry\ProviderRegistry;
-use Nicode\EasyForms\Registry\ValidatorRegistry;
-use Nicode\EasyForms\Validation\ValidationEngine;
+use Nicode\FormStudio\Compiler\FormCompiler;
+use Nicode\FormStudio\Registry\ProviderRegistry;
+use Nicode\FormStudio\Registry\ValidatorRegistry;
+use Nicode\FormStudio\Validation\ValidationEngine;
 
 test('shared relational semantics distinguish boolean comparisons from presence counts', function (): void {
     foreach (json_decode(file_get_contents(__DIR__ . '/../fixtures/relations.json'), true, 512, JSON_THROW_ON_ERROR) as $case) {

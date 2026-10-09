@@ -4,7 +4,7 @@ declare(strict_types=1);
 // End-to-end native administrator session; synthetic data on the isolated site only.
 $root = dirname(__DIR__);
 require $root . '/build/joomla-6.0.0/configuration.php'; $configuration = new JConfig();
-if ($configuration->db !== 'easyforms_joomla' || $configuration->host !== '127.0.0.1:13367' || $configuration->live_site !== 'http://127.0.0.1:13371') { throw new RuntimeException('Refusing non-isolated administrator test.'); }
+if ($configuration->db !== 'formstudio_joomla' || $configuration->host !== '127.0.0.1:13367' || $configuration->live_site !== 'http://127.0.0.1:13371') { throw new RuntimeException('Refusing non-isolated administrator test.'); }
 $base = 'http://127.0.0.1:13371/administrator/index.php';
 $jar = $root . '/build/admin-cookie-' . bin2hex(random_bytes(8)) . '.txt';
 $request = static function (string $url, ?array $post = null) use ($jar): array {
@@ -25,16 +25,16 @@ $dom = static function (string $html): DOMXPath {
 };
 $assert = static function (bool $condition, string $message): void { if (!$condition) { throw new RuntimeException($message); } };
 try {
-    $login = $request($base . '?option=com_nicode_easy_forms');
-    $assert(!str_contains($login['body'], 'data-nef-admin'), 'Anonymous visitor reached the administrator.');
+    $login = $request($base . '?option=com_nicode_form_studio');
+    $assert(!str_contains($login['body'], 'data-nfs-admin'), 'Anonymous visitor reached the administrator.');
     $xpath = $dom($login['body']); $post = [];
     foreach ($xpath->query('//form[.//input[@name="username"]]//input[@type="hidden"]') as $input) { $post[$input->getAttribute('name')] = $input->getAttribute('value'); }
     $credentials = json_decode(file_get_contents($root . '/build/joomla-test.json'), true, 512, JSON_THROW_ON_ERROR);
     $post['username'] = $credentials['username']; $post['passwd'] = $credentials['password'];
     $loginResult = $request($base, $post); unset($post, $credentials);
     $assert(in_array($loginResult['status'], [302, 303], true), 'Native administrator login failed.');
-    $page = $request($base . '?option=com_nicode_easy_forms&view=forms');
-    $xpath = $dom($page['body']); $section = $xpath->query('//*[@data-nef-admin]')->item(0);
+    $page = $request($base . '?option=com_nicode_form_studio&view=forms');
+    $xpath = $dom($page['body']); $section = $xpath->query('//*[@data-nfs-admin]')->item(0);
     $assert($page['status'] === 200 && $section instanceof DOMElement, 'Native form list failed.');
     $token = $section->getAttribute('data-csrf');
     $assert($token !== '' && str_contains(strtolower($page['headers']), 'no-store'), 'Missing CSRF or cache control.');
@@ -42,7 +42,7 @@ try {
     if (($argv[1] ?? '') === '--persistence-default') { require __DIR__ . '/http-admin-persistence-default.php'; return; }
     $api = static function (string $task, ?array $payload = null, array $query = [], int $expected = 200, bool $csrf = true) use ($base, $request, $token, $assert): array {
         $post = $payload === null ? null : ['payload' => json_encode($payload, JSON_THROW_ON_ERROR)] + ($csrf ? [$token => '1'] : []);
-        $response = $request($base . '?' . http_build_query(['option' => 'com_nicode_easy_forms', 'task' => str_contains($task, '.') ? $task : 'form.' . $task, 'format' => 'json'] + $query), $post);
+        $response = $request($base . '?' . http_build_query(['option' => 'com_nicode_form_studio', 'task' => str_contains($task, '.') ? $task : 'form.' . $task, 'format' => 'json'] + $query), $post);
         $assert($response['status'] === $expected, 'Unexpected status for ' . $task . ': ' . $response['status']);
         $assert(str_contains(strtolower($response['headers']), 'no-store'), 'Administrator response is cacheable.');
         $decoded = json_decode($response['body'], true, 512, JSON_THROW_ON_ERROR);
@@ -64,8 +64,8 @@ try {
     if (($argv[1] ?? '') === '--responses') { require __DIR__ . '/http-admin-submissions.php'; return; }
     $edit = $api('record', query: ['id' => $id]);
     $assert((int) $edit['form']['created_by'] !== 999999, 'Browser controlled actor identity.');
-    $editor = $request($base . '?option=com_nicode_easy_forms&view=editor&id=' . $id);
-    $assert($editor['status'] === 200 && str_contains($editor['body'], 'data-nef-editor-data'), 'Installed visual editor missing.');
+    $editor = $request($base . '?option=com_nicode_form_studio&view=editor&id=' . $id);
+    $assert($editor['status'] === 200 && str_contains($editor['body'], 'data-nfs-editor-data'), 'Installed visual editor missing.');
     $draft = $edit['draft'];
     $field = 'fad0ed49-a98c-4d5b-8a6a-2a62077f01a8';
     $draft['elements'] = [['uuid' => $field, 'type' => 'field', 'parent_uuid' => null]];
@@ -76,7 +76,7 @@ try {
     $published = $api('publish', ['id' => $id, 'revision' => 1, 'comment' => 'Synthetic HTTP verification']);
     $assert($published['revision'] === 2, 'Publication did not consume editor revision.');
     $preview = $api('preview', query: ['id' => $id]);
-    $assert(str_contains($preview['html'], 'data-nef-submit disabled') && str_contains($preview['html'], 'Administrator HTTP answer'), 'Preview differs from draft or permits submissions.');
+    $assert(str_contains($preview['html'], 'data-nfs-submit disabled') && str_contains($preview['html'], 'Administrator HTTP answer'), 'Preview differs from draft or permits submissions.');
     $draft['fields'][0]['type'] = 'missing-provider';
     $api('save', ['id' => $id, 'revision' => 2, 'draft' => $draft]);
     $failed = $api('publish', ['id' => $id, 'revision' => 3], expected: 422);
@@ -105,13 +105,13 @@ try {
     $current = $api('record', query: ['id' => $id]);
     $assert((int) $current['form']['draft_revision'] === 6 && str_starts_with($current['form']['publish_down'], '2027-01-01 12:30:00'), 'Publication settings or UTC date validation failed.');
     $permissions = $api('permissions', query: ['id' => $id, 'group' => 2]);
-    $permissionChange = ['id' => $id, 'revision' => 6, 'rules_hash' => $permissions['rules_hash'], 'group' => 2, 'rules' => ['easyforms.submissions.export' => false]];
+    $permissionChange = ['id' => $id, 'revision' => 6, 'rules_hash' => $permissions['rules_hash'], 'group' => 2, 'rules' => ['formstudio.submissions.export' => false]];
     $api('applyPermissions', $permissionChange, expected: 403, csrf: false);
     $wrongHash = $permissionChange; $wrongHash['rules_hash'] = str_repeat('0', 64);
     $api('applyPermissions', $wrongHash, expected: 409);
     $api('applyPermissions', $permissionChange);
     $permissions = $api('permissions', query: ['id' => $id, 'group' => 2]);
-    $assert($permissions['revision'] === 7 && $permissions['permissions']['easyforms.submissions.export']['direct'] === false && $permissions['permissions']['easyforms.submissions.export']['effective'] === false, 'Native permissions write or effective result failed.');
+    $assert($permissions['revision'] === 7 && $permissions['permissions']['formstudio.submissions.export']['direct'] === false && $permissions['permissions']['formstudio.submissions.export']['effective'] === false, 'Native permissions write or effective result failed.');
     $api('applyPermissions', ['id' => $id, 'revision' => 7, 'rules_hash' => $permissions['rules_hash'], 'group' => 2, 'rules' => ['core.admin' => true]], expected: 422);
     foreach (['archived' => 7, 'trashed' => 8, 'unpublished' => 9] as $state => $stateRevision) {
         $payload = ['id' => $id, 'revision' => $stateRevision, 'state' => $state];
@@ -123,10 +123,10 @@ try {
         $assert((int) $inactive['form']['published_version_id'] === $published['version_id'] && $inactive['draft']['fields'][0]['type'] === 'text', 'Archive/trash restoration deleted draft or version ownership.');
         $assert(count($api('history', query: ['id' => $id])['versions']) === 1, 'Archive/trash restoration deleted version history.');
     }
-    $auditPage = $request($base . '?' . http_build_query(['option' => 'com_nicode_easy_forms', 'view' => 'audit', 'form_id' => $id, 'event_type' => 'form.deactivate', 'from' => gmdate('Y-m-d'), 'to' => gmdate('Y-m-d')]));
+    $auditPage = $request($base . '?' . http_build_query(['option' => 'com_nicode_form_studio', 'view' => 'audit', 'form_id' => $id, 'event_type' => 'form.deactivate', 'from' => gmdate('Y-m-d'), 'to' => gmdate('Y-m-d')]));
     $assert($auditPage['status'] === 200 && substr_count($auditPage['body'], '<td>form.deactivate</td>') === 4 && str_contains(strtolower($auditPage['headers']), 'no-store'), 'Native audit view lost deactivation history or cache protection.');
     foreach (['form_id' => '1junk', 'correlation_id' => 'invalid', 'from' => '2026-02-30'] as $key => $value) {
-        $auditInvalid = $request($base . '?' . http_build_query(['option' => 'com_nicode_easy_forms', 'view' => 'audit', $key => $value]));
+        $auditInvalid = $request($base . '?' . http_build_query(['option' => 'com_nicode_form_studio', 'view' => 'audit', $key => $value]));
         $assert($auditInvalid['status'] === 400, 'Malformed native audit filter was accepted.');
     }
     require __DIR__ . '/http-admin-submissions.php';

@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Domain\{DefinitionRemapper, Uuid};
+use Nicode\FormStudio\Domain\{DefinitionRemapper, Uuid};
 
 test('duplication resolves provider references to later local option identities in a complete first pass', function (): void {
-    $providers = new Nicode\EasyForms\Registry\ProviderRegistry();
-    $providers->register(new class implements Nicode\EasyForms\Contract\ProviderInterface {
+    $providers = new Nicode\FormStudio\Registry\ProviderRegistry();
+    $providers->register(new class implements Nicode\FormStudio\Contract\ProviderInterface {
         public function id(): string { return 'fixture.forward'; }
         public function version(): string { return '1.0.0'; }
         public function metadata(): array { return ['reference_paths' => ['/option', '/rule_option']]; }
@@ -55,8 +55,8 @@ test('duplication remaps graph identities and template references while preservi
 });
 
 test('custom providers declare nested and wildcard identity references separately from literal configuration', function (): void {
-    $sources = new Nicode\EasyForms\Registry\DataSourceRegistry();
-    $sources->register(new class implements Nicode\EasyForms\Contract\DataSourceInterface {
+    $sources = new Nicode\FormStudio\Registry\DataSourceRegistry();
+    $sources->register(new class implements Nicode\FormStudio\Contract\DataSourceInterface {
         public function id(): string { return 'fixture.references'; }
         public function version(): string { return '1.0.0'; }
         public function metadata(): array { return ['dependency_parameters' => ['parent'], 'reference_paths' => ['/nested/*/field', '/escaped~1key'], 'template_paths' => ['/templates/*']]; }

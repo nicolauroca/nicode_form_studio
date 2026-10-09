@@ -4,20 +4,20 @@ declare(strict_types=1);
 // Internal snapshot only: authoring still rejects unfinished repeatable layouts.
 $rpubForm=$dynamicForms->create('Repeated public services','repeated-public-'.bin2hex(random_bytes(6)),1);
 $rpubData=$dynamicDraft; $rpubData['uuid']=$dynamicForms->draft($rpubForm)['uuid'];
-$rpubGroup=Nicode\EasyForms\Domain\Uuid::create();
+$rpubGroup=Nicode\FormStudio\Domain\Uuid::create();
 $rpubData['elements']=[['uuid'=>$rpubGroup,'type'=>'repeatable-group','repeat'=>['min'=>1,'max'=>2]],['uuid'=>$parent,'type'=>'field','parent_uuid'=>$rpubGroup],['uuid'=>$child,'type'=>'field','parent_uuid'=>$rpubGroup]];
 $rpubData['fields'][0]['config']['default']='ES';
 unset($rpubData['provider_dependencies']);
-$rpubSpec=new Nicode\EasyForms\Domain\FormSpec($rpubData);
-$rpubVersion=$connection->insert('form_versions',['form_id'=>$rpubForm,'revision'=>1,'schema_version'=>'1.0','spec'=>Nicode\EasyForms\Domain\CanonicalJson::encode($rpubData),'hash'=>$rpubSpec->hash,'published_at'=>gmdate('Y-m-d H:i:s'),'published_by'=>1,'comment'=>'Internal repeated public snapshot','revoked_at'=>null]);
+$rpubSpec=new Nicode\FormStudio\Domain\FormSpec($rpubData);
+$rpubVersion=$connection->insert('form_versions',['form_id'=>$rpubForm,'revision'=>1,'schema_version'=>'1.0','spec'=>Nicode\FormStudio\Domain\CanonicalJson::encode($rpubData),'hash'=>$rpubSpec->hash,'published_at'=>gmdate('Y-m-d H:i:s'),'published_by'=>1,'comment'=>'Internal repeated public snapshot','revoked_at'=>null]);
 $connection->execute('UPDATE '.$connection->table('forms')." SET state = 'published', published_version_id = :version, access = 1, language = '*' WHERE id = :id",[':version'=>$rpubVersion,':id'=>$rpubForm]);
-$rpubRenderers=new Nicode\EasyForms\Rendering\FieldRendererRegistry();
-foreach(['text','select'] as $type) { $rpubRenderers->register($type,new Nicode\EasyForms\Rendering\CoreFieldRenderer()); }
-$rpubDisplay=new Nicode\EasyForms\Application\FormDisplay($dynamicForms,$registry,$dynamicRules,new Nicode\EasyForms\Rendering\FormRenderer($rpubRenderers,new Nicode\EasyForms\Rendering\PublicSpec($registry)),new Nicode\EasyForms\Security\PublicAccess(),$attemptTokens,$captchaFixture,$dynamicDependencies);
+$rpubRenderers=new Nicode\FormStudio\Rendering\FieldRendererRegistry();
+foreach(['text','select'] as $type) { $rpubRenderers->register($type,new Nicode\FormStudio\Rendering\CoreFieldRenderer()); }
+$rpubDisplay=new Nicode\FormStudio\Application\FormDisplay($dynamicForms,$registry,$dynamicRules,new Nicode\FormStudio\Rendering\FormRenderer($rpubRenderers,new Nicode\FormStudio\Rendering\PublicSpec($registry)),new Nicode\FormStudio\Security\PublicAccess(),$attemptTokens,$captchaFixture,$dynamicDependencies);
 $rpubContexts=[$displayComponentContext,$displayModuleContext]; $rpubInitial=[];
 foreach($rpubContexts as $rpubContext) {
     $html=$rpubDisplay->render($rpubForm,$rpubContext,'rpub-'.$rpubContext->channel,'/index.php','csrf_fixture')['html'];
-    preg_match('/name="nef_instances" value="([^"]+)"/',$html,$matches);
+    preg_match('/name="nfs_instances" value="([^"]+)"/',$html,$matches);
     $rows=json_decode(html_entity_decode($matches[1]??'',ENT_QUOTES|ENT_HTML5,'UTF-8'),true,512,JSON_THROW_ON_ERROR);
     if(count($rows[$rpubGroup]??[])!==1 || !str_contains($html,'value="ES"')) { throw new RuntimeException('Repeated display did not seed its minimum/default.'); }
     $rpubInitial[]=$rows;
@@ -25,8 +25,8 @@ foreach($rpubContexts as $rpubContext) {
     $attemptTokens->verify($token,$rpubForm,$rpubVersion,'display-session:'.$rpubContext->channel);
     $row=$rows[$rpubGroup][0]; $key=$rpubGroup.'/'.$row.'/'.$parent;
     $retry=$rpubDisplay->render($rpubForm,$rpubContext,'rpub-retry','/index.php','csrf_fixture',submitted:[$key=>'FR'],errors:[$key=>['Check this row']],attempt:$token,declarations:$rows)['html'];
-    if(!str_contains($retry,'value="FR"') || !str_contains($retry,'data-nef-error-target="'.$key.'"') || !str_contains($retry,'name="attempt" value="'.$token.'"')) { throw new RuntimeException('Repeated retry lost values, addressed error or attempt.'); }
-    preg_match('/name="nef_instances" value="([^"]+)"/',$retry,$matches);
+    if(!str_contains($retry,'value="FR"') || !str_contains($retry,'data-nfs-error-target="'.$key.'"') || !str_contains($retry,'name="attempt" value="'.$token.'"')) { throw new RuntimeException('Repeated retry lost values, addressed error or attempt.'); }
+    preg_match('/name="nfs_instances" value="([^"]+)"/',$retry,$matches);
     if(json_decode(html_entity_decode($matches[1],ENT_QUOTES|ENT_HTML5,'UTF-8'),true)!==$rows) { throw new RuntimeException('Repeated redisplay replaced row identities.'); }
     try { $rpubDisplay->render($rpubForm,$rpubContext,'missing-rows','/index.php','csrf_fixture',submitted:[$key=>'FR']); throw new RuntimeException('Retry silently seeded new rows.'); } catch(InvalidArgumentException) {}
 }
@@ -35,13 +35,13 @@ $rpubRows=[$rpubGroup=>[$rpubInitial[0][$rpubGroup][0],$rpubInitial[1][$rpubGrou
 [$one,$two]=$rpubRows[$rpubGroup];
 $rpubValues=[$rpubGroup.'/'.$one.'/'.$parent=>'ES',$rpubGroup.'/'.$two.'/'.$parent=>'FR'];
 $rpubToken=$attemptTokens->issue($rpubForm,$rpubVersion,'display-session:component');
-$rpubRequest=new Nicode\EasyForms\Submission\SubmitRequest($rpubForm,$rpubVersion,$rpubToken,$rpubValues);
-$rpubEnvelope=new Nicode\EasyForms\Submission\RepeatedSubmitRequest($rpubRequest,new Nicode\EasyForms\Domain\RepeatedInstances($rpubData['elements'],$rpubRows));
+$rpubRequest=new Nicode\FormStudio\Submission\SubmitRequest($rpubForm,$rpubVersion,$rpubToken,$rpubValues);
+$rpubEnvelope=new Nicode\FormStudio\Submission\RepeatedSubmitRequest($rpubRequest,new Nicode\FormStudio\Domain\RepeatedInstances($rpubData['elements'],$rpubRows));
 $rpubOptions=$dynamicQueries->resolveInstances($rpubEnvelope,$displayComponentContext);
 if($rpubOptions!==[$rpubGroup.'/'.$one.'/'.$child=>[['value'=>'MD','label'=>'Madrid','enabled'=>true]],$rpubGroup.'/'.$two.'/'.$child=>[]]) { throw new RuntimeException('Public options crossed row dependencies or leaked private data.'); }
 try { $dynamicQueries->resolve($rpubRequest,$displayComponentContext); throw new RuntimeException('Options accepted omitted row declarations.'); } catch(InvalidArgumentException) {}
-$rowChanges=new Nicode\EasyForms\Application\FormRows($dynamicForms,new Nicode\EasyForms\Security\PublicAccess(),$attemptTokens,new Nicode\EasyForms\Infrastructure\Database\RateLimiter($connection),$dynamicDependencies);
-$rowRequest=static fn(array $rows,array $values=[]): Nicode\EasyForms\Submission\RepeatedSubmitRequest => new Nicode\EasyForms\Submission\RepeatedSubmitRequest(new Nicode\EasyForms\Submission\SubmitRequest($rpubForm,$rpubVersion,$rpubToken,$values),new Nicode\EasyForms\Domain\RepeatedInstances($rpubData['elements'],$rows));
+$rowChanges=new Nicode\FormStudio\Application\FormRows($dynamicForms,new Nicode\FormStudio\Security\PublicAccess(),$attemptTokens,new Nicode\FormStudio\Infrastructure\Database\RateLimiter($connection),$dynamicDependencies);
+$rowRequest=static fn(array $rows,array $values=[]): Nicode\FormStudio\Submission\RepeatedSubmitRequest => new Nicode\FormStudio\Submission\RepeatedSubmitRequest(new Nicode\FormStudio\Submission\SubmitRequest($rpubForm,$rpubVersion,$rpubToken,$values),new Nicode\FormStudio\Domain\RepeatedInstances($rpubData['elements'],$rows));
 $beforeRows=(int)$connection->row('SELECT COUNT(*) AS total FROM '.$connection->table('submissions').' WHERE form_id=:form',[':form'=>$rpubForm])['total'];
 $oneRow=$rowRequest([$rpubGroup=>[$one]]);
 $added=$rowChanges->change($oneRow,$displayComponentContext,'add',$rpubGroup);
@@ -50,14 +50,14 @@ if($added['instances'][$rpubGroup][0]!==$one || $addedRow===$one || !array_key_e
 $rowHtml=$rpubDisplay->render($rpubForm,$displayComponentContext,'added-row','/index.php','csrf_fixture',submitted:$added['values'],attempt:$rpubToken,declarations:$added['instances'],reset:true)['html'];
 $document=new DOMDocument(); $prior=libxml_use_internal_errors(true); $document->loadHTML($rowHtml); libxml_clear_errors(); libxml_use_internal_errors($prior); $xpath=new DOMXPath($document);
 foreach([$one=>'', $addedRow=>'ES'] as $row=>$expected) {
-    if($xpath->query('//input[@data-nef-input="'.$rpubGroup.'/'.$row.'/'.$parent.'"]')->item(0)?->getAttribute('value')!==$expected) { throw new RuntimeException('Adding a row restored cleared sibling defaults.'); }
+    if($xpath->query('//input[@data-nfs-input="'.$rpubGroup.'/'.$row.'/'.$parent.'"]')->item(0)?->getAttribute('value')!==$expected) { throw new RuntimeException('Adding a row restored cleared sibling defaults.'); }
 }
 $both=$rowRequest($added['instances'],[$rpubGroup.'/'.$one.'/'.$parent=>'FR',$rpubGroup.'/'.$addedRow.'/'.$parent=>'ES']);
 $forgedElements=$rpubData['elements']; $forgedElements[0]['repeat']['max']=3;
-$forgedRows=[$rpubGroup=>[$one,$two,Nicode\EasyForms\Domain\Uuid::create()]];
-$forgedEnvelope=new Nicode\EasyForms\Submission\RepeatedSubmitRequest($rpubRequest,new Nicode\EasyForms\Domain\RepeatedInstances($forgedElements,$forgedRows));
+$forgedRows=[$rpubGroup=>[$one,$two,Nicode\FormStudio\Domain\Uuid::create()]];
+$forgedEnvelope=new Nicode\FormStudio\Submission\RepeatedSubmitRequest($rpubRequest,new Nicode\FormStudio\Domain\RepeatedInstances($forgedElements,$forgedRows));
 try { $rowChanges->change($forgedEnvelope,$displayComponentContext,'remove',$rpubGroup,$one); throw new RuntimeException('Row edit trusted a foreign envelope layout limit.'); } catch(InvalidArgumentException) {}
-$staleEnvelope=new Nicode\EasyForms\Submission\RepeatedSubmitRequest(new Nicode\EasyForms\Submission\SubmitRequest($rpubForm,$rpubVersion+100000,$rpubToken,[]),$oneRow->instances);
+$staleEnvelope=new Nicode\FormStudio\Submission\RepeatedSubmitRequest(new Nicode\FormStudio\Submission\SubmitRequest($rpubForm,$rpubVersion+100000,$rpubToken,[]),$oneRow->instances);
 try { $rowChanges->change($staleEnvelope,$displayComponentContext,'add',$rpubGroup); throw new RuntimeException('Row editing accepted a stale snapshot.'); } catch(OutOfBoundsException) {}
 $removed=$rowChanges->change($both,$displayComponentContext,'remove',$rpubGroup,$one);
 if($removed['instances']!==[$rpubGroup=>[$addedRow]] || isset($removed['values'][$rpubGroup.'/'.$one.'/'.$parent]) || $removed['values'][$rpubGroup.'/'.$addedRow.'/'.$parent]!=='ES') { throw new RuntimeException('Row removal changed retained sibling.'); }
@@ -65,14 +65,14 @@ foreach([[$both,'add',$rpubGroup,null],[$oneRow,'remove',$rpubGroup,$one],[$oneR
     try { $rowChanges->change($input,$displayComponentContext,$operation,$group,$row); throw new RuntimeException('Invalid row mutation accepted.'); } catch(InvalidArgumentException) {}
 }
 foreach([
-    new Nicode\EasyForms\Submission\RequestContext(0,[1],'en-GB','display-session',hash('sha256','row-csrf'),false),
-    new Nicode\EasyForms\Submission\RequestContext(0,[1],'en-GB','other-session',hash('sha256','row-session'),true),
+    new Nicode\FormStudio\Submission\RequestContext(0,[1],'en-GB','display-session',hash('sha256','row-csrf'),false),
+    new Nicode\FormStudio\Submission\RequestContext(0,[1],'en-GB','other-session',hash('sha256','row-session'),true),
     $displayModuleContext,
 ] as $denied) {
-    try { $rowChanges->change($oneRow,$denied,'add',$rpubGroup); throw new RuntimeException('Row mutation bypassed session/channel/CSRF.'); } catch(Nicode\EasyForms\Submission\SubmissionFailure $error) { if($error->category!=='session_error') { throw $error; } }
+    try { $rowChanges->change($oneRow,$denied,'add',$rpubGroup); throw new RuntimeException('Row mutation bypassed session/channel/CSRF.'); } catch(Nicode\FormStudio\Submission\SubmissionFailure $error) { if($error->category!=='session_error') { throw $error; } }
 }
 $connection->execute('UPDATE '.$connection->table('rate_limits').' SET attempts=120 WHERE scope_hash=:scope',[':scope'=>hash('sha256','rows:'.$rpubForm.':'.$displayComponentContext->rateScope)]);
-try { $rowChanges->change($oneRow,$displayComponentContext,'add',$rpubGroup); throw new RuntimeException('Row editing bypassed rate limit.'); } catch(Nicode\EasyForms\Submission\SubmissionFailure $error) { if($error->category!=='rate_limited') { throw $error; } }
+try { $rowChanges->change($oneRow,$displayComponentContext,'add',$rpubGroup); throw new RuntimeException('Row editing bypassed rate limit.'); } catch(Nicode\FormStudio\Submission\SubmissionFailure $error) { if($error->category!=='rate_limited') { throw $error; } }
 if((int)$connection->row('SELECT COUNT(*) AS total FROM '.$connection->table('submissions').' WHERE form_id=:form',[':form'=>$rpubForm])['total']!==$beforeRows) { throw new RuntimeException('Row editing stored a submission.'); }
 $connection->execute('UPDATE '.$connection->table('forms')." SET state = 'unpublished' WHERE id = :id",[':id'=>$rpubForm]);
 try { $dynamicQueries->resolveInstances($rpubEnvelope,$displayComponentContext); throw new RuntimeException('Repeated options bypassed unpublication.'); } catch(OutOfBoundsException) {}

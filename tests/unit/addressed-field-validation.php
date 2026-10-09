@@ -1,8 +1,8 @@
 <?php
  declare(strict_types=1);
- use Nicode\EasyForms\Domain\{Uuid,RepeatedInstances,FieldAddress};
- use Nicode\EasyForms\Rules\RuleResult;
- use Nicode\EasyForms\Validation\AddressedFieldValidator;
+ use Nicode\FormStudio\Domain\{Uuid,RepeatedInstances,FieldAddress};
+ use Nicode\FormStudio\Rules\RuleResult;
+ use Nicode\FormStudio\Validation\AddressedFieldValidator;
  test('addressed field validation shares type option required and index checks without crossing rows',function():void{
      [$group,$number,$choices,$text,$one,$two]=array_map(static fn()=>Uuid::create(),range(1,6));
      $fields=[['uuid'=>$number,'type'=>'integer','config'=>['min'=>1,'max'=>10]],['uuid'=>$choices,'type'=>'multiselect','config'=>[]],['uuid'=>$text,'type'=>'text','index'=>true,'config'=>[]]];

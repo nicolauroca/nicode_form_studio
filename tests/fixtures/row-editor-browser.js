@@ -16,28 +16,28 @@ const settled=async()=>{for(let i=0;i<100 && main.pending;i++) await new Promise
 try {
   const transfer=new DataTransfer(); transfer.items.add(new File(['selected bytes'],'selected.txt',{type:'text/plain'})); file.files=transfer.files;
   input.value='Before request'; input.dispatchEvent(new Event('input',{bubbles:true}));
-  main.form.querySelector('[data-nef-row-change="add"]').click();
+  main.form.querySelector('[data-nfs-row-change="add"]').click();
   assert(main.pending && requests===1,'Add did not start once');
-  main.form.querySelector('[data-nef-row-change="add"]').click(); assert(requests===1,'Duplicate row request');
+  main.form.querySelector('[data-nfs-row-change="add"]').click(); assert(requests===1,'Duplicate row request');
   input.value='Typed while waiting'; release(); await settled();
   assert(main.spec.instances[fixture.group].length===2,'Row not added');
   assert(main.controls.get(key(first,fixture.name))[0]===input && input.value==='Typed while waiting','Existing input replaced or stale value restored');
   assert(main.controls.get(key(first,fixture.file))[0]===file && file.files[0].name==='selected.txt','File control was lost');
   assert(document.activeElement===main.controls.get(key(added,fixture.name))[0],'Focus did not enter added row');
   assert(other.spec.instances[fixture.group].length===1 && other.controls.get(key(first,fixture.name))[0].value==='Initial','Independent form changed');
-  mode='fail'; main.form.querySelector('[data-nef-row-change="remove"]').click(); release(); await settled();
+  mode='fail'; main.form.querySelector('[data-nfs-row-change="remove"]').click(); release(); await settled();
   assert(main.spec.instances[fixture.group].length===2 && file.files.length===1 && input.value==='Typed while waiting','Rejected edit destroyed inputs');
-  mode='remove'; const button=[...main.form.querySelectorAll('[data-nef-row-change="remove"]')].find(button=>JSON.parse(button.value).row===added);
+  mode='remove'; const button=[...main.form.querySelectorAll('[data-nfs-row-change="remove"]')].find(button=>JSON.parse(button.value).row===added);
   button.click(); release(); await settled();
   assert(main.spec.instances[fixture.group].length===1 && main.controls.get(key(first,fixture.file))[0]===file && file.files.length===1,'Removal lost sibling file');
   assert(document.activeElement===input,'Removal focus not recovered');
   main.form.reset(); main.refresh();
-  assert(JSON.parse(main.form.elements.namedItem('nef_instances').value)[fixture.group].length===1,'Reset restored stale declarations');
+  assert(JSON.parse(main.form.elements.namedItem('nfs_instances').value)[fixture.group].length===1,'Reset restored stale declarations');
   assert(input.value==='Initial' && file.files.length===0,'Reset did not retain original defaults or clear files');
   mode='fail'; const submission=main.submit();
-  assert(main.pending && main.form.querySelector('[data-nef-row-change="add"]').disabled,'Submission did not block row edits');
+  assert(main.pending && main.form.querySelector('[data-nfs-row-change="add"]').disabled,'Submission did not block row edits');
   release(); await submission;
-  assert(!main.pending && !main.form.querySelector('[data-nef-row-change="add"]').disabled,'Finished submission left row editing disabled');
+  assert(!main.pending && !main.form.querySelector('[data-nfs-row-change="add"]').disabled,'Finished submission left row editing disabled');
   report.textContent='PASS — añadir/quitar, archivos originales, escritura durante espera, foco, doble clic, error recuperable, reset e independencia de formularios.';
   report.dataset.passed='true';
 } catch(error) { report.textContent='FAIL — '+error.message; report.dataset.passed='false'; }

@@ -11,7 +11,7 @@ $visitorRequest = static function (string $url, ?array $post = null, array $head
     $status = curl_getinfo($handle, CURLINFO_RESPONSE_CODE); curl_setopt($handle, CURLOPT_COOKIELIST, 'FLUSH');
     return ['status' => $status, 'body' => $body];
 };
-$prefillDb = new PDO('mysql:host=127.0.0.1;port=13367;dbname=easyforms_joomla;charset=utf8mb4', $configuration->user, $configuration->password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$prefillDb = new PDO('mysql:host=127.0.0.1;port=13367;dbname=formstudio_joomla;charset=utf8mb4', $configuration->user, $configuration->password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 $submissionApi = static fn(string $task, array $query = [], ?array $payload = null, int $expected = 200, bool $csrf = true): array => $api('submission.'.$task, $payload, $query, $expected, $csrf);
 try {
     require __DIR__.'/http-admin-layout.php';

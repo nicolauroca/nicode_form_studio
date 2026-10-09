@@ -1,7 +1,7 @@
 # 04 — Field Type Registry
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -239,7 +239,7 @@ campo dentro del constructor; nunca sustituye la pública ni se envía al runtim
 Descripción y ayuda se muestran juntas, escapadas y asociadas al control.
 Los campos textuales admiten autocomplete/inputmode y trim explícito (excepto
 password, que conserva sus espacios). Las clases personalizadas son hasta ocho
-tokens `nef-custom-...`, con sufijo ASCII de 1–48 caracteres; no aceptan CSS libre
+tokens `nfs-custom-...`, con sufijo ASCII de 1–48 caracteres; no aceptan CSS libre
 ni nombres que sustituyan clases reservadas del layout o del framework.
 
 El campo `range` aplica mínimo 0, máximo 100 y paso 1 cuando se omiten o son

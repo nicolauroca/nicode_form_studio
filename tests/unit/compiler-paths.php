@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 test('semantic diagnostics use list indices that resolve to the affected draft node', function (): void {
     $cases = [
-        ['element.parent.missing', '/elements/0', static function (array &$draft): void { $draft['elements'][0]['parent_uuid'] = Nicode\EasyForms\Domain\Uuid::create(); }],
+        ['element.parent.missing', '/elements/0', static function (array &$draft): void { $draft['elements'][0]['parent_uuid'] = Nicode\FormStudio\Domain\Uuid::create(); }],
         ['element.field.missing', '/elements/0', static function (array &$draft): void { $draft['fields'] = []; }],
-        ['field.prefill', '/fields/0/prefill', static function (array &$draft): void { $draft['fields'][0]['prefill'] = ['type' => 'field', 'field' => Nicode\EasyForms\Domain\Uuid::create()]; }],
-        ['source.dependency', '/fields/0', static function (array &$draft): void { $draft['fields'][0]['source'] = ['type' => 'missing', 'dependencies' => [Nicode\EasyForms\Domain\Uuid::create()]]; }],
+        ['field.prefill', '/fields/0/prefill', static function (array &$draft): void { $draft['fields'][0]['prefill'] = ['type' => 'field', 'field' => Nicode\FormStudio\Domain\Uuid::create()]; }],
+        ['source.dependency', '/fields/0', static function (array &$draft): void { $draft['fields'][0]['source'] = ['type' => 'missing', 'dependencies' => [Nicode\FormStudio\Domain\Uuid::create()]]; }],
     ];
     foreach ($cases as [$code, $path, $mutate]) {
         $draft = definition(); $mutate($draft); $result = compiler()->compile($draft);
@@ -24,8 +24,8 @@ test('semantic diagnostics use list indices that resolve to the affected draft n
 test('field validator reference failures retain their owning field path beside form validators', function (): void {
     $draft = withSecond(definition()); [$first, $second] = array_column($draft['fields'], 'uuid');
     $draft['validators'] = [['type' => 'confirmation', 'config' => ['fields' => [$first, $second]]]];
-    $draft['fields'][1]['validators'] = [['type' => 'confirmation', 'config' => ['fields' => [$second, Nicode\EasyForms\Domain\Uuid::create()]]]];
-    $compiler = new Nicode\EasyForms\Compiler\FormCompiler(registry(), new Nicode\EasyForms\Registry\ProviderRegistry(), new Nicode\EasyForms\Registry\ProviderRegistry(), Nicode\EasyForms\Registry\ValidatorRegistry::core());
+    $draft['fields'][1]['validators'] = [['type' => 'confirmation', 'config' => ['fields' => [$second, Nicode\FormStudio\Domain\Uuid::create()]]]];
+    $compiler = new Nicode\FormStudio\Compiler\FormCompiler(registry(), new Nicode\FormStudio\Registry\ProviderRegistry(), new Nicode\FormStudio\Registry\ProviderRegistry(), Nicode\FormStudio\Registry\ValidatorRegistry::core());
     $result = $compiler->compile($draft); same(false, $result->successful());
     same(['validator.reference'], array_column($result->diagnostics, 'code'));
     same(['/fields/1/validators/0'], array_column($result->diagnostics, 'path'));

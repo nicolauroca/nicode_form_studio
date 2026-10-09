@@ -1,7 +1,7 @@
 # 13 — Seguridad
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -143,13 +143,13 @@ Las exportaciones respetan ACL y datos sensibles.
 
 ## 12. CAPTCHA
 
-EasyForms NO implementará un algoritmo CAPTCHA propio.
+FormStudio NO implementará un algoritmo CAPTCHA propio.
 
 Se integrará con el sistema/provider de CAPTCHA Joomla según `25_JOOMLA_CAPTCHA_ANTISPAM_SPEC.md`.
 
 ## 13. Rate limiting
 
-Si Joomla no ofrece un mecanismo genérico aplicable al caso, EasyForms podrá implementar un limiter propio como control anti-abuso, desacoplado mediante servicio/provider. No debe confundirse con CAPTCHA.
+Si Joomla no ofrece un mecanismo genérico aplicable al caso, FormStudio podrá implementar un limiter propio como control anti-abuso, desacoplado mediante servicio/provider. No debe confundirse con CAPTCHA.
 
 ## 14. Logs
 
@@ -163,7 +163,7 @@ No registrar por defecto:
 
 ## 15. Security headers
 
-EasyForms no debe romper CSP u otras políticas del sitio mediante inline JS innecesario. Assets y scripts deben diseñarse para integrarse con la política del sitio.
+FormStudio no debe romper CSP u otras políticas del sitio mediante inline JS innecesario. Assets y scripts deben diseñarse para integrarse con la política del sitio.
 
 ### Ventanas y caducidad del limiter
 

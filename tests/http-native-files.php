@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 $root = dirname(__DIR__); require $root . '/build/joomla-6.0.0/configuration.php'; $config = new JConfig();
-if ($config->db !== 'easyforms_joomla' || $config->host !== '127.0.0.1:13367' || $config->live_site !== 'http://127.0.0.1:13371') { throw new RuntimeException('Refusing non-isolated native file test.'); }
+if ($config->db !== 'formstudio_joomla' || $config->host !== '127.0.0.1:13367' || $config->live_site !== 'http://127.0.0.1:13371') { throw new RuntimeException('Refusing non-isolated native file test.'); }
 $multiple = in_array('--multiple', $argv, true);
 $fixture = json_decode(file_get_contents($root . '/build/native-file' . ($multiple ? '-multiple' : '') . '-fixture.json'), true, 512, JSON_THROW_ON_ERROR);
 $packedTransport = in_array('--packed', $argv, true);
@@ -26,32 +26,32 @@ $dom = static function (string $html): DOMXPath {
 };
 $assert = static function (bool $condition, string $message): void { if (!$condition) { throw new RuntimeException($message); } };
 try {
-    $pdo = new PDO('mysql:host=127.0.0.1;port=13367;dbname=easyforms_joomla;charset=utf8mb4', $config->user, $config->password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+    $pdo = new PDO('mysql:host=127.0.0.1;port=13367;dbname=formstudio_joomla;charset=utf8mb4', $config->user, $config->password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     $counts = static function () use ($pdo, $fixture): array {
         $result = [];
         foreach (['submissions', 'upload_staging'] as $table) {
-            $query = $pdo->prepare('SELECT COUNT(*) FROM j6_nicode_easyforms_' . $table . ' WHERE form_id = ?'); $query->execute([$fixture['form_id']]); $result[$table] = (int) $query->fetchColumn();
+            $query = $pdo->prepare('SELECT COUNT(*) FROM j6_nicode_form_studio_' . $table . ' WHERE form_id = ?'); $query->execute([$fixture['form_id']]); $result[$table] = (int) $query->fetchColumn();
         }
         return $result;
     };
     $beforeRejected = $counts();
-    $page = $http('/index.php?option=com_nicode_easy_forms&view=form&id=' . $fixture['form_id']); $xpath = $dom($page['body']); $form = $xpath->query('//form[@data-nef-form]')->item(0);
+    $page = $http('/index.php?option=com_nicode_form_studio&view=form&id=' . $fixture['form_id']); $xpath = $dom($page['body']); $form = $xpath->query('//form[@data-nfs-form]')->item(0);
     $assert($page['status'] === 200 && $form instanceof DOMElement, 'Native file form unavailable.'); $post = [];
     foreach ($xpath->query('.//input[@type="hidden"]', $form) as $input) { $post[$input->getAttribute('name')] = $input->getAttribute('value'); }
     $post['format'] = 'json';
-    $uploadKey = 'nef[' . $fixture['field_uuid'] . ']' . ($multiple ? '[0]' : '');
+    $uploadKey = 'nfs[' . $fixture['field_uuid'] . ']' . ($multiple ? '[0]' : '');
     $post[$uploadKey] = new CURLFile($file, 'text/plain', 'synthetic-private.txt');
-    if ($multiple) { $post['nef[' . $fixture['field_uuid'] . '][1]'] = new CURLFile($secondFile, 'text/plain', 'second-private.txt'); }
+    if ($multiple) { $post['nfs[' . $fixture['field_uuid'] . '][1]'] = new CURLFile($secondFile, 'text/plain', 'second-private.txt'); }
     if ($packedTransport) {
-        $post['nef_values'] = '{}';
-        $forged = $post; unset($forged[$uploadKey], $forged['nef[' . $fixture['field_uuid'] . '][1]']);
-        $forged['nef_values'] = json_encode([$fixture['field_uuid'] => ['tmp_name' => '/forged/private.txt', 'name' => 'forged.txt', 'error' => 0, 'size' => 1]], JSON_THROW_ON_ERROR);
+        $post['nfs_values'] = '{}';
+        $forged = $post; unset($forged[$uploadKey], $forged['nfs[' . $fixture['field_uuid'] . '][1]']);
+        $forged['nfs_values'] = json_encode([$fixture['field_uuid'] => ['tmp_name' => '/forged/private.txt', 'name' => 'forged.txt', 'error' => 0, 'size' => 1]], JSON_THROW_ON_ERROR);
         $rejected = $http($form->getAttribute('action'), $forged, true); $rejectedResult = json_decode($rejected['body'], true, flags: JSON_THROW_ON_ERROR);
         $assert($rejected['status'] === 422 && isset($rejectedResult['errors'][$fixture['field_uuid']]), 'Packed metadata substituted for a real uploaded file.');
     }
     foreach (['json', 'html'] as $format) {
         $invalidUpload = $post; $invalidUpload['format'] = $format;
-        $badKey = $multiple ? 'nef[' . $fixture['field_uuid'] . '][1]' : $uploadKey;
+        $badKey = $multiple ? 'nfs[' . $fixture['field_uuid'] . '][1]' : $uploadKey;
         $invalidUpload[$badKey] = new CURLFile($file, 'text/plain', 'forbidden.php');
         $rejectedUpload = $http($form->getAttribute('action'), $invalidUpload, true);
         $expectedMessage = 'Choose an allowed file for Native private file fixture <script>upload-message</script>';
@@ -61,7 +61,7 @@ try {
             $assert($errorResult['accepted'] === false && $errorResult['category'] === 'upload_error' && $errorResult['message'] === $expectedMessage && isset($errorResult['errors'][$fixture['field_uuid']]), 'Configured upload error message or field error missing.');
         } else {
             $assert(str_contains($rejectedUpload['body'], htmlspecialchars($expectedMessage, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')) && !str_contains($rejectedUpload['body'], '<script>upload-message</script>'), 'Upload error message was missing or executable in HTML.');
-            $retryDom = $dom($rejectedUpload['body']); $retryAttempt = $retryDom->query('//form[@data-nef-form]//input[@name="attempt"]')->item(0);
+            $retryDom = $dom($rejectedUpload['body']); $retryAttempt = $retryDom->query('//form[@data-nfs-form]//input[@name="attempt"]')->item(0);
             $assert($retryAttempt instanceof DOMElement && $retryAttempt->getAttribute('value') === $post['attempt'], 'Upload rejection discarded the recoverable attempt.');
         }
         $assert($counts() === $beforeRejected, 'Rejected upload persisted a response or staging reservation.');
@@ -71,24 +71,24 @@ try {
     $replayed = $http($form->getAttribute('action'), $post, true); $replayResult = json_decode($replayed['body'], true, 512, JSON_THROW_ON_ERROR);
     $assert($replayed['status'] === 200 && ($replayResult['accepted'] ?? false) && $replayResult['reference'] === $result['reference'], 'Multipart technical replay created a different response.');
     $assert($counts() === ['submissions' => $beforeRejected['submissions'] + 1, 'upload_staging' => $beforeRejected['upload_staging']], 'Corrected upload/replay did not create exactly one response without staging leftovers.');
-    $query = $pdo->prepare('SELECT s.id, f.uuid, f.storage_key, f.original_name FROM j6_nicode_easyforms_submissions s JOIN j6_nicode_easyforms_submission_files f ON f.submission_id = s.id WHERE s.uuid = ? AND s.form_id = ? ORDER BY f.id'); $query->execute([$result['reference'], $fixture['form_id']]); $storedFiles = $query->fetchAll(PDO::FETCH_ASSOC);
+    $query = $pdo->prepare('SELECT s.id, f.uuid, f.storage_key, f.original_name FROM j6_nicode_form_studio_submissions s JOIN j6_nicode_form_studio_submission_files f ON f.submission_id = s.id WHERE s.uuid = ? AND s.form_id = ? ORDER BY f.id'); $query->execute([$result['reference'], $fixture['form_id']]); $storedFiles = $query->fetchAll(PDO::FETCH_ASSOC);
     $assert(count($storedFiles) === count($expectedFiles) && array_column($storedFiles, 'original_name') === array_keys($expectedFiles), 'Uploaded file ownership or order was not persisted.');
     $stored = $storedFiles[0];
     foreach ($storedFiles as $ownedFile) {
-        $query = $pdo->prepare('SELECT COUNT(*) FROM j6_nicode_easyforms_upload_staging WHERE provider = ? AND storage_key = ?');
+        $query = $pdo->prepare('SELECT COUNT(*) FROM j6_nicode_form_studio_upload_staging WHERE provider = ? AND storage_key = ?');
         $query->execute(['local', $ownedFile['storage_key']]);
         $assert((int) $query->fetchColumn() === 0, 'Committed file retained a cleanup reservation.');
     }
-    $downloadRoute = '/administrator/index.php?option=com_nicode_easy_forms&task=submission.download&format=raw';
+    $downloadRoute = '/administrator/index.php?option=com_nicode_form_studio&task=submission.download&format=raw';
     $anonymous = $http($downloadRoute, ['form_id' => $fixture['form_id'], 'file' => $stored['uuid']]); $assert($anonymous['body'] !== $bytes && !str_contains(strtolower($anonymous['headers']), 'content-disposition: attachment'), 'Anonymous file download succeeded.');
     $login = $http('/administrator/index.php'); $xpath = $dom($login['body']); $loginPost = [];
     foreach ($xpath->query('//form[.//input[@name="username"]]//input[@type="hidden"]') as $input) { $loginPost[$input->getAttribute('name')] = $input->getAttribute('value'); }
     $credentials = json_decode(file_get_contents($root . '/build/joomla-test.json'), true, 512, JSON_THROW_ON_ERROR); $loginPost['username'] = $credentials['username']; $loginPost['passwd'] = $credentials['password']; unset($credentials);
     $loggedIn = $http('/administrator/index.php', $loginPost); unset($loginPost); $assert(in_array($loggedIn['status'], [302, 303], true), 'Administrator login failed.');
-    $detail = $http('/administrator/index.php?option=com_nicode_easy_forms&view=submission&form_id=' . $fixture['form_id'] . '&id=' . $stored['id']);
-    $xpath = $dom($detail['body']); $section = $xpath->query('//*[@data-nef-submission]')->item(0); $assert($detail['status'] === 200 && $section instanceof DOMElement, 'Uploaded response detail unavailable.');
+    $detail = $http('/administrator/index.php?option=com_nicode_form_studio&view=submission&form_id=' . $fixture['form_id'] . '&id=' . $stored['id']);
+    $xpath = $dom($detail['body']); $section = $xpath->query('//*[@data-nfs-submission]')->item(0); $assert($detail['status'] === 200 && $section instanceof DOMElement, 'Uploaded response detail unavailable.');
     $assert(!str_contains($detail['body'], 'synthetic-private.txt') && !str_contains($detail['body'], $stored['storage_key']), 'Masked file metadata leaked.'); $token = $section->getAttribute('data-csrf');
-    $reveal = $http('/administrator/index.php?option=com_nicode_easy_forms&task=submission.reveal&format=json', [$token => '1', 'payload' => json_encode(['form_id' => $fixture['form_id'], 'id' => (int) $stored['id']])]);
+    $reveal = $http('/administrator/index.php?option=com_nicode_form_studio&task=submission.reveal&format=json', [$token => '1', 'payload' => json_encode(['form_id' => $fixture['form_id'], 'id' => (int) $stored['id']])]);
     $revealed = json_decode($reveal['body'], true, 512, JSON_THROW_ON_ERROR); $assert($reveal['status'] === 200 && count($revealed['data']['files']) === count($expectedFiles), 'Explicit file metadata reveal failed.');
     $assert(array_column($revealed['data']['files'], 'uuid') === array_column($storedFiles, 'uuid'), 'Revealed file identities or order changed.');
     foreach ($storedFiles as $ownedFile) {
@@ -104,7 +104,7 @@ try {
     // it even if an assertion fails. Never move or delete the physical object.
     foreach (['provider' => 'fixture.missing-storage', 'storage_key' => bin2hex(random_bytes(32))] as $column => $missingValue) {
         $originalValue = $column === 'provider' ? 'local' : $stored['storage_key'];
-        $update = $pdo->prepare('UPDATE j6_nicode_easyforms_submission_files SET ' . $column . ' = ? WHERE uuid = ? AND submission_id = ?');
+        $update = $pdo->prepare('UPDATE j6_nicode_form_studio_submission_files SET ' . $column . ' = ? WHERE uuid = ? AND submission_id = ?');
         try {
             $update->execute([$missingValue, $stored['uuid'], $stored['id']]);
             $unavailable = $http($downloadRoute, $downloadPost);
@@ -116,7 +116,7 @@ try {
         $download = $http($downloadRoute, $downloadPost);
         $assert($download['status'] === 200 && $download['body'] === $expectedFiles[$ownedFile['original_name']] && str_contains($download['headers'], rawurlencode($ownedFile['original_name'])) && str_contains(strtolower($download['headers']), 'application/octet-stream') && str_contains(strtolower($download['headers']), 'content-disposition: attachment') && str_contains(strtolower($download['headers']), 'no-store') && str_contains(strtolower($download['headers']), 'nosniff'), 'Private attachment stream or headers failed.');
     }
-    $query = $pdo->prepare("SELECT COUNT(*) FROM j6_nicode_easyforms_audit_log WHERE submission_uuid = ? AND event_type = 'submission.file_download'"); $query->execute([$result['reference']]); $assert((int) $query->fetchColumn() === count($expectedFiles), 'File download audit missing.');
+    $query = $pdo->prepare("SELECT COUNT(*) FROM j6_nicode_form_studio_audit_log WHERE submission_uuid = ? AND event_type = 'submission.file_download'"); $query->execute([$result['reference']]); $assert((int) $query->fetchColumn() === count($expectedFiles), 'File download audit missing.');
     file_put_contents($root . '/build/native-file-http' . ($multiple ? '-multiple' : '') . ($packedTransport ? '-packed' : '') . '-results.json', json_encode(['passed' => true, 'timestamp' => gmdate(DATE_ATOM), 'file_count' => count($expectedFiles), 'transport' => $packedTransport ? 'packed' : 'legacy', 'form_id' => $fixture['form_id'], 'checks' => ['native multipart persistence', 'anonymous denial', 'default sensitive masking', 'explicit reveal', 'CSRF/method/ownership', 'exact private attachment bytes', 'safe headers', 'download audit']], JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
     echo "Installed native file HTTP: multipart upload, sensitive masking/reveal, scoped private bytes, headers and audited download passed.\n";
 } finally { foreach ([$jar, $file, $secondFile] as $temporary) { if (is_file($temporary)) { unlink($temporary); } } }

@@ -2,9 +2,9 @@
 declare(strict_types=1);
 (static function () use ($connection, $compiler, $submissions, $argv, $root): void {
     $engine = $argv[1] ?? 'mysql';
-    $forms = new Nicode\EasyForms\Infrastructure\Database\FormRepository($connection, $compiler);
+    $forms = new Nicode\FormStudio\Infrastructure\Database\FormRepository($connection, $compiler);
     foreach (['complete', 'cleanup'] as $first) {
-        $form = $forms->create('Concurrent expiry fixture', 'concurrent-expiry-' . bin2hex(random_bytes(5)), 1); $draft = $forms->draft($form); $field = Nicode\EasyForms\Domain\Uuid::create();
+        $form = $forms->create('Concurrent expiry fixture', 'concurrent-expiry-' . bin2hex(random_bytes(5)), 1); $draft = $forms->draft($form); $field = Nicode\FormStudio\Domain\Uuid::create();
         $draft['elements'] = [['uuid' => $field, 'type' => 'field']]; $draft['fields'] = [['uuid' => $field, 'name' => 'answer', 'type' => 'text']]; $draft['persistence']['mode'] = 'none';
         $revision = $forms->saveDraft($form, 0, $draft, 1); $version = $forms->publish($form, $revision, 1); $hash = hash('sha256', random_bytes(32));
         $stored = $submissions->persist($form, $version, $forms->version($form, $version), [$field => 'race private value'], $hash);

@@ -1,6 +1,6 @@
 <?php
  declare(strict_types=1);
- use Nicode\EasyForms\Domain\{Uuid, FieldAddress, RepeatedInstances};
+ use Nicode\FormStudio\Domain\{Uuid, FieldAddress, RepeatedInstances};
  test('repeated membership preserves ordered rows and rejects forged or orphan scopes', function (): void {
      [$outer,$inner,$field,$flat,$one,$two,$child] = array_map(static fn()=>Uuid::create(),range(1,7));
      $elements=[['uuid'=>$outer,'type'=>'repeatable-group','repeat'=>['min'=>1,'max'=>3]],['uuid'=>$inner,'type'=>'repeatable-group','parent_uuid'=>$outer,'repeat'=>['min'=>1,'max'=>2]],['uuid'=>$field,'type'=>'field','parent_uuid'=>$inner],['uuid'=>$flat,'type'=>'field']];

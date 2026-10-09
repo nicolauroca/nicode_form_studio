@@ -2,20 +2,20 @@
 declare(strict_types=1);
 
 $historyForm = $forms->create('History fixture', 'history-' . bin2hex(random_bytes(6)), 1);
-$historyDraft = $forms->draft($historyForm); $consentField = Nicode\EasyForms\Domain\Uuid::create();
+$historyDraft = $forms->draft($historyForm); $consentField = Nicode\FormStudio\Domain\Uuid::create();
 $historyDraft['elements'] = [['uuid' => $consentField, 'type' => 'field']];
 $historyDraft['fields'] = [['uuid' => $consentField, 'name' => 'consent', 'type' => 'consent', 'sensitive' => true, 'config' => ['label' => 'Exact historical consent <script>']]];
 $forms->saveDraft($historyForm, 0, $historyDraft, 1); $historyVersion = $forms->publish($historyForm, 1, 1);
 $historyResponse = $submissions->persist($historyForm, $historyVersion, $forms->version($historyForm, $historyVersion), [$consentField => true], hash('sha256', random_bytes(32)));
 $historyOther = $submissions->persist($historyForm, $historyVersion, $forms->version($historyForm, $historyVersion), [$consentField => false], hash('sha256', random_bytes(32)));
-$historyAuthorize = static fn (int $actor, ?int $form, string $permission): bool => $actor === 1 || ($actor === 2 && in_array($permission, ['core.manage', 'easyforms.submissions.view'], true));
-$historyReader = new Nicode\EasyForms\Application\SubmissionReader($submissions, $forms, $connection, $historyAuthorize);
-$historyExplorer = new Nicode\EasyForms\Application\SubmissionExplorer($connection, $forms, $search, $historyReader, $historyAuthorize, static fn (): array => [], $registry);
+$historyAuthorize = static fn (int $actor, ?int $form, string $permission): bool => $actor === 1 || ($actor === 2 && in_array($permission, ['core.manage', 'formstudio.submissions.view'], true));
+$historyReader = new Nicode\FormStudio\Application\SubmissionReader($submissions, $forms, $connection, $historyAuthorize);
+$historyExplorer = new Nicode\FormStudio\Application\SubmissionExplorer($connection, $forms, $search, $historyReader, $historyAuthorize, static fn (): array => [], $registry);
 $historyIds = ['notes' => [], 'actions' => [], 'audit' => []];
 for ($i = 0; $i < 105; $i++) {
     $historyIds['notes'][] = $connection->insert('submission_notes', ['submission_id' => $historyResponse->id, 'created_by' => 1, 'created_at' => '2026-09-27 10:00:00', 'body' => 'History note ' . $i]);
-    $historyIds['actions'][] = $connection->insert('action_runs', ['submission_id' => $historyResponse->id, 'action_uuid' => Nicode\EasyForms\Domain\Uuid::create(), 'action_type' => 'fixture', 'attempt' => 1, 'state' => 'failed', 'created_at' => '2026-09-27 10:00:00', 'revision' => 0]);
-    $historyIds['audit'][] = $connection->insert('audit_log', ['form_id' => $historyForm, 'submission_uuid' => $historyResponse->uuid, 'correlation_id' => Nicode\EasyForms\Domain\Uuid::create(), 'actor_id' => 1, 'event_type' => 'submission.note', 'created_at' => '2026-09-27 10:00:00', 'safe_metadata' => '{"revision":1,"private":"never-expose-this"}']);
+    $historyIds['actions'][] = $connection->insert('action_runs', ['submission_id' => $historyResponse->id, 'action_uuid' => Nicode\FormStudio\Domain\Uuid::create(), 'action_type' => 'fixture', 'attempt' => 1, 'state' => 'failed', 'created_at' => '2026-09-27 10:00:00', 'revision' => 0]);
+    $historyIds['audit'][] = $connection->insert('audit_log', ['form_id' => $historyForm, 'submission_uuid' => $historyResponse->uuid, 'correlation_id' => Nicode\FormStudio\Domain\Uuid::create(), 'actor_id' => 1, 'event_type' => 'submission.note', 'created_at' => '2026-09-27 10:00:00', 'safe_metadata' => '{"revision":1,"private":"never-expose-this"}']);
 }
 $connection->insert('submission_notes', ['submission_id' => $historyOther->id, 'created_by' => 1, 'created_at' => '2026-09-27 10:00:00', 'body' => 'Foreign history sentinel']);
 $historyFirst = $historyExplorer->detail(1, $historyForm, $historyResponse->id);
@@ -46,7 +46,7 @@ if ($declined['accepted'] !== false || $declined['text'] !== 'Exact historical c
 // Remove the original consent entirely and publish an unrelated replacement.
 // Historical interpretation must not depend on the current field graph.
 $beforeHistorical = $historyReader->read($historyForm, $historyResponse->id, 1, revealSensitive: true);
-$replacement = Nicode\EasyForms\Domain\Uuid::create();
+$replacement = Nicode\FormStudio\Domain\Uuid::create();
 $historyDraft['elements'] = [['uuid' => $replacement, 'type' => 'field']];
 $historyDraft['fields'] = [['uuid' => $replacement, 'name' => 'replacement', 'type' => 'text', 'config' => ['label' => 'Current replacement label']]];
 $replacementRevision = $forms->saveDraft($historyForm, (int) $forms->get($historyForm)['draft_revision'], $historyDraft, 1);

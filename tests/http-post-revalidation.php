@@ -10,14 +10,14 @@ require $site . '/includes/defines.php'; require $site . '/includes/framework.ph
 $container = Joomla\CMS\Factory::getContainer();
 $container->alias('session', 'session.cli')->alias(Joomla\CMS\Session\Session::class, 'session.cli')->alias(Joomla\Session\SessionInterface::class, 'session.cli');
 $app = $container->get(Joomla\CMS\Application\SiteApplication::class); Joomla\CMS\Factory::$application = $app;
-if ($app->get('db') !== 'easyforms_joomla' || $app->get('host') !== '127.0.0.1:13367') { throw new RuntimeException('Refusing non-isolated POST fixture.'); }
+if ($app->get('db') !== 'formstudio_joomla' || $app->get('host') !== '127.0.0.1:13367') { throw new RuntimeException('Refusing non-isolated POST fixture.'); }
 $app->createExtensionNamespaceMap();
 $credentials = json_decode(file_get_contents($root . '/build/joomla-test.json'), true, flags: JSON_THROW_ON_ERROR);
 $admin = $container->get(Joomla\CMS\User\UserFactoryInterface::class)->loadUserByUsername($credentials['username']); unset($credentials); $app->loadIdentity($admin);
-$runtime = $app->bootComponent('com_nicode_easy_forms')->runtime($app);
-$db = $runtime->get(Nicode\EasyForms\Infrastructure\Database\Connection::class);
-$forms = $runtime->get(Nicode\EasyForms\Application\FormAdministration::class);
-$repository = $runtime->get(Nicode\EasyForms\Infrastructure\Database\FormRepository::class);
+$runtime = $app->bootComponent('com_nicode_form_studio')->runtime($app);
+$db = $runtime->get(Nicode\FormStudio\Infrastructure\Database\Connection::class);
+$forms = $runtime->get(Nicode\FormStudio\Application\FormAdministration::class);
+$repository = $runtime->get(Nicode\FormStudio\Infrastructure\Database\FormRepository::class);
 $jar = $root . '/build/post-revalidation-' . bin2hex(random_bytes(6)) . '.cookie';
 $request = static function (string $path, ?array $post = null) use ($jar): array {
     if (!str_starts_with($path, '/index.php')) { throw new RuntimeException('Unexpected fixture route.'); }
@@ -30,11 +30,11 @@ $request = static function (string $path, ?array $post = null) use ($jar): array
     return ['status' => $status, 'headers' => substr($raw, 0, $size), 'body' => substr($raw, $size)];
 };
 $render = static function (int $form, string $channel) use ($request): array {
-    $page = $request('/index.php?option=com_nicode_easy_forms&view=form&id=' . $form . ($channel === 'component' ? '&tmpl=component' : ''));
+    $page = $request('/index.php?option=com_nicode_form_studio&view=form&id=' . $form . ($channel === 'component' ? '&tmpl=component' : ''));
     if ($page['status'] !== 200 || $page['body'] === '') { throw new RuntimeException('Fixture render failed for ' . $channel . ': HTTP ' . $page['status']); }
     $dom = new DOMDocument(); $prior = libxml_use_internal_errors(true);
     try { $dom->loadHTML($page['body']); } finally { libxml_clear_errors(); libxml_use_internal_errors($prior); }
-    $xpath = new DOMXPath($dom); $nodes = $xpath->query('//form[@data-nef-form][input[@name="form_id" and @value="' . $form . '"]][input[@name="channel" and @value="' . $channel . '"]]'); $node = $nodes->item(0);
+    $xpath = new DOMXPath($dom); $nodes = $xpath->query('//form[@data-nfs-form][input[@name="form_id" and @value="' . $form . '"]][input[@name="channel" and @value="' . $channel . '"]]'); $node = $nodes->item(0);
     if ($page['status'] !== 200 || !$node instanceof DOMElement) { throw new RuntimeException('Available fixture did not render.'); }
     $post = [];
     foreach ($xpath->query('.//input[@type="hidden"]', $node) as $input) { $post[$input->getAttribute('name')] = $input->getAttribute('value'); }
@@ -48,7 +48,7 @@ try {
   foreach (['component', 'module'] as $channel) {
     foreach (['unpublished', 'archived', 'trashed', 'access', 'language', 'future_start', 'expired', 'new_version'] as $case) {
         $form = $forms->create('POST revalidation acceptance', 'post-revalidation-' . bin2hex(random_bytes(6)), (int) $admin->id); $created[] = $form;
-        $draft = $forms->edit($form, (int) $admin->id)['draft']; $field = Nicode\EasyForms\Domain\Uuid::create();
+        $draft = $forms->edit($form, (int) $admin->id)['draft']; $field = Nicode\FormStudio\Domain\Uuid::create();
         $draft['elements'] = [['uuid' => $field, 'type' => 'field']];
         $draft['fields'] = [['uuid' => $field, 'name' => 'answer', 'type' => 'text', 'index' => true, 'config' => ['required' => true, 'max_length' => 255]]];
         $draft['actions'] = []; $draft['security']['captcha'] = ['mode' => 'none']; $draft['security']['minimum_seconds'] = 0;
@@ -56,14 +56,14 @@ try {
         $forms->publish($form, $revision, (int) $admin->id);
         if ($channel === 'module') {
             $module = new Joomla\CMS\Table\Module($database, $container->get(Joomla\Event\DispatcherInterface::class));
-            $module->title = 'POST revalidation module'; $module->module = 'mod_nicode_easy_forms'; $module->position = 'bottom-a'; $module->published = 1; $module->access = 1; $module->showtitle = 0; $module->client_id = 0; $module->language = '*';
+            $module->title = 'POST revalidation module'; $module->module = 'mod_nicode_form_studio'; $module->position = 'bottom-a'; $module->published = 1; $module->access = 1; $module->showtitle = 0; $module->client_id = 0; $module->language = '*';
             $module->params = json_encode(['form_id' => $form, 'cache' => 0], JSON_THROW_ON_ERROR);
             if (!$module->check() || !$module->store()) { throw new RuntimeException('POST fixture module creation failed.'); }
             $modules[] = (int) $module->id;
             $database->setQuery('INSERT INTO #__modules_menu (moduleid, menuid) VALUES (' . (int) $module->id . ', 0)')->execute();
         }
         [$destination, $post] = $render($form, $channel);
-        $post['nef'] = [$field => 'Private stale POST marker'];
+        $post['nfs'] = [$field => 'Private stale POST marker'];
         // Client assertions cannot restore permission or publication settings.
         $post += ['access' => 1, 'state' => 'published', 'language' => '*', 'publish_up' => '', 'publish_down' => ''];
         $row = $repository->get($form);
@@ -100,7 +100,7 @@ try {
         $row = $repository->get($form);
         $revision = $forms->settings($form, (int) $row['draft_revision'], $settings, (int) $admin->id);
         $forms->publish($form, $revision, (int) $admin->id);
-        [$destination, $fresh] = $render($form, $channel); $fresh['nef'] = [$field => 'Fresh accepted control']; $fresh['format'] = 'json';
+        [$destination, $fresh] = $render($form, $channel); $fresh['nfs'] = [$field => 'Fresh accepted control']; $fresh['format'] = 'json';
         $forged = array_replace($fresh, ['channel' => $channel === 'component' ? 'module' : 'component']);
         $rejection = $request($destination, $forged); $result = json_decode($rejection['body'], true, flags: JSON_THROW_ON_ERROR);
         if ($rejection['status'] !== 403 || ($result['category'] ?? '') !== 'session_error' || $db->rows('SELECT id FROM ' . $db->table('submissions') . ' WHERE form_id = :form', [':form' => $form]) !== []) { throw new RuntimeException('Rendered attempt accepted a forged channel.'); }

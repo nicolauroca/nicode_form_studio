@@ -4,9 +4,9 @@ The normative documents in this directory define the complete product target.
 The 1.0.0 package is generated under `dist`; release evidence and the explicit
 user acceptance of accessibility are recorded in `REQUIREMENT_ACCEPTANCE.md`.
 
-Runtime code is under `src/lib_nicode_easy_forms/src`, namespace
-`Nicode\EasyForms`. Its domain, compiler and validation layers do not depend on
-Joomla. Browser modules live under `src/com_nicode_easy_forms/media/js`.
+Runtime code is under `src/lib_nicode_form_studio/src`, namespace
+`Nicode\FormStudio`. Its domain, compiler and validation layers do not depend on
+Joomla. Browser modules live under `src/com_nicode_form_studio/media/js`.
 
 Field provider contracts use stable identifiers, versioned metadata and explicit
 normalization/validation. ProviderRegistry rejects duplicate registrations and can
@@ -42,7 +42,7 @@ purpose labels derived from Joomla's application secret. Rotating that applicati
 secret invalidates outstanding tokens and technical replay fingerprints.
 
 The initial deployment secret adapter resolves an uppercase reference such as
-`CRM_TOKEN` from `NICODE_EASYFORMS_SECRET_CRM_TOKEN`. It cannot read arbitrary
+`CRM_TOKEN` from `NICODE_FORMSTUDIO_SECRET_CRM_TOKEN`. It cannot read arbitrary
 environment variable names. The actual value never enters FormSpec, public JSON
 or component parameters. A different SecretStoreInterface adapter can supply a
 deployment-managed vault. Publication checks referenced webhook secrets, configured
@@ -122,8 +122,8 @@ queued through internal cleanup jobs. CSV writes remain outside database
 transactions, truncate to the last durable byte checkpoint on retry and preserve
 the selected search ordering. Queries pin an upper response ID at first execution.
 
-The package now includes `plg_task_nicode_easy_forms`. Enable it in Joomla and
-create a scheduled task of type **Nicode EasyForms jobs**. Run it through Joomla's
+The package now includes `plg_task_nicode_form_studio`. Enable it in Joomla and
+create a scheduled task of type **Nicode Form Studio jobs**. Run it through Joomla's
 scheduler or `php cli/joomla.php scheduler:run --id=TASK_ID`. The worker uses the
 original job creator's current permissions. Its batch and record limits are
 validated again at runtime; a 20-second budget is checked between batches.
@@ -155,7 +155,7 @@ current permissions. Finite retention requires its privacy permission at publish
 time. Privacy erasure fences expired action leases and protects anonymized status
 against late workers.
 
-System diagnostics use component-level `easyforms.logs.view` plus `core.manage`.
+System diagnostics use component-level `formstudio.logs.view` plus `core.manage`.
 They return bounded operational counts and safe status codes without private
 paths or exception messages. Unavailable configured CSV storage registers a
 retryable placeholder for existing jobs, while rejecting new exports.
@@ -177,9 +177,9 @@ and ACL snapshots; reinstall rebuilds stable asset names and updates form IDs
 without rewriting response payloads. Previously orphaned forms remain denied.
 See ADR-0010. Purge authorization and cleanup are not implemented yet.
 
-EasyForms plugins use the native `easyforms` group and Joomla's
-`SubscriberInterface`. Subscribe to `onEasyFormsRegisterProviders` and accept
-`Nicode\EasyForms\Infrastructure\Joomla\ProviderRegistrationEvent`. Check
+FormStudio plugins use the native `formstudio` group and Joomla's
+`SubscriberInterface`. Subscribe to `onFormStudioRegisterProviders` and accept
+`Nicode\FormStudio\Infrastructure\Joomla\ProviderRegistrationEvent`. Check
 `$event->kind` and call `$event->registry->register($provider)`. Supported kinds
 are fields, validators, operators, effects, sources, actions, storage, jobs and
 search; renderers use `register($fieldTypeId, $renderer)`. Registries are shared
@@ -187,7 +187,7 @@ per runtime and freeze after the event, including when a listener fails. Duplica
 IDs are rejected; metadata must be canonical JSON data and versions semantic.
 Core renderers are registered only for core field types. A missing custom
 renderer blocks publication of forms using that type. The source-only example
-under `tests/fixtures/plg_easyforms_providerfixture` is installed exclusively in
+under `tests/fixtures/plg_formstudio_providerfixture` is installed exclusively in
 the disposable lifecycle/browser sites and never shipped in the product package.
 The compiler now derives a canonical `provider_dependencies` map. Stable >=1.0
 providers accept same-major upgrades without downgrade; pre-1.0 and prerelease
@@ -197,7 +197,7 @@ historical snapshot reads do not depend on providers still being installed.
 Draft comparison omits this derived deployment map; comparing published versions
 retains it. Removing a provider reference from a draft removes its obsolete pin.
 Runtime lifecycle events use typed `LifecycleEvent` listeners named
-`onEasyFormsBeforeFormRender`, etc., for the eleven phases in SPEC-18. Metadata
+`onFormStudioBeforeFormRender`, etc., for the eleven phases in SPEC-18. Metadata
 is immutable and excludes answers, request tokens and private paths. Before and
 Resolve listeners can veto; After failures are logged as `extension.failed`
 without changing completed results. Custom transformations belong in provider
@@ -285,7 +285,7 @@ UUID/revision/hash provenance are copied into the action or its language
 catalogue. Runtime never consults the mutable template row. Form templates store
 a portable definition package, use the existing signed import review and always
 create an independent draft with remapped identities. Resource editing requires
-`easyforms.resources.manage`; applying a resource also checks form permissions.
+`formstudio.resources.manage`; applying a resource also checks form permissions.
 The resource tables retain the current revision; immutable FormVersions preserve
 the copies used by historical submissions.
 

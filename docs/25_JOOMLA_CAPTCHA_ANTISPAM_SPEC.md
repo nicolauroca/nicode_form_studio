@@ -1,7 +1,7 @@
 # 25 — Integración Joomla CAPTCHA y anti-spam
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -12,7 +12,7 @@
 
 ## 1. Decisión
 
-Nicode EasyForms **NO implementará un CAPTCHA propio**.
+Nicode Form Studio **NO implementará un CAPTCHA propio**.
 
 Utilizará la infraestructura CAPTCHA de Joomla y los proveedores/plugins CAPTCHA instalados y habilitados.
 
@@ -33,7 +33,7 @@ La integración debe poder:
 - renderizar mediante la API/Field de CAPTCHA actual;
 - validar mediante el provider Joomla actual.
 
-## 3. Configuración global EasyForms
+## 3. Configuración global FormStudio
 
 `Default CAPTCHA policy`:
 
@@ -44,7 +44,7 @@ La integración debe poder:
 
 ## 4. Configuración por Form
 
-- inherit EasyForms default;
+- inherit FormStudio default;
 - Joomla default;
 - specific installed provider;
 - none si permitido.
@@ -89,7 +89,7 @@ El orden definitivo deberá evitar tanto bypass como trabajo innecesario.
 
 ## 9. Joomla y proveedores
 
-EasyForms no debe asumir reCAPTCHA, hCaptcha, Turnstile u otra marca.
+FormStudio no debe asumir reCAPTCHA, hCaptcha, Turnstile u otra marca.
 
 El provider lo decide el sitio Joomla.
 
@@ -102,7 +102,7 @@ CAPTCHA no reemplaza:
 - duplicate protection;
 - input validation.
 
-EasyForms podrá ofrecer controles complementarios como:
+FormStudio podrá ofrecer controles complementarios como:
 
 - timing;
 - honeypot si se decide;
@@ -114,7 +114,7 @@ pero, cuando Joomla ofrezca una capacidad equivalente reutilizable, se preferir�
 
 ## 11. Honeypot
 
-Si se incorpora un honeypot EasyForms, debe considerarse una heurística anti-spam, no un CAPTCHA.
+Si se incorpora un honeypot FormStudio, debe considerarse una heurística anti-spam, no un CAPTCHA.
 
 También podría suministrarse por un provider CAPTCHA Joomla, por lo que no debe ser requisito obligatorio duplicarlo.
 
@@ -136,4 +136,4 @@ No almacenar challenge tokens/secret responses salvo requisito técnico temporal
 
 ## 15. Actualización futura
 
-Joomla ha evolucionado su API CAPTCHA; EasyForms debe usar la API moderna disponible en Joomla 6 y encapsularla en un `CaptchaAdapter` interno para reducir acoplamiento.
+Joomla ha evolucionado su API CAPTCHA; FormStudio debe usar la API moderna disponible en Joomla 6 y encapsularla en un `CaptchaAdapter` interno para reducir acoplamiento.

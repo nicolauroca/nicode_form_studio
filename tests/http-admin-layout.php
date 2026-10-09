@@ -18,16 +18,16 @@ foreach (['First name','Last name','City'] as $i=>$label) {
 $layoutRevision = $api('save',['id'=>$layoutForm['id'],'revision'=>0,'draft'=>$layoutDraft])['revision'];
 $api('publish',['id'=>$layoutForm['id'],'revision'=>$layoutRevision]);
 $layoutPreview = $api('preview',query:['id'=>$layoutForm['id']]);
-$layoutUrl = 'http://127.0.0.1:13371/index.php?option=com_nicode_easy_forms&view=form&id='.$layoutForm['id'];
+$layoutUrl = 'http://127.0.0.1:13371/index.php?option=com_nicode_form_studio&view=form&id='.$layoutForm['id'];
 $layoutPage = $visitorRequest($layoutUrl);
 foreach ([$layoutPreview['html'],$layoutPage['body']] as $html) {
-    $xpath = $dom($html); $fieldset = $xpath->query('//fieldset[@data-nef-element="'.$layoutParent.'"]')->item(0);
-    $assert($xpath->query('//form[@data-nef-form]//h3[not(normalize-space())]')->length === 0, 'Untitled layout containers emitted empty headings.');
+    $xpath = $dom($html); $fieldset = $xpath->query('//fieldset[@data-nfs-element="'.$layoutParent.'"]')->item(0);
+    $assert($xpath->query('//form[@data-nfs-form]//h3[not(normalize-space())]')->length === 0, 'Untitled layout containers emitted empty headings.');
     $assert($fieldset instanceof DOMElement && $xpath->query('./legend',$fieldset)->item(0)?->textContent === 'Contact information','Semantic fieldset/legend missing.');
     foreach ($layoutFields as $uuid) {
-        $field = $xpath->query('./div[@data-nef-element="'.$uuid.'"]',$fieldset)->item(0);
+        $field = $xpath->query('./div[@data-nfs-element="'.$uuid.'"]',$fieldset)->item(0);
         $classes = $field instanceof DOMElement ? explode(' ',$field->getAttribute('class')) : [];
-        $assert(array_diff(['nef-desktop-4','nef-tablet-6','nef-mobile-12'],$classes) === [],'Conceptual responsive widths missing.');
+        $assert(array_diff(['nfs-desktop-4','nfs-tablet-6','nfs-mobile-12'],$classes) === [],'Conceptual responsive widths missing.');
     }
 }
 file_put_contents($root.'/build/native-layout-fixture.json',json_encode(['form_id'=>$layoutForm['id'],'url'=>$layoutUrl,'fields'=>$layoutFields],JSON_THROW_ON_ERROR));
@@ -51,8 +51,8 @@ $depthErrors = array_values(array_filter($depthFailure['diagnostics'], static fn
 $assert(count($depthErrors) === 1 && $depthErrors[0]['path'] === '/elements/64/parent_uuid', 'Depth overflow did not identify the first unsupported container.');
 $depthRecord = $api('record', query:['id'=>$depthForm['id']]);
 $assert((int)$depthRecord['form']['published_version_id'] === $depthPublished['version_id'] && (int)$depthRecord['form']['draft_revision'] === $depthRevision, 'Depth failure changed activation or draft revision.');
-$depthPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_easy_forms&view=form&id='.$depthForm['id']);
-$assert($depthPage['status'] === 200 && substr_count($depthPage['body'], 'class="nef-element nef-group"') === 64, 'Previously published depth boundary no longer renders.');
+$depthPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_form_studio&view=form&id='.$depthForm['id']);
+$assert($depthPage['status'] === 200 && substr_count($depthPage['body'], 'class="nfs-element nfs-group"') === 64, 'Previously published depth boundary no longer renders.');
 $depthRevision = $api('save', ['id'=>$depthForm['id'],'revision'=>$depthRevision,'draft'=>$depthDraft])['revision'];
 $api('publish', ['id'=>$depthForm['id'],'revision'=>$depthRevision]);
 echo "Native layout depth: 64 containers render; container 65 rejects publication with exact path, preserving active version and revision; corrected depth publishes.\n";
@@ -65,7 +65,7 @@ foreach ([[], false, 1.5] as $badParent) {
     $currentParentRecord = $api('record', query:['id'=>$depthForm['id']]);
     $assert($currentParentRecord['form']['published_version_id'] === $parentRecord['form']['published_version_id'] && (int)$currentParentRecord['form']['draft_revision'] === $parentRevision && $currentParentRecord['draft'] === $parentRecord['draft'], 'Malformed parent rejection mutated the draft or active state.');
     $parentPreview = $api('preview', query:['id'=>$depthForm['id']]);
-    $assert(is_string($parentPreview['html']) && substr_count($parentPreview['html'], 'class="nef-element nef-group"') === 64, 'Rejected parent damaged the existing preview.');
+    $assert(is_string($parentPreview['html']) && substr_count($parentPreview['html'], 'class="nfs-element nfs-group"') === 64, 'Rejected parent damaged the existing preview.');
 }
 echo "Native malformed layout parents: array, boolean and decimal reject at save with HTTP 422; draft, revision, active version and preview remain intact.\n";
 

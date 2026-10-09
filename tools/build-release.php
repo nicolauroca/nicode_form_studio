@@ -8,7 +8,7 @@ if (count($requirements) !== 133) { throw new RuntimeException('Release requires
 foreach ($requirements as $id => $requirement) {
     if ($id !== 'OPS-008' && ($requirement['status'] ?? null) !== 'COMPLETE') { throw new RuntimeException('Release acceptance incomplete: ' . $id); }
 }
-$manifest = simplexml_load_file($root . '/src/pkg_nicode_easy_forms/pkg_nicode_easy_forms.xml', SimpleXMLElement::class, LIBXML_NONET);
+$manifest = simplexml_load_file($root . '/src/pkg_nicode_form_studio/pkg_nicode_form_studio.xml', SimpleXMLElement::class, LIBXML_NONET);
 $releaseVersion = (string) $manifest->version;
 if (preg_match('/^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/D', $releaseVersion) !== 1) { throw new RuntimeException('Set a stable source-manifest version before building a release.'); }
 foreach (['ADMIN_USER_GUIDE.md', 'BUILD_AND_RELEASE.md', 'DEVELOPER_GUIDE.md'] as $document) {
@@ -17,7 +17,7 @@ foreach (['ADMIN_USER_GUIDE.md', 'BUILD_AND_RELEASE.md', 'DEVELOPER_GUIDE.md'] a
 require __DIR__ . '/build-development.php';
 $releaseDirectory = $root . '/dist';
 if (!is_dir($releaseDirectory) && !mkdir($releaseDirectory, 0770, true)) { throw new RuntimeException('Unable to create release directory.'); }
-$releaseName = 'pkg_nicode_easy_forms-' . $releaseVersion . '.zip';
+$releaseName = 'pkg_nicode_form_studio-' . $releaseVersion . '.zip';
 $releasePath = $releaseDirectory . '/' . $releaseName;
 if (is_file($releasePath) && !hash_equals(hash_file('sha256', $target), hash_file('sha256', $releasePath))) { throw new RuntimeException('Refusing to overwrite a different versioned release artifact.'); }
 if (!copy($target, $releasePath) || !hash_equals(hash_file('sha256', $target), hash_file('sha256', $releasePath))) { throw new RuntimeException('Release copy integrity failed.'); }

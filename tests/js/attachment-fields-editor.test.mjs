@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mountAttachmentFields} from '../../src/com_nicode_easy_forms/media/js/attachment-fields-editor.js';
+import {mountAttachmentFields} from '../../src/com_nicode_form_studio/media/js/attachment-fields-editor.js';
 function setup(configuration, fields) {
   const inputs=[]; let changes=0;
   const node=(tag,text,attributes={})=>({tag,text,attributes,children:[],append(...items){this.children.push(...items);},replaceWith(){},addEventListener(type,fn){this[type]=fn;}});

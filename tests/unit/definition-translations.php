@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Translation\DefinitionTranslations;
-use Nicode\EasyForms\Domain\{FormSpec, Uuid};
-use Nicode\EasyForms\Actions\ActionContext;
+use Nicode\FormStudio\Translation\DefinitionTranslations;
+use Nicode\FormStudio\Domain\{FormSpec, Uuid};
+use Nicode\FormStudio\Actions\ActionContext;
 
 test('dynamic translations fall back per property and preserve immutable published identity', function (): void {
     $draft = definition(); $field = $draft['fields'][0]['uuid'];
@@ -53,14 +53,14 @@ test('conditional confirmation translations follow stable identities and preserv
     ]];
     $draft['translations'] = ['es-ES' => ['conditional_messages' => [$first => ['message' => 'Primero'], $second => ['message' => 'Segundo']]]];
     $compiled = compiler()->compile($draft); same(true, $compiled->successful());
-    $service = new Nicode\EasyForms\Submission\PostSubmit(new Nicode\EasyForms\Rules\ConditionEvaluator(Nicode\EasyForms\Registry\RuleOperatorRegistry::core()), registry(), new Nicode\EasyForms\Actions\TokenTemplate(), new Nicode\EasyForms\Security\RedirectPolicy());
+    $service = new Nicode\FormStudio\Submission\PostSubmit(new Nicode\FormStudio\Rules\ConditionEvaluator(Nicode\FormStudio\Registry\RuleOperatorRegistry::core()), registry(), new Nicode\FormStudio\Actions\TokenTemplate(), new Nicode\FormStudio\Security\RedirectPolicy());
     $context = new ActionContext($compiled->spec, [$field => 'yes'], 'reference', 'date', locale: 'es-ES');
     same('Primero', $service->result($context, ['status' => 'succeeded'])['message']);
     same('Waiting', $service->result($context, ['status' => 'pending'])['message']);
     same('Failed', $service->result($context, ['status' => 'blocking_failure'])['message']);
     $draft['post_submit']['conditional_messages'] = array_reverse($draft['post_submit']['conditional_messages']);
     same('Segundo', $service->result(new ActionContext(compiler()->compile($draft)->spec, [$field => 'yes'], 'reference', 'date', locale: 'es-ES'), ['status' => 'succeeded'])['message']);
-    $copy = (new Nicode\EasyForms\Domain\DefinitionRemapper())->duplicate($draft, Uuid::create());
+    $copy = (new Nicode\FormStudio\Domain\DefinitionRemapper())->duplicate($draft, Uuid::create());
     same('Primero', $copy['definition']['translations']['es-ES']['conditional_messages'][$copy['identities'][$first]]['message']);
     same(true, compiler()->compile($copy['definition'])->successful());
     $draft['post_submit']['conditional_messages'][1]['uuid'] = $second;
@@ -70,13 +70,13 @@ test('conditional confirmation translations follow stable identities and preserv
 });
 
 test('translated email configuration renders safe tokens and is compiled before delivery', function (): void {
-    $transport = new class implements Nicode\EasyForms\Contract\MailTransportInterface {
+    $transport = new class implements Nicode\FormStudio\Contract\MailTransportInterface {
         public array $messages = [];
-        public function send(Nicode\EasyForms\Actions\MailMessage $message): void { $this->messages[] = $message; }
+        public function send(Nicode\FormStudio\Actions\MailMessage $message): void { $this->messages[] = $message; }
     };
-    $provider = new Nicode\EasyForms\Actions\EmailAction($transport, new Nicode\EasyForms\Actions\TokenTemplate());
-    $actions = new Nicode\EasyForms\Registry\ActionRegistry(); $actions->register($provider);
-    $compiler = new Nicode\EasyForms\Compiler\FormCompiler(registry(), $actions, new Nicode\EasyForms\Registry\DataSourceRegistry(), new Nicode\EasyForms\Registry\ValidatorRegistry());
+    $provider = new Nicode\FormStudio\Actions\EmailAction($transport, new Nicode\FormStudio\Actions\TokenTemplate());
+    $actions = new Nicode\FormStudio\Registry\ActionRegistry(); $actions->register($provider);
+    $compiler = new Nicode\FormStudio\Compiler\FormCompiler(registry(), $actions, new Nicode\FormStudio\Registry\DataSourceRegistry(), new Nicode\FormStudio\Registry\ValidatorRegistry());
     $draft = definition(); $field = $draft['fields'][0]['uuid']; $action = Uuid::create();
     $draft['actions'] = [['uuid' => $action, 'type' => 'email_notification', 'config' => ['to' => ['fixture@example.test'], 'subject' => 'Original', 'body_text' => 'Original']]];
     $draft['translations'] = ['es-ES' => ['form' => ['name' => 'Solicitud'], 'fields' => [$field => ['label' => 'Respuesta']], 'actions' => [$action => ['subject' => '{{form.name}} recibida', 'body_text' => '{{field.' . $field . '.label}}: {{field.' . $field . '.value}}']]]];
@@ -94,7 +94,7 @@ test('rule-provided option translations preserve selection values and duplicatio
     $draft['translations'] = ['es-ES' => ['options' => [$option => ['label' => 'Sí']]]];
     same(true, compiler()->compile($draft)->successful());
     $localized = DefinitionTranslations::resolve($draft, 'es-ES'); same('Sí', $localized['rules'][0]['effects'][0]['value'][0]['label']); same('yes', $localized['rules'][0]['effects'][0]['value'][0]['value']);
-    $copy = (new Nicode\EasyForms\Domain\DefinitionRemapper())->duplicate($draft, Uuid::create());
+    $copy = (new Nicode\FormStudio\Domain\DefinitionRemapper())->duplicate($draft, Uuid::create());
     same($copy['identities'][$option], $copy['definition']['rules'][0]['effects'][0]['value'][0]['uuid']); same(['label' => 'Sí'], $copy['definition']['translations']['es-ES']['options'][$copy['identities'][$option]]);
     same(true, compiler()->compile($copy['definition'])->successful());
 });

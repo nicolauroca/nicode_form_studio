@@ -1,7 +1,7 @@
 # 00 — Product Vision
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -12,9 +12,9 @@
 
 ## 1. Producto
 
-**Nombre:** Nicode EasyForms.
+**Nombre:** Nicode Form Studio.
 
-Nicode EasyForms será un sistema integral de creación, publicación, procesamiento, consulta y administración de formularios para Joomla 6.
+Nicode Form Studio será un sistema integral de creación, publicación, procesamiento, consulta y administración de formularios para Joomla 6.
 
 No será una colección de formularios programados. Será un **motor declarativo de formularios**.
 

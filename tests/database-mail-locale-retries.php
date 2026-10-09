@@ -6,7 +6,7 @@ declare(strict_types=1);
     foreach(['email_notification','email_autoresponse'] as $type) {
         foreach(['es-MX'=>'exact','es-AR'=>'primary','fr-FR'=>'default','de-DE'=>'source'] as $locale=>$expected) {
             $form=$forms->create('Original form','locale-retry-'.bin2hex(random_bytes(6)),1);
-            $draft=$forms->draft($form); $field=Nicode\EasyForms\Domain\Uuid::create(); $email=Nicode\EasyForms\Domain\Uuid::create(); $action=Nicode\EasyForms\Domain\Uuid::create();
+            $draft=$forms->draft($form); $field=Nicode\FormStudio\Domain\Uuid::create(); $email=Nicode\FormStudio\Domain\Uuid::create(); $action=Nicode\FormStudio\Domain\Uuid::create();
             $draft['base_language']='en-GB';
             $draft['elements']=[['uuid'=>$field,'type'=>'field'],['uuid'=>$email,'type'=>'field']];
             $draft['fields']=[['uuid'=>$field,'name'=>'answer','type'=>'text','config'=>['label'=>'Original label']],['uuid'=>$email,'name'=>'email','type'=>'email','config'=>['label'=>'Email']]];
@@ -21,7 +21,7 @@ declare(strict_types=1);
             $values=[$field=>'<original & value>',$email=>'visitor@example.test'];
             $response=$submissions->persist($form,$version,$spec,$values,hash('sha256',random_bytes(32)),['locale'=>$locale]);
             $row=$submissions->get($form,$response->id);
-            $context=new Nicode\EasyForms\Actions\ActionContext($spec,$values,$response->uuid,$row['received_at'],locale:$locale);
+            $context=new Nicode\FormStudio\Actions\ActionContext($spec,$values,$response->uuid,$row['received_at'],locale:$locale);
             $factory->mode='preparation'; $before=count($factory->messages);
             $engine->execute($response->id,$context);
             if($runs->latest($response->id,$action)['result_code']!=='mail_preparation_failed') { throw new RuntimeException('Localized retry fixture did not fail definitively.'); }

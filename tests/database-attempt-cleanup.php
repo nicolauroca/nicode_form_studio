@@ -1,22 +1,22 @@
 <?php
 declare(strict_types=1);
 (static function () use ($connection, $compiler, $submissions, $jobs, $runs): void {
-    $forms = new Nicode\EasyForms\Infrastructure\Database\FormRepository($connection, $compiler); $cases = [];
+    $forms = new Nicode\FormStudio\Infrastructure\Database\FormRepository($connection, $compiler); $cases = [];
     foreach ([['none', 'expired'], ['none', 'fresh'], ['none', 'live'], ['full', 'expired'], ['metadata', 'expired'], ['none', 'interrupted']] as [$mode, $kind]) {
         $form = $forms->create('Attempt expiry fixture', 'attempt-expiry-' . bin2hex(random_bytes(6)), 1); $draft = $forms->draft($form);
-        $field = Nicode\EasyForms\Domain\Uuid::create(); $draft['elements'] = [['uuid' => $field, 'type' => 'field']]; $draft['fields'] = [['uuid' => $field, 'name' => 'answer', 'type' => 'text']]; $draft['persistence']['mode'] = $mode;
+        $field = Nicode\FormStudio\Domain\Uuid::create(); $draft['elements'] = [['uuid' => $field, 'type' => 'field']]; $draft['fields'] = [['uuid' => $field, 'name' => 'answer', 'type' => 'text']]; $draft['persistence']['mode'] = $mode;
         $revision = $forms->saveDraft($form, 0, $draft, 1); $version = $forms->publish($form, $revision, 1);
         $response = $submissions->persist($form, $version, $forms->version($form, $version), [$field => 'private expiry fixture'], hash('sha256', random_bytes(32)));
         if ($kind !== 'fresh') { $connection->execute('UPDATE ' . $connection->table('attempts') . ' SET expires_at=:date WHERE form_id=:form', [':date' => '2000-01-01 00:00:00', ':form' => $form]); }
         $lease = null;
         if (in_array($kind, ['live', 'interrupted'], true)) {
-            $lease = $runs->claim($response->id, Nicode\EasyForms\Domain\Uuid::create(), 'fixture');
+            $lease = $runs->claim($response->id, Nicode\FormStudio\Domain\Uuid::create(), 'fixture');
             if ($kind === 'interrupted') { $connection->execute('UPDATE ' . $connection->table('action_runs') . ' SET lease_until=:date WHERE id=:id', [':date' => '2000-01-01 00:00:00', ':id' => $lease->id]); }
         }
         $cases[] = [$form, $response->id, $mode, $kind, $submissions->get($form, $response->id), $lease];
     }
-    $handler = new Nicode\EasyForms\Jobs\AttemptCleanupHandler($connection, $forms, $jobs);
-    $leaseFor = static fn (array $cursor) => new Nicode\EasyForms\Jobs\JobLease(1, Nicode\EasyForms\Domain\Uuid::create(), 'attempt-cleanup', 0, [], $cursor, str_repeat('c', 64), 1, 0, 0);
+    $handler = new Nicode\FormStudio\Jobs\AttemptCleanupHandler($connection, $forms, $jobs);
+    $leaseFor = static fn (array $cursor) => new Nicode\FormStudio\Jobs\JobLease(1, Nicode\FormStudio\Domain\Uuid::create(), 'attempt-cleanup', 0, [], $cursor, str_repeat('c', 64), 1, 0, 0);
     $start = ['cutoff' => '2000-01-02 00:00:00', 'expires_at' => '1999-12-31 00:00:00', 'id' => 0];
     try { $connection->transaction(function () use ($handler, $leaseFor, $start): void { $handler->run($leaseFor($start), 2); throw new RuntimeException('Expected rollback'); }); } catch (RuntimeException $error) { if ($error->getMessage() !== 'Expected rollback') { throw $error; } }
     foreach ($cases as [$form, $id, $mode, $kind, $before]) { if ($submissions->get($form, $id) !== $before) { throw new RuntimeException('Attempt cleanup escaped transaction rollback.'); } }

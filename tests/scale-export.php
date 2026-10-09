@@ -4,29 +4,29 @@ declare(strict_types=1);
 // Existing synthetic million-response database only; never seed or alter answers.
 $root=dirname(__DIR__); define('_JEXEC',1);
 require $root.'/build/joomla-6.0.0/libraries/vendor/autoload.php';
-require $root.'/src/lib_nicode_easy_forms/autoload.php';
+require $root.'/src/lib_nicode_form_studio/autoload.php';
 $format=$argv[1]??'json';
 if(!in_array($format,['csv','json'],true)) throw new InvalidArgumentException('Choose csv or json.');
 $config=json_decode(ltrim(file_get_contents($root.'/build/database-test.json'),"\xEF\xBB\xBF"),true,32,JSON_THROW_ON_ERROR);
-if($config['host']!=='127.0.0.1' || $config['port']!==13367 || $config['database']!=='easyforms_test') throw new RuntimeException('Refusing non-test scale server.');
-$driver=(new Joomla\Database\DatabaseFactory())->getDriver('mysql',['host'=>'127.0.0.1','port'=>13367,'user'=>$config['user'],'password'=>$config['password'],'database'=>'easyforms_scale','prefix'=>'scale_','charset'=>'utf8mb4']); $driver->connect();
-$db=new Nicode\EasyForms\Infrastructure\Database\Connection($driver);
-$source=new PDO('mysql:host=127.0.0.1;port=13367;dbname=easyforms_scale;charset=utf8mb4',$config['user'],$config['password'],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::MYSQL_ATTR_USE_BUFFERED_QUERY=>false]);
+if($config['host']!=='127.0.0.1' || $config['port']!==13367 || $config['database']!=='formstudio_test') throw new RuntimeException('Refusing non-test scale server.');
+$driver=(new Joomla\Database\DatabaseFactory())->getDriver('mysql',['host'=>'127.0.0.1','port'=>13367,'user'=>$config['user'],'password'=>$config['password'],'database'=>'formstudio_scale','prefix'=>'scale_','charset'=>'utf8mb4']); $driver->connect();
+$db=new Nicode\FormStudio\Infrastructure\Database\Connection($driver);
+$source=new PDO('mysql:host=127.0.0.1;port=13367;dbname=formstudio_scale;charset=utf8mb4',$config['user'],$config['password'],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::MYSQL_ATTR_USE_BUFFERED_QUERY=>false]);
 if((int)$db->row('SELECT COUNT(*) AS total FROM '.$db->table('submissions'))['total']!==1000000) throw new RuntimeException('Expected existing million-response fixture.');
 $formRows=$db->rows('SELECT id, alias, published_version_id FROM '.$db->table('forms').' ORDER BY id');
 if(count($formRows)!==100) throw new RuntimeException('Expected exactly 100 synthetic forms.');
 foreach($formRows as $form) if(!preg_match('/^scale-fixture-[0-9]+$/D',$form['alias'])) throw new RuntimeException('Unexpected scale form.');
-$fields=new Nicode\EasyForms\Registry\FieldTypeRegistry(); Nicode\EasyForms\Field\CoreFieldTypes::register($fields);
-$compiler=new Nicode\EasyForms\Compiler\FormCompiler($fields,new Nicode\EasyForms\Registry\ProviderRegistry(),new Nicode\EasyForms\Registry\ProviderRegistry(),new Nicode\EasyForms\Registry\ProviderRegistry());
-$forms=new Nicode\EasyForms\Infrastructure\Database\FormRepository($db,$compiler);
-$submissions=new Nicode\EasyForms\Infrastructure\Database\SubmissionRepository($db,new Nicode\EasyForms\Search\IndexProjector($fields),random_bytes(32));
+$fields=new Nicode\FormStudio\Registry\FieldTypeRegistry(); Nicode\FormStudio\Field\CoreFieldTypes::register($fields);
+$compiler=new Nicode\FormStudio\Compiler\FormCompiler($fields,new Nicode\FormStudio\Registry\ProviderRegistry(),new Nicode\FormStudio\Registry\ProviderRegistry(),new Nicode\FormStudio\Registry\ProviderRegistry());
+$forms=new Nicode\FormStudio\Infrastructure\Database\FormRepository($db,$compiler);
+$submissions=new Nicode\FormStudio\Infrastructure\Database\SubmissionRepository($db,new Nicode\FormStudio\Search\IndexProjector($fields),random_bytes(32));
 $authorize=static fn(int $actor,?int $form,string $permission):bool=>$actor===1;
-$reader=new Nicode\EasyForms\Application\SubmissionReader($submissions,$forms,$db,$authorize);
-$jobs=new Nicode\EasyForms\Infrastructure\Database\JobRepository($db);
-$search=new Nicode\EasyForms\Search\SqlSearchProvider($db,$fields,new Nicode\EasyForms\Search\CursorCodec(random_bytes(32)));
+$reader=new Nicode\FormStudio\Application\SubmissionReader($submissions,$forms,$db,$authorize);
+$jobs=new Nicode\FormStudio\Infrastructure\Database\JobRepository($db);
+$search=new Nicode\FormStudio\Search\SqlSearchProvider($db,$fields,new Nicode\FormStudio\Search\CursorCodec(random_bytes(32)));
 $directory=$root.'/build/scale-export-private'; if(!is_dir($directory)) mkdir($directory,0770,true);
-$workspace=new Nicode\EasyForms\Export\ExportWorkspace($directory,$root.'/build/joomla-6.0.0');
-$handler=new Nicode\EasyForms\Jobs\ExportHandler($db,$forms,$reader,$jobs,$workspace,$authorize,$search,format:$format);
+$workspace=new Nicode\FormStudio\Export\ExportWorkspace($directory,$root.'/build/joomla-6.0.0');
+$handler=new Nicode\FormStudio\Jobs\ExportHandler($db,$forms,$reader,$jobs,$workspace,$authorize,$search,format:$format);
 $fieldIds=['0a4fbe36-0885-4269-82a0-4e5c15696d01','0a4fbe36-0885-4269-82a0-4e5c15696d02','0a4fbe36-0885-4269-82a0-4e5c15696d03'];
 $results=[]; $totalRows=0; $totalBytes=0; $started=microtime(true); $exportSeconds=0;
 foreach($formRows as $form) {
@@ -45,7 +45,7 @@ foreach($formRows as $form) {
         $job=$jobs->get($jobId);
         if((int)$job['processed']!==$expectedRows || $job['state']!=='completed') throw new RuntimeException('Export job cardinality mismatch.');
         // Independent unbuffered source traversal, not the reader or export projection.
-        $statement=$source->prepare('SELECT uuid, form_version_id, received_at, state, canonical_payload FROM scale_nicode_easyforms_submissions WHERE form_id = ? ORDER BY id'); $statement->execute([$id]);
+        $statement=$source->prepare('SELECT uuid, form_version_id, received_at, state, canonical_payload FROM scale_nicode_form_studio_submissions WHERE form_id = ? ORDER BY id'); $statement->execute([$id]);
         $digest=hash_init('sha256'); $seen=0; $temporary=fopen('php://temp','w+b');
         $csvHash=static function(array $row)use($digest,$temporary):void { ftruncate($temporary,0); rewind($temporary); fputcsv($temporary,$row,',','"','',"\r\n"); rewind($temporary); hash_update_stream($digest,$temporary); };
         if($format==='json') hash_update($digest,'['); else {

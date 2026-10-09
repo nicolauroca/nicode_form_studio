@@ -1,7 +1,7 @@
 # 17 — Instalación, actualización y desinstalación
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -14,15 +14,15 @@
 
 Artefacto distribuible:
 
-`pkg_nicode_easy_forms.zip`
+`pkg_nicode_form_studio.zip`
 
 Constituyentes iniciales:
 
-- `com_nicode_easy_forms`;
-- `mod_nicode_easy_forms`;
-- `lib_nicode_easy_forms`.
-- `plg_task_nicode_easy_forms`, para el ejecutor de jobs nativo.
-- `plg_extension_nicode_easy_forms`, para auditar guardados de configuración
+- `com_nicode_form_studio`;
+- `mod_nicode_form_studio`;
+- `lib_nicode_form_studio`.
+- `plg_task_nicode_form_studio`, para el ejecutor de jobs nativo.
+- `plg_extension_nicode_form_studio`, para auditar guardados de configuración
   nativa; habilitado al instalar y con estado respetado en actualizaciones.
 
 Las dependencias internas deberán quedar declaradas.
@@ -100,7 +100,7 @@ Eliminar:
 
 - schema;
 - cache;
-- archivos propiedad inequívoca de EasyForms según política;
+- archivos propiedad inequívoca de FormStudio según política;
 - temporales.
 
 ### Preserve data

@@ -8,7 +8,7 @@ Implementar un CAPTCHA propio duplica capacidades de ecosistema y crea mantenimi
 
 ## Decision
 
-Nicode EasyForms no implementará algoritmo CAPTCHA. Integrará providers/plugins CAPTCHA Joomla mediante adapter.
+Nicode Form Studio no implementará algoritmo CAPTCHA. Integrará providers/plugins CAPTCHA Joomla mediante adapter.
 
 ## Consequences
 

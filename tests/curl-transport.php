@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 // Process-local cURL boundary: no network or external endpoint receives test data.
-namespace Nicode\EasyForms\Http {
+namespace Nicode\FormStudio\Http {
     final class CurlBoundaryFixture {
         public array $options = [];
         public int $calls = 0;
@@ -26,9 +26,9 @@ namespace Nicode\EasyForms\Http {
 }
 
 namespace {
-    require dirname(__DIR__) . '/src/lib_nicode_easy_forms/autoload.php';
-    use Nicode\EasyForms\Http\{CurlBoundaryFixture, CurlTransport, DestinationPolicy};
-    use Nicode\EasyForms\Actions\ActionFailure;
+    require dirname(__DIR__) . '/src/lib_nicode_form_studio/autoload.php';
+    use Nicode\FormStudio\Http\{CurlBoundaryFixture, CurlTransport, DestinationPolicy};
+    use Nicode\FormStudio\Actions\ActionFailure;
     $assert = static function (bool $ok, string $message): void { if (!$ok) { throw new RuntimeException($message); } };
     $dns = 0;
     $transport = new CurlTransport(new DestinationPolicy(['hooks.example.test'], static function () use (&$dns): array { $dns++; return ['1.1.1.1']; }), 8);

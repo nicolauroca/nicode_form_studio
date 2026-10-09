@@ -19,27 +19,27 @@ foreach (['select', 'radio', 'button-group', 'multiselect', 'checkbox-group', 'c
 }
 $selectionRevision = $api('save', ['id' => $selectionForm['id'], 'revision' => 0, 'draft' => $selectionDraft])['revision'];
 $api('publish', ['id' => $selectionForm['id'], 'revision' => $selectionRevision]);
-$selectionPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_easy_forms&view=form&id=' . $selectionForm['id']);
-$selectionXpath = $dom($selectionPage['body']); $selectionNode = $selectionXpath->query('//form[@data-nef-form]')->item(0);
+$selectionPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_form_studio&view=form&id=' . $selectionForm['id']);
+$selectionXpath = $dom($selectionPage['body']); $selectionNode = $selectionXpath->query('//form[@data-nfs-form]')->item(0);
 $assert($selectionPage['status'] === 200 && $selectionNode instanceof DOMElement, 'Selection fixture failed to render.');
-$selectionPost = ['format' => 'json', 'nef' => $selectionValues];
+$selectionPost = ['format' => 'json', 'nfs' => $selectionValues];
 foreach ($selectionXpath->query('.//input[@type="hidden"]', $selectionNode) as $input) { $selectionPost[$input->getAttribute('name')] = $input->getAttribute('value'); }
 $selectionDestination = 'http://127.0.0.1:13371' . $selectionNode->getAttribute('action');
 foreach ($selectionInvalid as $uuid => $invalids) {
     foreach ($invalids as $invalid) {
-        $invalidPost = $selectionPost; $invalidPost['nef'][$uuid] = $invalid;
+        $invalidPost = $selectionPost; $invalidPost['nfs'][$uuid] = $invalid;
         $response = $visitorRequest($selectionDestination, $invalidPost); $result = json_decode($response['body'], true, flags: JSON_THROW_ON_ERROR);
         $assert($response['status'] === 422 && isset($result['errors'][$uuid]), 'Selection direct POST bypassed membership/count/boolean validation.');
     }
 }
-$traditionalPost = $selectionPost; unset($traditionalPost['format'], $traditionalPost['nef']);
+$traditionalPost = $selectionPost; unset($traditionalPost['format'], $traditionalPost['nfs']);
 $traditionalResponse = $visitorRequest($selectionDestination, $traditionalPost);
 $traditionalXpath = $dom($traditionalResponse['body']);
-$errorLinks = $traditionalXpath->query('//a[@data-nef-error-target]');
+$errorLinks = $traditionalXpath->query('//a[@data-nfs-error-target]');
 $assert($traditionalResponse['status'] === 422 && $errorLinks->length === 8, 'Traditional selection errors did not expose all field destinations.');
 foreach ($errorLinks as $link) {
     $targets = $traditionalXpath->query('//*[@id="'.substr($link->getAttribute('href'), 1).'"]');
-    $assert($targets->length === 1 && $targets->item(0)->getAttribute('tabindex') === '-1' && $targets->item(0)->getAttribute('data-nef-element') === $link->getAttribute('data-nef-error-target'), 'Traditional selection error has no unique focusable field target.');
+    $assert($targets->length === 1 && $targets->item(0)->getAttribute('tabindex') === '-1' && $targets->item(0)->getAttribute('data-nfs-element') === $link->getAttribute('data-nfs-error-target'), 'Traditional selection error has no unique focusable field target.');
 }
 $response = $visitorRequest($selectionDestination, $selectionPost); $result = json_decode($response['body'], true, flags: JSON_THROW_ON_ERROR);
 $assert($response['status'] === 200 && $result['category'] === 'success', 'Valid selection controls failed submission.');

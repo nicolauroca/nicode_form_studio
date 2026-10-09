@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mountRepeatLimits} from '../../src/com_nicode_easy_forms/media/js/repeat-limits-editor.js';
+import {mountRepeatLimits} from '../../src/com_nicode_form_studio/media/js/repeat-limits-editor.js';
 
 function mount(element) {
   const controls = {}, messages = [];

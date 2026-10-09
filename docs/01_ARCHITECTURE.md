@@ -1,7 +1,7 @@
 # 01 — Arquitectura
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -12,13 +12,13 @@
 
 ## 1. Unidad de distribución
 
-Nicode EasyForms se distribuirá como un **Joomla Package**:
+Nicode Form Studio se distribuirá como un **Joomla Package**:
 
-`pkg_nicode_easy_forms`
+`pkg_nicode_form_studio`
 
 Constituyentes iniciales:
 
-### `com_nicode_easy_forms`
+### `com_nicode_form_studio`
 
 Componente principal.
 
@@ -36,7 +36,7 @@ Responsabilidades:
 - reporting operativo;
 - import/export.
 
-### `mod_nicode_easy_forms`
+### `mod_nicode_form_studio`
 
 Módulo de Site.
 
@@ -48,7 +48,7 @@ Responsabilidad principal:
 
 El módulo NO DEBE duplicar reglas, validación o procesamiento.
 
-### `lib_nicode_easy_forms`
+### `lib_nicode_form_studio`
 
 Librería compartida.
 

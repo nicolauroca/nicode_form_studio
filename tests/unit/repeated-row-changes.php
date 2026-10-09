@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Domain\{Uuid, RepeatedInstances, FieldAddress};
+use Nicode\FormStudio\Domain\{Uuid, RepeatedInstances, FieldAddress};
 
 test('row changes preserve siblings seed nested minima and remove only the selected subtree', function (): void {
     [$outer,$inner,$field,$one,$two,$shared] = array_map(static fn()=>Uuid::create(),range(1,6));

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 test('steps allow grouping but reject direct and indirect nested pages with original paths', function (): void {
     $draft = definition();
-    $outer = Nicode\EasyForms\Domain\Uuid::create(); $inner = Nicode\EasyForms\Domain\Uuid::create(); $group = Nicode\EasyForms\Domain\Uuid::create();
+    $outer = Nicode\FormStudio\Domain\Uuid::create(); $inner = Nicode\FormStudio\Domain\Uuid::create(); $group = Nicode\FormStudio\Domain\Uuid::create();
     $draft['elements'][] = ['uuid' => $outer, 'type' => 'step'];
     $draft['elements'][] = ['uuid' => $group, 'type' => 'group', 'parent_uuid' => $outer];
     $draft['elements'][] = ['uuid' => $inner, 'type' => 'step'];

@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Domain\{Uuid, FormSpec, FieldAddress, RepeatedInstances};
-use Nicode\EasyForms\Rules\RuleResult;
-use Nicode\EasyForms\Rendering\PublicSpec;
+use Nicode\FormStudio\Domain\{Uuid, FormSpec, FieldAddress, RepeatedInstances};
+use Nicode\FormStudio\Rules\RuleResult;
+use Nicode\FormStudio\Rendering\PublicSpec;
 
 test('addressed public projection scopes references and remote snapshots without exposing provider secrets', function (): void {
     [$group,$parent,$copy,$local,$remote,$one,$two] = array_map(static fn()=>Uuid::create(),range(1,7));

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {emailFields,emailFormat,emailInsertion,insertEmailText} from '../../src/com_nicode_easy_forms/media/js/email-editor.js';
+import {emailFields,emailFormat,emailInsertion,insertEmailText} from '../../src/com_nicode_form_studio/media/js/email-editor.js';
 test('email picker follows server inclusion policy, including explicit sensitive opt-in',()=>{
   const fields=[{uuid:'a',type:'text'},{uuid:'b',type:'text',sensitive:true},{uuid:'c',type:'password',include_email:true},{uuid:'d',type:'text',include_email:false},{uuid:'e',type:'text',sensitive:true,include_email:true}];
   assert.deepEqual(emailFields(fields).map(f=>f.uuid),['a','e']);

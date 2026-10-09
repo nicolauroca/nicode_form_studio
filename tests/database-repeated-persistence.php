@@ -4,7 +4,7 @@ declare(strict_types=1);
 // Internal repository fixture only: compiler publication remains guarded.
 $rpForm = $forms->create('Repeated persistence', 'repeated-' . bin2hex(random_bytes(5)), 1);
 $rpData = $forms->draft($rpForm);
-[$rpGroup, $rpText, $rpTransient, $rpFile, $rpOne, $rpTwo] = array_map(static fn () => Nicode\EasyForms\Domain\Uuid::create(), range(1, 6));
+[$rpGroup, $rpText, $rpTransient, $rpFile, $rpOne, $rpTwo] = array_map(static fn () => Nicode\FormStudio\Domain\Uuid::create(), range(1, 6));
 $rpData['elements'] = [['uuid' => $rpGroup, 'type' => 'repeatable-group', 'repeat' => ['min' => 1, 'max' => 2]]];
 $rpData['fields'] = [
     ['uuid' => $rpText, 'name' => 'text', 'type' => 'text', 'index' => true, 'config' => ['max_length' => 255]],
@@ -12,13 +12,13 @@ $rpData['fields'] = [
     ['uuid' => $rpFile, 'name' => 'file', 'type' => 'file', 'config' => ['extensions' => ['txt'], 'mime_types' => ['text/plain'], 'max_bytes' => 100]],
 ];
 foreach ($rpData['fields'] as $field) { $rpData['elements'][] = ['uuid' => $field['uuid'], 'type' => 'field', 'parent_uuid' => $rpGroup]; }
-$rpSpec = new Nicode\EasyForms\Domain\FormSpec($rpData);
-$rpVersion = $connection->insert('form_versions', ['form_id' => $rpForm, 'revision' => 1, 'schema_version' => '1.0', 'spec' => Nicode\EasyForms\Domain\CanonicalJson::encode($rpData), 'hash' => $rpSpec->hash, 'published_at' => gmdate('Y-m-d H:i:s'), 'published_by' => 1, 'comment' => 'Internal test snapshot', 'revoked_at' => null]);
+$rpSpec = new Nicode\FormStudio\Domain\FormSpec($rpData);
+$rpVersion = $connection->insert('form_versions', ['form_id' => $rpForm, 'revision' => 1, 'schema_version' => '1.0', 'spec' => Nicode\FormStudio\Domain\CanonicalJson::encode($rpData), 'hash' => $rpSpec->hash, 'published_at' => gmdate('Y-m-d H:i:s'), 'published_by' => 1, 'comment' => 'Internal test snapshot', 'revoked_at' => null]);
 $rpRows = [$rpGroup => [$rpTwo, $rpOne]];
 $rpKey = static fn (string $field, string $row): string => $rpGroup . '/' . $row . '/' . $field;
 $rpRaw = [$rpKey($rpText, $rpOne) => ' Uno ñ ', $rpKey($rpText, $rpTwo) => 'Dos', $rpKey($rpTransient, $rpOne) => 'action only'];
-$rpReceipt = ['uuid' => Nicode\EasyForms\Domain\Uuid::create(), 'name' => 'a.txt', 'mime' => 'text/plain', 'size' => 3];
-$rpFileObject = new Nicode\EasyForms\Storage\StoredFile('private', 'repeated-' . bin2hex(random_bytes(12)), 3, hash('sha256', 'abc'));
+$rpReceipt = ['uuid' => Nicode\FormStudio\Domain\Uuid::create(), 'name' => 'a.txt', 'mime' => 'text/plain', 'size' => 3];
+$rpFileObject = new Nicode\FormStudio\Storage\StoredFile('private', 'repeated-' . bin2hex(random_bytes(12)), 3, hash('sha256', 'abc'));
 $rpContext = ['files' => [['field_address' => $rpKey($rpFile, $rpOne), 'receipt' => $rpReceipt, 'file' => $rpFileObject]]];
 $rpValidated = $validationEngine->validateInstances($rpSpec, $rpRows, $rpRaw, [$rpKey($rpFile, $rpOne) => $rpReceipt]);
 if (!$rpValidated->valid()) { throw new RuntimeException('Repeated fixture validation failed.'); }
@@ -51,13 +51,13 @@ try { $submissions->persistInstances($rpForm, $rpVersion, $rpSpec, $rpRows, $rpV
 catch (Joomla\Database\Exception\ExecutionFailureException) { $rpFailed = true; }
 if (!$rpFailed || $connection->row('SELECT id FROM ' . $connection->table('attempts') . ' WHERE form_id = :form AND attempt_hash = :hash', [':form' => $rpForm, ':hash' => $rpFailedAttempt]) !== null || count($connection->rows('SELECT id FROM ' . $connection->table('submissions') . ' WHERE form_id = :form', [':form' => $rpForm])) !== 1) { throw new RuntimeException('Failed repeated transaction left partial data.'); }
 // New upload receipts for the same bytes replay without attaching another file.
-$rpRetryReceipt = array_replace($rpReceipt, ['uuid' => Nicode\EasyForms\Domain\Uuid::create()]);
+$rpRetryReceipt = array_replace($rpReceipt, ['uuid' => Nicode\FormStudio\Domain\Uuid::create()]);
 $rpRetryValidation = $validationEngine->validateInstances($rpSpec, $rpRows, $rpRaw, [$rpKey($rpFile, $rpOne) => $rpRetryReceipt]);
-$rpRetryContext = ['files' => [['field_address' => $rpKey($rpFile, $rpOne), 'receipt' => $rpRetryReceipt, 'file' => new Nicode\EasyForms\Storage\StoredFile('private', 'retry-' . bin2hex(random_bytes(12)), 3, $rpFileObject->checksum)]]];
+$rpRetryContext = ['files' => [['field_address' => $rpKey($rpFile, $rpOne), 'receipt' => $rpRetryReceipt, 'file' => new Nicode\FormStudio\Storage\StoredFile('private', 'retry-' . bin2hex(random_bytes(12)), 3, $rpFileObject->checksum)]]];
 if (!$submissions->persistInstances($rpForm, $rpVersion, $rpSpec, $rpRows, $rpRetryValidation, $rpAttempt, $rpRetryContext)->replayed || count($connection->rows('SELECT id FROM ' . $connection->table('submission_files') . ' WHERE submission_id = :id', [':id' => $rpSaved->id])) !== 1) { throw new RuntimeException('Repeated file retry attached another object.'); }
 foreach (['metadata', 'none'] as $offset => $mode) {
-    $modeData = $rpData; $modeData['persistence']['mode'] = $mode; $modeSpec = new Nicode\EasyForms\Domain\FormSpec($modeData);
-    $modeVersion = $connection->insert('form_versions', ['form_id' => $rpForm, 'revision' => $offset + 2, 'schema_version' => '1.0', 'spec' => Nicode\EasyForms\Domain\CanonicalJson::encode($modeData), 'hash' => $modeSpec->hash, 'published_at' => gmdate('Y-m-d H:i:s'), 'published_by' => 1, 'comment' => 'Internal mode snapshot', 'revoked_at' => null]);
+    $modeData = $rpData; $modeData['persistence']['mode'] = $mode; $modeSpec = new Nicode\FormStudio\Domain\FormSpec($modeData);
+    $modeVersion = $connection->insert('form_versions', ['form_id' => $rpForm, 'revision' => $offset + 2, 'schema_version' => '1.0', 'spec' => Nicode\FormStudio\Domain\CanonicalJson::encode($modeData), 'hash' => $modeSpec->hash, 'published_at' => gmdate('Y-m-d H:i:s'), 'published_by' => 1, 'comment' => 'Internal mode snapshot', 'revoked_at' => null]);
     $modeAttempt = hash('sha256', random_bytes(32));
     $modeSaved = $submissions->persistInstances($rpForm, $modeVersion, $modeSpec, $rpRows, $rpValidated, $modeAttempt, $rpContext + ['user_id' => 1]);
     $modeRow = $submissions->get($rpForm, $modeSaved->id); $modePayload = json_decode($modeRow['canonical_payload'], true, flags: JSON_THROW_ON_ERROR);

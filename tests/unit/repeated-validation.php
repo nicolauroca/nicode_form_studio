@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Domain\{Uuid, FormSpec, FieldAddress, RepeatedInstances};
-use Nicode\EasyForms\Validation\ValidationEngine;
-use Nicode\EasyForms\Registry\ValidatorRegistry;
+use Nicode\FormStudio\Domain\{Uuid, FormSpec, FieldAddress, RepeatedInstances};
+use Nicode\FormStudio\Validation\ValidationEngine;
+use Nicode\FormStudio\Registry\ValidatorRegistry;
 
 test('repeated submission validation derives readonly values and applies relational checks per row', function (): void {
     [$group,$left,$right,$derived,$one,$two] = array_map(static fn()=>Uuid::create(),range(1,6));

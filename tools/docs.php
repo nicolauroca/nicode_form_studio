@@ -4,7 +4,7 @@ declare(strict_types=1);
 $root = dirname(__DIR__) . '/docs';
 $files = glob($root . '/[0-9][0-9]_*.md');
 sort($files, SORT_STRING);
-$master = "# Nicode EasyForms — MASTER SPEC\n> Documento agregado para consulta integral. Los documentos temáticos de `docs/` siguen siendo la fuente normativa por materia.\n";
+$master = "# Nicode Form Studio — MASTER SPEC\n> Documento agregado para consulta integral. Los documentos temáticos de `docs/` siguen siendo la fuente normativa por materia.\n";
 foreach ($files as $file) {
     $master .= "\n\n---\n\n<!-- SOURCE: " . basename($file) . " -->\n\n" . rtrim(str_replace("\r\n", "\n", file_get_contents($file))) . "\n";
 }

@@ -1,3 +1,5 @@
+> Current status (2026-10-09): Nicode Form Studio is in development, pending functional and visual review. The closure/acceptance records below describe the predecessor before the rename; they are historical evidence, not acceptance of the renamed package.
+
 # Closure queue
 
 Working classification against the existing evidence, not additional acceptance gates.

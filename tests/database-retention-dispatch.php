@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 $retainedForm = $forms->create('Historical retention fixture', 'retention-' . bin2hex(random_bytes(5)), 1);
-$retainedDraft = $forms->draft($retainedForm); $retainedField = Nicode\EasyForms\Domain\Uuid::create();
+$retainedDraft = $forms->draft($retainedForm); $retainedField = Nicode\FormStudio\Domain\Uuid::create();
 $retainedDraft['elements'] = [['uuid' => $retainedField, 'type' => 'field']]; $retainedDraft['fields'] = [['uuid' => $retainedField, 'type' => 'text', 'name' => 'answer', 'config' => []]];
 $retainedIds = []; $retainedVersions = [];
 foreach (['anonymize', 'delete'] as $operation) {
@@ -13,7 +13,7 @@ foreach (['anonymize', 'delete'] as $operation) {
         $retainedIds[$operation][] = $submissions->persist($retainedForm, $retainedVersion, $retainedSpec, [$retainedField => 'retained test value'], hash('sha256', random_bytes(32)), ['expires_at' => $expiry])->id;
     }
 }
-$dispatch = new Nicode\EasyForms\Jobs\RetentionDispatchHandler($connection, $forms, $jobs); $handlerRegistry->register($dispatch);
+$dispatch = new Nicode\FormStudio\Jobs\RetentionDispatchHandler($connection, $forms, $jobs); $handlerRegistry->register($dispatch);
 $dispatchId = $jobs->enqueue('retention-dispatch', [], 0);
 // Keep this one-row cursor fixture independent of expired responses from earlier runs.
 $connection->execute('UPDATE ' . $connection->table('jobs') . ' SET cursor_data = :cursor WHERE id = :id', [':cursor' => json_encode(['expires_at' => '2000-01-01 00:00:00', 'id' => $retainedIds['anonymize'][0] - 1, 'cutoff' => '2000-01-01 00:00:00'], JSON_THROW_ON_ERROR), ':id' => $dispatchId]);
@@ -31,7 +31,7 @@ $retentionAclDraft = $formAdministration->edit($retentionAclForm, 731)['draft'];
 $retentionAclDraft['elements'] = $retainedDraft['elements']; $retentionAclDraft['fields'] = $retainedDraft['fields'];
 $retentionAclDraft['privacy'] = ['retention' => ['action' => 'delete', 'amount' => 1, 'unit' => 'days']];
 $retentionAclRevision = $formAdministration->save($retentionAclForm, 0, $retentionAclDraft, 731);
-$adminDenied = ['easyforms.submissions.delete'];
+$adminDenied = ['formstudio.submissions.delete'];
 try { $formAdministration->publish($retentionAclForm, $retentionAclRevision, 731); throw new RuntimeException('Publisher configured deletion without its permission.'); } catch (DomainException) {}
 if ($forms->get($retentionAclForm)['published_version_id'] !== null) { throw new RuntimeException('Unauthorized retention publication left an active snapshot.'); }
 $adminDenied = [];

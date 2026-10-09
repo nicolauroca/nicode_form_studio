@@ -1,7 +1,7 @@
 # 99 — Referencias técnicas
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -48,7 +48,7 @@ La documentación actual indica que el Form Field CAPTCHA accede a un plugin CAP
 ### Requisitos técnicos Joomla 6.x
 - https://manual.joomla.org/docs/next/get-started/technical-requirements/
 
-En la revisión de 2026-09-26 la documentación de Joomla 6.x enumera PHP 8.3 como versión soportada mínima y MySQL, MariaDB y PostgreSQL entre las bases de datos soportadas. La matriz exacta de Nicode EasyForms se fijará independientemente y se probará.
+En la revisión de 2026-09-26 la documentación de Joomla 6.x enumera PHP 8.3 como versión soportada mínima y MySQL, MariaDB y PostgreSQL entre las bases de datos soportadas. La matriz exacta de Nicode Form Studio se fijará independientemente y se probará.
 
 ### Cambios/deprecations CAPTCHA
 - https://manual.joomla.org/updates/53-54/changed-deprecations/

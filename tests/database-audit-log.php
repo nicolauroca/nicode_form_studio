@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
-$auditCorrelation = Nicode\EasyForms\Domain\Uuid::create();
-$auditViewer = new Nicode\EasyForms\Application\AuditLog($connection, static fn (int $actor, ?int $form, string $permission): bool => $actor === 1);
+$auditCorrelation = Nicode\FormStudio\Domain\Uuid::create();
+$auditViewer = new Nicode\FormStudio\Application\AuditLog($connection, static fn (int $actor, ?int $form, string $permission): bool => $actor === 1);
 foreach (range(1, 102) as $index) {
     $connection->insert('audit_log', ['correlation_id' => $auditCorrelation, 'actor_id' => 731, 'event_type' => 'form.save', 'form_id' => $id, 'submission_uuid' => null, 'created_at' => '2026-09-27 23:59:59.999999', 'safe_metadata' => '{"private":"must-not-be-projected","state":"archived","revision":3,"job_id":"not-an-id"}']);
 }

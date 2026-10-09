@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {authoringContainers} from '../../src/com_nicode_easy_forms/media/js/builder-model.js';
+import {authoringContainers} from '../../src/com_nicode_form_studio/media/js/builder-model.js';
 
 test('repeatable authoring creates editable bounded definitions and preserves nested identity', () => {
   assert.equal(authoringContainers.includes('repeatable-group'), true);
@@ -18,7 +18,7 @@ test('repeatable authoring creates editable bounded definitions and preserves ne
   assert.deepEqual(draft.elements.map(e=>e.uuid),['repeat','answer']);
   assert.equal(draft.fields.length,1);
 });
-import {addElement, descendants, moveElement, reparentElement, removeElement, configurationObject, supportsStepParent, insertionParent, revealAncestors} from '../../src/com_nicode_easy_forms/media/js/builder-model.js';
+import {addElement, descendants, moveElement, reparentElement, removeElement, configurationObject, supportsStepParent, insertionParent, revealAncestors} from '../../src/com_nicode_form_studio/media/js/builder-model.js';
 
 test('revealing a selected descendant expands only its ancestors without changing draft data', () => {
   const draft = {elements:[{uuid:'a',type:'section'},{uuid:'b',type:'group',parent_uuid:'a'},{uuid:'field',type:'field',parent_uuid:'b'},{uuid:'other',type:'section'}]};

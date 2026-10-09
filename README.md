@@ -1,12 +1,12 @@
-# Nicode EasyForms
+# Nicode Form Studio
 
 > A spec-driven, data-driven form platform for Joomla 6.
 
-Nicode EasyForms is a modern form-building, submission-management and workflow platform designed specifically for Joomla 6.
+Nicode Form Studio is a modern form-building, submission-management and workflow platform designed specifically for Joomla 6.
 
 Its goal is not simply to render contact forms.
 
-EasyForms is designed as a reusable **form engine** capable of defining, publishing, processing, storing, searching and automating arbitrary forms without requiring custom PHP code for each use case.
+Form Studio is designed as a reusable **form engine** capable of defining, publishing, processing, storing, searching and automating arbitrary forms without requiring custom PHP code for each use case.
 
 Forms are defined as data.
 
@@ -18,25 +18,31 @@ The runtime provides the capabilities.
 
 > **1.0.4 — tabbed form editor**
 
-Nicode EasyForms is being developed in public from day one.
+Nicode Form Studio is being developed in public from day one.
 
 The architecture and product behaviour are defined through a comprehensive specification located in [`/docs`](./docs/README.md). Implementation is expected to follow those specifications rather than allowing the codebase to become the de facto product definition.
 
-Install [the 1.0.4 package](dist/pkg_nicode_easy_forms-1.0.4.zip) through Joomla's
-extension installer. Read the [administration guide](docs/ADMIN_USER_GUIDE.md),
-[build instructions](docs/BUILD_AND_RELEASE.md) and
-[acceptance record](docs/REQUIREMENT_ACCEPTANCE.md). Accessibility was accepted
-explicitly by the user; the outstanding manual screen-reader check was waived.
+The renamed product is **in development**, pending functional and visual review.
+Build the current package with `php tools/build-development.php` and use
+`build/development-package/pkg_nicode_form_studio.zip` on a clean, isolated Joomla site.
+All features remain free under GPL-2.0-or-later. No paid edition is introduced.
+
+This rename changes extension IDs, PHP namespaces, database tables, ACL assets,
+URLs, language keys and browser assets. It is **not an automatic upgrade** from
+Nicode EasyForms. The installer refuses legacy code or retained legacy tables.
+Keep existing sites and data intact until a separate migration has been validated.
+Historical ZIPs and acceptance records in `dist/` retain their original names and
+bytes; they do not certify the renamed package. See [build instructions](docs/BUILD_AND_RELEASE.md).
 
 The project is intentionally public during development to keep architectural decisions, implementation progress and technical trade-offs visible.
 
 ---
 
-## Why Nicode EasyForms?
+## Why Nicode Form Studio?
 
 Joomla already provides strong foundations for content management, ACL, extensions, plugins, menus, modules, localization and site administration.
 
-What EasyForms aims to provide on top of that is a proper **generic forms platform**.
+What Form Studio aims to provide on top of that is a proper **generic forms platform**.
 
 Instead of building separate implementations such as:
 
@@ -48,7 +54,7 @@ event.php
 request.php
 ```
 
-EasyForms provides a single runtime capable of interpreting a form specification.
+Form Studio provides a single runtime capable of interpreting a form specification.
 
 A new form should normally require:
 
@@ -112,7 +118,7 @@ Start with:
 
 Forms are data, not application branches.
 
-EasyForms is explicitly designed to avoid patterns such as:
+Form Studio is explicitly designed to avoid patterns such as:
 
 ```php
 if ($formId === 42) {
@@ -185,7 +191,7 @@ This allows historical responses to remain meaningful even after:
 
 ## Built for scale
 
-EasyForms is designed from the beginning for installations containing:
+Form Studio is designed from the beginning for installations containing:
 
 * hundreds of forms;
 * millions of submissions;
@@ -226,17 +232,17 @@ The architecture avoids dependency on Joomla legacy APIs and the Backward Compat
 
 # Package architecture
 
-Nicode EasyForms is designed as a Joomla package:
+Nicode Form Studio is designed as a Joomla package:
 
 ```text
-pkg_nicode_easy_forms
+pkg_nicode_form_studio
 │
-├── com_nicode_easy_forms
-├── mod_nicode_easy_forms
-└── lib_nicode_easy_forms
+├── com_nicode_form_studio
+├── mod_nicode_form_studio
+└── lib_nicode_form_studio
 ```
 
-## `com_nicode_easy_forms`
+## `com_nicode_form_studio`
 
 Main Joomla component.
 
@@ -258,7 +264,7 @@ Responsible for:
 
 ---
 
-## `mod_nicode_easy_forms`
+## `mod_nicode_form_studio`
 
 Generic frontend module.
 
@@ -268,7 +274,7 @@ The module selects the form to display but does not duplicate its configuration.
 
 ---
 
-## `lib_nicode_easy_forms`
+## `lib_nicode_form_studio`
 
 Shared runtime and domain library.
 
@@ -311,14 +317,14 @@ A form can be exposed through multiple Joomla-native channels.
 
 ## Joomla menu item
 
-EasyForms provides a menu item type conceptually equivalent to:
+Form Studio provides a menu item type conceptually equivalent to:
 
 ```text
-Nicode EasyForms
+Nicode Form Studio
 └── Form
 ```
 
-The menu configuration selects an existing EasyForms form.
+The menu configuration selects an existing Form Studio form.
 
 ---
 
@@ -377,7 +383,7 @@ The specification includes:
 
 # Field types
 
-EasyForms is based on an extensible Field Type Registry.
+Form Studio is based on an extensible Field Type Registry.
 
 Initial field families include:
 
@@ -489,7 +495,7 @@ at least one of:
 
 # Conditional logic
 
-EasyForms contains a generic Rule Engine.
+Form Studio contains a generic Rule Engine.
 
 A rule follows the model:
 
@@ -545,7 +551,7 @@ The engine is designed to detect:
 
 # Dynamic and dependent options
 
-EasyForms supports the architecture required for dependent selections such as:
+Form Studio supports the architecture required for dependent selections such as:
 
 ```text
 Country
@@ -613,7 +619,7 @@ A Form Template creates an independent form; it does not introduce hidden inheri
 
 Submission management is a first-class feature.
 
-EasyForms is not intended merely to email form values and discard them.
+Form Studio is not intended merely to email form values and discard them.
 
 Depending on form policy, submissions may be persisted and managed directly from Joomla Administrator.
 
@@ -757,7 +763,7 @@ Large exports must be processed incrementally rather than loading an entire data
 
 A form definition does not end at its final field.
 
-EasyForms also defines what happens after submission.
+Form Studio also defines what happens after submission.
 
 Possible behaviour includes:
 
@@ -801,7 +807,7 @@ Actions support:
 
 # Action reliability
 
-EasyForms distinguishes between:
+Form Studio distinguishes between:
 
 ```text
 Submission accepted
@@ -855,7 +861,7 @@ Form visitors never control the sender identity directly.
 
 # CAPTCHA
 
-EasyForms deliberately does **not** implement its own CAPTCHA algorithm.
+Form Studio deliberately does **not** implement its own CAPTCHA algorithm.
 
 It integrates with Joomla's CAPTCHA infrastructure and installed CAPTCHA providers.
 
@@ -968,7 +974,7 @@ This preserves what the user actually accepted at the time of submission.
 
 # ACL
 
-EasyForms uses Joomla ACL.
+Form Studio uses Joomla ACL.
 
 Permissions are designed to distinguish between capabilities such as:
 
@@ -1013,7 +1019,7 @@ The Administrator builder should also provide alternatives to pointer-only drag-
 
 # Internationalization
 
-EasyForms distinguishes between:
+Form Studio distinguishes between:
 
 ## Extension UI translations
 
@@ -1068,7 +1074,7 @@ Sensitive response payloads should not be copied into technical logs by default.
 
 Administrator diagnostics are expected to expose non-sensitive information such as:
 
-* EasyForms versions;
+* Form Studio versions;
 * Joomla version;
 * PHP version;
 * database driver;
@@ -1291,7 +1297,7 @@ docs/BUILD_AND_RELEASE.md
 The intended final artifact is:
 
 ```text
-pkg_nicode_easy_forms-<version>.zip
+pkg_nicode_form_studio-<version>.zip
 ```
 
 installable through Joomla's extension installer.
@@ -1304,7 +1310,7 @@ Until the build system is committed, the repository should be considered develop
 
 Stable installation instructions will be published with the first tagged release.
 
-The intended installation model is a single Joomla package containing all required EasyForms extensions.
+The intended installation model is a single Joomla package containing all required Form Studio extensions.
 
 Do not install arbitrary development snapshots on production systems unless the corresponding release explicitly states that production use is supported.
 
@@ -1312,7 +1318,7 @@ Do not install arbitrary development snapshots on production systems unless the 
 
 # Versioning
 
-Nicode EasyForms follows Semantic Versioning for software releases:
+Nicode Form Studio follows Semantic Versioning for software releases:
 
 ```text
 MAJOR.MINOR.PATCH
@@ -1367,9 +1373,9 @@ Progress should be reported against actual requirement IDs.
 
 ---
 
-# What EasyForms is not
+# What Form Studio is not
 
-Nicode EasyForms is not intended to become:
+Nicode Form Studio is not intended to become:
 
 * a general-purpose page builder;
 * a CRM;
@@ -1379,23 +1385,23 @@ Nicode EasyForms is not intended to become:
 * an arbitrary SQL query builder;
 * its own CAPTCHA provider.
 
-Where appropriate, EasyForms should integrate with those systems rather than reproduce them.
+Where appropriate, Form Studio should integrate with those systems rather than reproduce them.
 
 ---
 
 # Naming
 
-**Nicode EasyForms**
+**Nicode Form Studio**
 
-Package identifiers use the `nicode_easy_forms` namespace where appropriate.
+Package identifiers use the `nicode_form_studio` namespace where appropriate.
 
 Examples:
 
 ```text
-pkg_nicode_easy_forms
-com_nicode_easy_forms
-mod_nicode_easy_forms
-lib_nicode_easy_forms
+pkg_nicode_form_studio
+com_nicode_form_studio
+mod_nicode_form_studio
+lib_nicode_form_studio
 ```
 
 ---
@@ -1428,4 +1434,4 @@ And the engineering constraint behind it is equally important:
 
 > **The system must remain understandable, secure and operational when that becomes hundreds of forms and millions of submissions.**
 
-That is the standard Nicode EasyForms is being built against.
+That is the standard Nicode Form Studio is being built against.

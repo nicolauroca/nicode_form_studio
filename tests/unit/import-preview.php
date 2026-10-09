@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Domain\CanonicalJson;
-use Nicode\EasyForms\Transfer\{DefinitionPackage, ImportPreview, ImportReviewToken};
+use Nicode\FormStudio\Domain\CanonicalJson;
+use Nicode\FormStudio\Transfer\{DefinitionPackage, ImportPreview, ImportReviewToken};
 
 test('import preview distinguishes duplicate, update and UUID conflicts without modifying its input', function (): void {
     $packages = new DefinitionPackage(['fields' => registry()]); $preview = new ImportPreview($packages, compiler());
@@ -13,7 +13,7 @@ test('import preview distinguishes duplicate, update and UUID conflicts without 
     $changed = $draft; $changed['name'] = 'Before import';
     $update = $preview->analyze($json, 'update', $changed); same(true, $update['can_import_draft']); same(false, $update['identity_remap']); same(true, is_array($update['comparison']));
     same($original, $draft);
-    $changed['uuid'] = Nicode\EasyForms\Domain\Uuid::create(); raises(InvalidArgumentException::class, fn () => $preview->analyze($json, 'update', $changed));
+    $changed['uuid'] = Nicode\FormStudio\Domain\Uuid::create(); raises(InvalidArgumentException::class, fn () => $preview->analyze($json, 'update', $changed));
     raises(InvalidArgumentException::class, fn () => $preview->analyze($json, 'overwrite'));
 });
 

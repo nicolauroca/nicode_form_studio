@@ -1,7 +1,7 @@
 <?php
  declare(strict_types=1);
- use Nicode\EasyForms\Domain\FieldAddress;
- use Nicode\EasyForms\Domain\Uuid;
+ use Nicode\FormStudio\Domain\FieldAddress;
+ use Nicode\FormStudio\Domain\Uuid;
  test('repeated field addresses preserve ancestry and identity independently of row positions', function (): void {
      $field=Uuid::create(); $group=Uuid::create(); $row=Uuid::create(); $nested=Uuid::create();
      $path=new FieldAddress($field,[['group'=>$group,'instance'=>$row],['group'=>$nested,'instance'=>Uuid::create()]]);

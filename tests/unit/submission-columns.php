@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Application\SubmissionColumns;
-use Nicode\EasyForms\Domain\{FieldAddress, Uuid};
+use Nicode\FormStudio\Application\SubmissionColumns;
+use Nicode\FormStudio\Domain\{FieldAddress, Uuid};
 
 test('submission columns preserve nested row identity, order, null and historical option labels', function (): void {
     [$field,$ordinary,$absent,$outer,$inner,$parent,$one,$two] = array_map(static fn()=>Uuid::create(),range(1,8));

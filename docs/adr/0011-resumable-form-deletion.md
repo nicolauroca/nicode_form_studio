@@ -5,7 +5,7 @@ Status: Accepted
 ## Decision
 
 Trash remains reversible. Permanent deletion requires component access, form
-management, `core.delete` and `easyforms.submissions.delete`, a current editor
+management, `core.delete` and `formstudio.submissions.delete`, a current editor
 revision, the trashed state and explicit confirmation of the form UUID. Before
 confirmation the native UI shows response/file counts and approximate owned bytes.
 

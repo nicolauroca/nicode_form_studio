@@ -3,7 +3,7 @@ declare(strict_types=1);
 $textForm = $forms->create('Text SQL acceptance', 'text-sql-' . bin2hex(random_bytes(5)), 1);
 $textDraft = $forms->draft($textForm); $textValues = []; $textFieldIds = [];
 foreach (['text' => '😀 ń ñ', 'textarea' => "line one\nline two 😀", 'email' => 'User+tag@example.test', 'telephone' => '+34 600 123 456', 'url' => 'https://xn--maana-pta.test/%C3%B1', 'search' => '  term  ', 'password' => ' x ', 'hidden' => ' hidden ', 'color' => '#12aBcD'] as $type => $value) {
-    $uuid = Nicode\EasyForms\Domain\Uuid::create(); $textFieldIds[$type] = $uuid; $textValues[$uuid] = $value;
+    $uuid = Nicode\FormStudio\Domain\Uuid::create(); $textFieldIds[$type] = $uuid; $textValues[$uuid] = $value;
     $textDraft['elements'][] = ['uuid' => $uuid, 'type' => 'field', 'parent_uuid' => null];
     $textDraft['fields'][] = ['uuid' => $uuid, 'name' => $type, 'type' => $type, 'index' => $type !== 'password', 'config' => ['trim' => false]];
 }

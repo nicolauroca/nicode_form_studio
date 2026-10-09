@@ -1,19 +1,19 @@
 <?php
 declare(strict_types=1);
 
-use Nicode\EasyForms\Compiler\FormCompiler;
-use Nicode\EasyForms\DataSource\OptionResolver;
-use Nicode\EasyForms\DataSource\RequestCache;
-use Nicode\EasyForms\DataSource\StaticDataSource;
-use Nicode\EasyForms\Registry\DataSourceRegistry;
-use Nicode\EasyForms\Registry\ProviderRegistry;
-use Nicode\EasyForms\Registry\RuleEffectRegistry;
-use Nicode\EasyForms\Registry\RuleOperatorRegistry;
-use Nicode\EasyForms\Rules\ConditionEvaluator;
-use Nicode\EasyForms\Rules\RuleEngine;
-use Nicode\EasyForms\Validation\ValidationEngine;
+use Nicode\FormStudio\Compiler\FormCompiler;
+use Nicode\FormStudio\DataSource\OptionResolver;
+use Nicode\FormStudio\DataSource\RequestCache;
+use Nicode\FormStudio\DataSource\StaticDataSource;
+use Nicode\FormStudio\Registry\DataSourceRegistry;
+use Nicode\FormStudio\Registry\ProviderRegistry;
+use Nicode\FormStudio\Registry\RuleEffectRegistry;
+use Nicode\FormStudio\Registry\RuleOperatorRegistry;
+use Nicode\FormStudio\Rules\ConditionEvaluator;
+use Nicode\FormStudio\Rules\RuleEngine;
+use Nicode\FormStudio\Validation\ValidationEngine;
 
-final class SourceContextFixture implements Nicode\EasyForms\Contract\DataSourceInterface
+final class SourceContextFixture implements Nicode\FormStudio\Contract\DataSourceInterface
 {
     public int $calls = 0;
     public ?array $result = null;
@@ -35,7 +35,7 @@ test('source failures notify a value-free sink without changing errors or succes
 
 test('malformed provider output fails closed and invalid cache entries are replaced', function (): void {
     $provider = new SourceContextFixture(); $sources = new DataSourceRegistry(); $sources->register($provider);
-    $cache = new class implements Nicode\EasyForms\Contract\CacheInterface {
+    $cache = new class implements Nicode\FormStudio\Contract\CacheInterface {
         public mixed $value = 'corrupt';
         public function get(string $key): mixed { return $this->value; }
         public function set(string $key, mixed $value, int $ttl): void { $this->value = $value; }
@@ -78,7 +78,7 @@ test('source resource provenance is validated without a mutable resource lookup'
     $draft = withSecond(definition(), 'select');
     $draft['fields'][1]['source'] = ['type' => 'static', 'config' => ['options' => [['value' => 'MAD', 'label' => 'Madrid']]]];
     $compiler = new FormCompiler(registry(), new ProviderRegistry(), $sources, new ProviderRegistry());
-    $pin = ['uuid' => Nicode\EasyForms\Domain\Uuid::create(), 'revision' => 1, 'hash' => str_repeat('a', 64)];
+    $pin = ['uuid' => Nicode\FormStudio\Domain\Uuid::create(), 'revision' => 1, 'hash' => str_repeat('a', 64)];
     $draft['fields'][1]['source']['resource'] = $pin;
     same(true, $compiler->compile($draft)->successful());
     foreach ([null, 'invalid', [], array_replace($pin, ['revision' => 0]), array_replace($pin, ['revision' => '1']), array_replace($pin, ['hash' => 'bad']), array_replace($pin, ['uuid' => 'bad']), $pin + ['unexpected' => true]] as $invalid) {
@@ -115,7 +115,7 @@ test('option defaults follow filtered and replaced options without overriding ru
         $draft['fields'][1]['config'] = ['readonly' => true];
         $draft['fields'][1]['options'] = [['value' => 'a', 'label' => 'A', 'default' => true], ['value' => 'b', 'label' => 'B', 'default' => true]];
         $effects = [['type' => 'filter_options', 'target' => $choice, 'value' => ['b']]];
-        $draft['rules'] = [['uuid' => Nicode\EasyForms\Domain\Uuid::create(), 'when' => ['field' => $trigger, 'operator' => 'equals', 'value' => 'yes'], 'effects' => $effects]];
+        $draft['rules'] = [['uuid' => Nicode\FormStudio\Domain\Uuid::create(), 'when' => ['field' => $trigger, 'operator' => 'equals', 'value' => 'yes'], 'effects' => $effects]];
         $spec = compiler()->compile($draft)->spec;
         $result = validation()->validate($spec, [$trigger => 'yes', $choice => 'forged']);
         same([], $result->errors); same($type === 'select' ? 'b' : ['b'], $result->values[$choice]);
@@ -133,7 +133,7 @@ test('option defaults follow filtered and replaced options without overriding ru
 
 test('option sets require an exact revision and embedded snapshot', function (): void {
     $provider = new StaticDataSource('option_set'); same(true, count($provider->validateConfiguration([], '/source')) > 0);
-    same([], $provider->validateConfiguration(['resource_uuid' => Nicode\EasyForms\Domain\Uuid::create(), 'revision' => 1, 'options' => []], '/source'));
+    same([], $provider->validateConfiguration(['resource_uuid' => Nicode\FormStudio\Domain\Uuid::create(), 'revision' => 1, 'options' => []], '/source'));
 });
 
 test('initial option defaults converge across dependencies without replacing submitted choices', function (): void {

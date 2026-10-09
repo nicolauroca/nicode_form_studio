@@ -25,8 +25,8 @@ try {
 
 // A deadlock victim can lose its transaction before PDO attempts rollback.
 // Simulate this on a second disposable driver, never on the suite connection.
-$lostDriver = (new Joomla\Database\DatabaseFactory())->getDriver($postgres ? 'pgsql' : 'mysql', ['host' => '127.0.0.1', 'port' => $port, 'user' => $config['user'], 'password' => $config['password'], 'database' => $databaseName, 'prefix' => 'nef_', 'charset' => 'utf8mb4']);
-$lostDriver->connect(); $lostDb = new Nicode\EasyForms\Infrastructure\Database\Connection($lostDriver);
+$lostDriver = (new Joomla\Database\DatabaseFactory())->getDriver($postgres ? 'pgsql' : 'mysql', ['host' => '127.0.0.1', 'port' => $port, 'user' => $config['user'], 'password' => $config['password'], 'database' => $databaseName, 'prefix' => 'nfs_', 'charset' => 'utf8mb4']);
+$lostDriver->connect(); $lostDb = new Nicode\FormStudio\Infrastructure\Database\Connection($lostDriver);
 try {
     $lostDb->transaction(function () use ($lostDriver): void { $lostDriver->getConnection()->rollBack(); throw new RuntimeException('Synthetic transaction loss.'); });
     throw new LogicException('Transaction loss was ignored.');

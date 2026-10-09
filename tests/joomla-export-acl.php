@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 // Included by the guarded native ACL suite; component rules are restored by its finally.
 $exForm=$administration->create('Native export ACL','export-acl-'.$suffix,(int)$admin->id);
-$exDraft=$forms->draft($exForm); $exField=Nicode\EasyForms\Domain\Uuid::create(); $exSecret=Nicode\EasyForms\Domain\Uuid::create();
+$exDraft=$forms->draft($exForm); $exField=Nicode\FormStudio\Domain\Uuid::create(); $exSecret=Nicode\FormStudio\Domain\Uuid::create();
 $exDraft['elements']=[['uuid'=>$exField,'type'=>'field'],['uuid'=>$exSecret,'type'=>'field']];
 $exDraft['fields']=[['uuid'=>$exField,'name'=>'answer','type'=>'text'],['uuid'=>$exSecret,'name'=>'secret','type'=>'text','sensitive'=>true,'include_export'=>true]];
 $exRevision=$administration->save($exForm,0,$exDraft,(int)$admin->id); $exVersion=$administration->publish($exForm,$exRevision,(int)$admin->id);
 $responses->persist($exForm,$exVersion,$forms->version($exForm,$exVersion),[$exField=>'Public synthetic answer',$exSecret=>'Private synthetic answer'],hash('sha256',random_bytes(32)));
-$exAsset=new Joomla\CMS\Table\Asset($database,$events); $exAsset->loadByName('com_nicode_easy_forms.form.'.$exForm);
+$exAsset=new Joomla\CMS\Table\Asset($database,$events); $exAsset->loadByName('com_nicode_form_studio.form.'.$exForm);
 $exSet=static function(bool $export,bool $sensitive=false,bool $manage=false)use($exAsset):void {
-    $exAsset->rules=json_encode(['easyforms.submissions.view'=>['2'=>0],'easyforms.submissions.export'=>['2'=>(int)$export],'easyforms.submissions.view_sensitive'=>['2'=>(int)$sensitive],'easyforms.jobs.manage'=>['2'=>(int)$manage]],JSON_THROW_ON_ERROR);
+    $exAsset->rules=json_encode(['formstudio.submissions.view'=>['2'=>0],'formstudio.submissions.export'=>['2'=>(int)$export],'formstudio.submissions.view_sensitive'=>['2'=>(int)$sensitive],'formstudio.jobs.manage'=>['2'=>(int)$manage]],JSON_THROW_ON_ERROR);
     if(!$exAsset->store()) throw new RuntimeException('Export ACL fixture could not save rules.');
     Joomla\CMS\Access\Access::clearStatics();
 };
@@ -18,12 +18,12 @@ $exOther=new Joomla\CMS\User\User(); $exPassword=bin2hex(random_bytes(24));
 $exOtherData=['name'=>'Export ACL second actor','username'=>'export-other-'.$suffix,'email'=>'export-other-'.$suffix.'@example.test','password'=>$exPassword,'password2'=>$exPassword,'groups'=>[2],'block'=>0];
 if(!$exOther->bind($exOtherData) || !$exOther->save()) throw new RuntimeException('Export ACL second actor unavailable.');
 $exRoot=$root.'/build/native-export-acl'; if(!is_dir($exRoot)) mkdir($exRoot,0770,true);
-$exWorkspace=new Nicode\EasyForms\Export\ExportWorkspace($exRoot,$site);
-$exJobs=new Nicode\EasyForms\Infrastructure\Database\JobRepository($db);
-$exRegistry=new Nicode\EasyForms\Registry\JobHandlerRegistry();
-foreach(['csv','json'] as $exFormat) $exRegistry->register(new Nicode\EasyForms\Jobs\ExportHandler($db,$forms,$responseReader,$exJobs,$exWorkspace,$authorization->allows(...),$responseSearch,format:$exFormat));
-$exAdmin=new Nicode\EasyForms\Application\JobAdministration($db,$forms,$exJobs,$exRegistry,$responseSearch,$authorization->allows(...));
-$exDownloads=new Nicode\EasyForms\Application\ExportDownloads($exJobs,$exWorkspace,$authorization->allows(...));
+$exWorkspace=new Nicode\FormStudio\Export\ExportWorkspace($exRoot,$site);
+$exJobs=new Nicode\FormStudio\Infrastructure\Database\JobRepository($db);
+$exRegistry=new Nicode\FormStudio\Registry\JobHandlerRegistry();
+foreach(['csv','json'] as $exFormat) $exRegistry->register(new Nicode\FormStudio\Jobs\ExportHandler($db,$forms,$responseReader,$exJobs,$exWorkspace,$authorization->allows(...),$responseSearch,format:$exFormat));
+$exAdmin=new Nicode\FormStudio\Application\JobAdministration($db,$forms,$exJobs,$exRegistry,$responseSearch,$authorization->allows(...));
+$exDownloads=new Nicode\FormStudio\Application\ExportDownloads($exJobs,$exWorkspace,$authorization->allows(...));
 $exDeny=static function(string $class,callable $operation):void { try { $operation(); } catch(Throwable $error) { if($error instanceof $class) return; throw $error; } throw new RuntimeException('Native export ACL unexpectedly allowed operation.'); };
 $exActor=(int)$visitor->id; $exArtifactIds=[];
 try {
@@ -33,7 +33,7 @@ try {
         $exSet(false);
         $exDeny(DomainException::class,fn()=>$exAdmin->enqueue($exActor,$exForm,$exType,['fields'=>[$exField]]));
         $exSet(true);
-        if($authorization->allows($exActor,$exForm,'easyforms.submissions.view')) throw new RuntimeException('Export test accidentally granted response viewing.');
+        if($authorization->allows($exActor,$exForm,'formstudio.submissions.view')) throw new RuntimeException('Export test accidentally granted response viewing.');
         $exDeny(DomainException::class,fn()=>$exAdmin->enqueue($exActor,$exForm,$exType,['fields'=>[$exSecret],'include_sensitive'=>true]));
         foreach([false,true] as $exSensitive) {
             $exSet(true,$exSensitive);

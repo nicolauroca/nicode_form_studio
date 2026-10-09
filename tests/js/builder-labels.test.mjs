@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {builderTypeLabel} from '../../src/com_nicode_easy_forms/media/js/builder-labels.js';
+import {builderTypeLabel} from '../../src/com_nicode_form_studio/media/js/builder-labels.js';
 
 test('builder provider labels resolve language keys without replacing authored content or identities', () => {
   const metadata = {label_key:'CUSTOM_LABEL',label:'Custom fallback'};

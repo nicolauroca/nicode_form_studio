@@ -22,7 +22,7 @@ La entrega 1.0.4 está en `dist/pkg_nicode_easy_forms-1.0.4.zip`; consulte
 
 El resumen del instalador muestra la versión, el contenido del paquete, los próximos pasos y enlaces a documentación y soporte.
 
-Abra **Componentes → Nicode EasyForms** y sus opciones. El submenú de Joomla permite acceder directamente a Formularios, Respuestas, Trabajos, recursos y diagnóstico. Todas las pantallas ofrecen la barra de herramientas nativa: **Volver**, **Ir a**, **Ayuda** y, según sus permisos, **Opciones**. En el editor, **Guardar borrador**, **Compilar y publicar**, **Vista previa** y **Más acciones** están en esa barra. Volver desde un detalle conduce a su listado; los cambios pendientes mantienen el aviso de salida. Configure directorios
+Abra **Componentes → Nicode Form Studio** y sus opciones. El submenú de Joomla permite acceder directamente a Formularios, Respuestas, Trabajos, recursos y diagnóstico. Todas las pantallas ofrecen la barra de herramientas nativa: **Volver**, **Ir a**, **Ayuda** y, según sus permisos, **Opciones**. En el editor, **Guardar borrador**, **Compilar y publicar**, **Vista previa** y **Más acciones** están en esa barra. Volver desde un detalle conduce a su listado; los cambios pendientes mantienen el aviso de salida. Configure directorios
 privados de archivos y exportaciones fuera del directorio público de Joomla,
 permisos de acceso, persistencia predeterminada y límites de recursos. Configure
 el correo y, si lo necesita, un proveedor CAPTCHA en Joomla. **Diagnóstico**
@@ -55,7 +55,7 @@ Duplicar e importar crean identidades propias. Exportar una definición no expor
 respuestas ni valores de secretos.
 
 Para mostrar el formulario, cree un elemento de menú del componente o publique
-un módulo Nicode EasyForms y seleccione el formulario. Ajuste en Joomla acceso,
+un módulo Nicode Form Studio y seleccione el formulario. Ajuste en Joomla acceso,
 idioma, posición y asignación de páginas. El módulo permite mostrar título y
 descripción y elegir qué hacer si el formulario no está disponible.
 
@@ -110,7 +110,7 @@ los datos originales y su privacidad histórica. Si el publicador no tiene permi
 de reindexar, un administrador autorizado debe solicitar la reconstrucción.
 
 **Trabajos** muestra estado, procesados y fallos. Puede procesar un lote desde
-esa pantalla o configurar la tarea programada Nicode EasyForms en el planificador
+esa pantalla o configurar la tarea programada Nicode Form Studio en el planificador
 de Joomla. Un trabajo interrumpido puede continuar desde su cursor. Cancelarlo
 detiene lotes posteriores; no deshace los lotes completados.
 

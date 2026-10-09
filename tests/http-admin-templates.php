@@ -27,7 +27,7 @@ $createdFromTemplate = $api('template.apply', $formTemplateChoices + ['review_to
 $createdRecord = $api('record', query: ['id' => $createdFromTemplate['id']]);
 $assert($createdRecord['form']['state'] === 'draft' && $createdRecord['form']['published_version_id'] === null && $createdRecord['draft']['fields'][0]['uuid'] !== $templateField, 'Native template instantiation failed to create an independent draft.');
 foreach (['templates&kind=email', 'templates&kind=form', 'emailtemplate&id=' . $emailResource['id']] as $view) {
-    $page = $request($base . '?option=com_nicode_easy_forms&view=' . $view);
-    $assert($page['status'] === 200 && str_contains($page['body'], 'data-nef-'), 'Native template view unavailable.');
+    $page = $request($base . '?option=com_nicode_form_studio&view=' . $view);
+    $assert($page['status'] === 200 && str_contains($page['body'], 'data-nfs-'), 'Native template view unavailable.');
 }
 echo "Native templates HTTP: create/save, named token binding, revision conflicts, method/CSRF, portable capture, signed independent drafts and native resource views passed.\n";

@@ -13,7 +13,7 @@ if($first!==$second) { throw new RuntimeException('Repeated builds changed archi
 $fixture=$root.'/build/package-audit-'.bin2hex(random_bytes(5)); mkdir($fixture);
 foreach(array_keys($second['archives']) as $name) { copy($root.'/build/development-package/'.$name,$fixture.'/'.$name); }
 foreach(['extra','changed','missing'] as $case) {
-    $path=$fixture.'/com_nicode_easy_forms.zip'; copy($root.'/build/development-package/com_nicode_easy_forms.zip',$path);
+    $path=$fixture.'/com_nicode_form_studio.zip'; copy($root.'/build/development-package/com_nicode_form_studio.zip',$path);
     $zip=new ZipArchive(); $zip->open($path);
     if($case==='extra') { $zip->addFromString('unexpected.php','unexpected'); }
     elseif($case==='changed') { $zip->addFromString('LICENSE',str_repeat('x',filesize($root.'/LICENSE'))); $zip->setMtimeName('LICENSE',1789776000); }

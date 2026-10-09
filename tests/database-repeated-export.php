@@ -32,7 +32,7 @@ foreach ([false,true] as $includeSensitive) {
 }
 echo "Repeated CSV: stable columns, ordered scope/value JSON, historical sensitive policy, metadata omission and checkpoint replay passed.\n";
 
-$jsonHandler=new Nicode\EasyForms\Jobs\ExportHandler($connection,$forms,$reader,$jobs,$exportWorkspace,$authorizeRead,$search,format:'json');
+$jsonHandler=new Nicode\FormStudio\Jobs\ExportHandler($connection,$forms,$reader,$jobs,$exportWorkspace,$authorizeRead,$search,format:'json');
 foreach([false,true] as $includeSensitive) {
     $actor=$includeSensitive?1:2;
     $jsonId=$jobs->enqueue('export-json',['form_id'=>$rpForm,'version_id'=>$rpVersion,'fields'=>[$rpText],'include_sensitive'=>$includeSensitive],$actor);
@@ -58,7 +58,7 @@ foreach([false,true] as $includeSensitive) {
     $connection->execute('UPDATE '.$connection->table('jobs').' SET expires_at = :past WHERE id = :id',[':past'=>'2000-01-01 00:00:00',':id'=>$jsonId]);
     try { $exportDownloads->open($jsonId,$actor); throw new RuntimeException('Expired JSON download allowed.'); } catch(OutOfBoundsException) {}
     $cleanupId=$jobs->enqueue('export-cleanup',[],1);
-    $jsonCleanup=new Nicode\EasyForms\Jobs\ExportCleanupHandler($connection,$jobs,$exportWorkspace);
+    $jsonCleanup=new Nicode\FormStudio\Jobs\ExportCleanupHandler($connection,$jobs,$exportWorkspace);
     for($chunk=0;$chunk<1000 && $jobs->get($cleanupId)['state']!=='completed';$chunk++) {
         $jsonCleanupLease=$jobs->claim();
         if($jsonCleanupLease?->id!==$cleanupId) { throw new RuntimeException('Unexpected JSON cleanup lease.'); }

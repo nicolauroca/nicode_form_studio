@@ -19,7 +19,7 @@ test('compiler checks post-submit behavior preservation messages and conditional
         same(false, $result->successful());
         same(true, count(array_filter($result->diagnostics, static fn ($error): bool => $error->severity === 'ERROR' && str_starts_with($error->path, '/post_submit'))) > 0);
     }
-    $uuid = Nicode\EasyForms\Domain\Uuid::create();
+    $uuid = Nicode\FormStudio\Domain\Uuid::create();
     $candidate = ['uuid' => $uuid, 'condition' => $condition, 'message' => 'Thanks {{submission.reference}}'];
     same(false, compiler()->compile($base + ['post_submit' => ['conditional_messages' => [$candidate, $candidate]]])->successful());
     foreach (['keep','hide','reset'] as $behavior) {
@@ -36,37 +36,37 @@ test('result message categories reject typos and retain localized per-category f
         $compiled = compiler()->compile($draft); same(false, $compiled->successful());
         same(true, in_array('post.message.category', array_column($compiled->diagnostics, 'code'), true));
     }
-    foreach (Nicode\EasyForms\Translation\DefinitionTranslations::MESSAGES as $category) {
+    foreach (Nicode\FormStudio\Translation\DefinitionTranslations::MESSAGES as $category) {
         $draft = $base;
         $draft['post_submit']['messages'] = [$category => 'Base {{form.name}}'];
         $draft['translations'] = ['es' => ['messages' => [$category => 'Traducido {{form.name}}']]];
         $compiled = compiler()->compile($draft); same(true, $compiled->successful());
         $definition = $compiled->spec->toArray();
         $fallback = [$category => 'Global fallback', 'unrelated' => 'Unchanged'];
-        $localized = Nicode\EasyForms\Translation\DefinitionTranslations::resolve($definition, 'es-ES');
-        $messages = Nicode\EasyForms\Translation\DefinitionTranslations::messages($localized, $fallback);
+        $localized = Nicode\FormStudio\Translation\DefinitionTranslations::resolve($definition, 'es-ES');
+        $messages = Nicode\FormStudio\Translation\DefinitionTranslations::messages($localized, $fallback);
         same('Traducido Fixture', $messages[$category]); same('Unchanged', $messages['unrelated']);
-        $messages = Nicode\EasyForms\Translation\DefinitionTranslations::messages(Nicode\EasyForms\Translation\DefinitionTranslations::resolve($definition, 'fr-FR'), $fallback);
+        $messages = Nicode\FormStudio\Translation\DefinitionTranslations::messages(Nicode\FormStudio\Translation\DefinitionTranslations::resolve($definition, 'fr-FR'), $fallback);
         same('Base Fixture', $messages[$category]);
         unset($definition['post_submit']['messages'][$category]);
-        same($fallback, Nicode\EasyForms\Translation\DefinitionTranslations::messages($definition, $fallback));
+        same($fallback, Nicode\FormStudio\Translation\DefinitionTranslations::messages($definition, $fallback));
     }
 });
 
 test('compiler validates navigation destinations without executing actions or trusting arbitrary URLs', function (): void {
     $routes = static function (int $menu): string { if ($menu !== 4) { throw new RuntimeException('Private missing menu detail'); } return 'index.php?Itemid=4'; };
-    $actions = new Nicode\EasyForms\Registry\ActionRegistry();
-    $actions->register(new Nicode\EasyForms\Actions\NavigationAction(new Nicode\EasyForms\Security\RedirectPolicy(['thanks.example.com']), $routes));
-    $compiler = new Nicode\EasyForms\Compiler\FormCompiler(registry(), $actions, new Nicode\EasyForms\Registry\ProviderRegistry(), new Nicode\EasyForms\Registry\ProviderRegistry());
+    $actions = new Nicode\FormStudio\Registry\ActionRegistry();
+    $actions->register(new Nicode\FormStudio\Actions\NavigationAction(new Nicode\FormStudio\Security\RedirectPolicy(['thanks.example.com']), $routes));
+    $compiler = new Nicode\FormStudio\Compiler\FormCompiler(registry(), $actions, new Nicode\FormStudio\Registry\ProviderRegistry(), new Nicode\FormStudio\Registry\ProviderRegistry());
     foreach ([[], ['menu_id' => 0], ['menu_id' => '4'], ['menu_id' => 5], ['menu_id' => 4, 'url' => '/thanks'], ['url' => '//evil.test'], ['url' => '/%255cevil.test'], ['url' => 'https://evil.test'], ['url' => 'https://user@thanks.example.com']] as $config) {
-        $draft = definition(); $draft['actions'] = [['uuid' => Nicode\EasyForms\Domain\Uuid::create(), 'type' => 'redirect', 'config' => $config]];
+        $draft = definition(); $draft['actions'] = [['uuid' => Nicode\FormStudio\Domain\Uuid::create(), 'type' => 'redirect', 'config' => $config]];
         $result = $compiler->compile($draft); same(false, $result->successful());
         same(['action.navigation'], array_column($result->diagnostics, 'code'));
         same(['/actions/0/config'], array_column($result->diagnostics, 'path'));
         same(false, str_contains(json_encode($result->diagnostics), 'Private missing menu detail'));
     }
     foreach ([['menu_id' => 4], ['url' => '/thanks'], ['url' => 'https://thanks.example.com/received']] as $config) {
-        $draft = definition(); $draft['actions'] = [['uuid' => Nicode\EasyForms\Domain\Uuid::create(), 'type' => 'redirect', 'config' => $config]];
+        $draft = definition(); $draft['actions'] = [['uuid' => Nicode\FormStudio\Domain\Uuid::create(), 'type' => 'redirect', 'config' => $config]];
         same(true, $compiler->compile($draft)->successful());
     }
 });

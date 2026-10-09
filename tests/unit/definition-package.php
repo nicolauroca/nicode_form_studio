@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Domain\{CanonicalJson, Uuid};
-use Nicode\EasyForms\Transfer\DefinitionPackage;
+use Nicode\FormStudio\Domain\{CanonicalJson, Uuid};
+use Nicode\FormStudio\Transfer\DefinitionPackage;
 
 test('portable definition packages embed option sets and remove credentials without submissions or runtime IDs', function (): void {
-    $sources = new Nicode\EasyForms\Registry\DataSourceRegistry(); $sources->register(new Nicode\EasyForms\DataSource\StaticDataSource('option_set')); $sources->register(new Nicode\EasyForms\DataSource\StaticDataSource());
+    $sources = new Nicode\FormStudio\Registry\DataSourceRegistry(); $sources->register(new Nicode\FormStudio\DataSource\StaticDataSource('option_set')); $sources->register(new Nicode\FormStudio\DataSource\StaticDataSource());
     $transport = new DefinitionPackage(['fields' => registry(), 'sources' => $sources]);
     $draft = withSecond(definition(), 'password'); $draft['fields'][0]['type'] = 'select';
     $draft['fields'][0]['source'] = ['type' => 'option_set', 'config' => ['resource_uuid' => Uuid::create(), 'revision' => 2, 'options' => [['uuid' => Uuid::create(), 'value' => 'ES', 'label' => 'España']]], 'dependencies' => []];
@@ -32,8 +32,8 @@ test('definition packages fail closed for corruption and unsupported schemas and
 });
 
 test('custom portability contracts still pass central credential redaction', function (): void {
-    $actions = new Nicode\EasyForms\Registry\ProviderRegistry();
-    $actions->register(new class implements Nicode\EasyForms\Contract\PortableProviderInterface {
+    $actions = new Nicode\FormStudio\Registry\ProviderRegistry();
+    $actions->register(new class implements Nicode\FormStudio\Contract\PortableProviderInterface {
         public function id(): string { return 'fixture.portable'; }
         public function version(): string { return '1.0.0'; }
         public function metadata(): array { return []; }

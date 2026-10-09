@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {repeatedErrors} from '../../src/com_nicode_easy_forms/media/js/repeated-validation.js';
-import {FormInstance} from '../../src/com_nicode_easy_forms/media/js/form-instance.js';
-import {updateFieldError} from '../../src/com_nicode_easy_forms/media/js/field-errors.js';
+import {repeatedErrors} from '../../src/com_nicode_form_studio/media/js/repeated-validation.js';
+import {FormInstance} from '../../src/com_nicode_form_studio/media/js/form-instance.js';
+import {updateFieldError} from '../../src/com_nicode_form_studio/media/js/field-errors.js';
 
 test('repeated minima follow each active scope and malformed declarations fail closed', () => {
   const spec={elements:[{uuid:'outer/one/group',type:'repeatable-group',repeat:{min:1,max:2}},{uuid:'outer/two/group',type:'repeatable-group',repeat:{min:1,max:2}}],instances:{'outer/one/group':[],'outer/two/group':[]}};
@@ -29,7 +29,7 @@ test('form validation reports group minima only on the selected step and clears 
 
 test('a container error never overwrites an error belonging to a descendant field', () => {
   const child={textContent:'Existing field error',hidden:false},own={id:'group-error',textContent:'',hidden:true};
-  const node={querySelector:selector=>selector==='[data-nef-error="group"]'?own:child};
+  const node={querySelector:selector=>selector==='[data-nfs-error="group"]'?own:child};
   updateFieldError('form','group',node,[],['Add a row']);
   assert.equal(own.textContent,'Add a row'); assert.equal(own.hidden,false);
   assert.equal(child.textContent,'Existing field error');

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
-$technicalLog = new Nicode\EasyForms\Infrastructure\Database\TechnicalLog($connection);
-$logCorrelation = Nicode\EasyForms\Domain\Uuid::create();
+$technicalLog = new Nicode\FormStudio\Infrastructure\Database\TechnicalLog($connection);
+$logCorrelation = Nicode\FormStudio\Domain\Uuid::create();
 $logAllow = static fn (int $actor, ?int $form, string $permission): bool => $actor === 1;
 foreach (range(1, 102) as $n) { $technicalLog->record('ERROR', 'submission.unexpected', $logCorrelation, ['version_id' => $n]); }
 $logPage = $technicalLog->page(1, $logAllow, correlation: $logCorrelation);
@@ -12,18 +12,18 @@ try { $technicalLog->page(2, $logAllow); throw new RuntimeException('Denied acto
 try { $technicalLog->record('ERROR', 'submission.unexpected', $logCorrelation, ['message' => 'secret@example.invalid']); throw new RuntimeException('Free-text log input accepted.'); } catch (InvalidArgumentException) {}
 try { $technicalLog->record('ERROR', 'secret@example.invalid', $logCorrelation); throw new RuntimeException('Untrusted event accepted.'); } catch (InvalidArgumentException) {}
 try { $technicalLog->record('ERROR', 'submission.unexpected', $logCorrelation, ['job_id' => 'secret']); throw new RuntimeException('Untyped log reference accepted.'); } catch (InvalidArgumentException) {}
-$debugCorrelation = Nicode\EasyForms\Domain\Uuid::create();
+$debugCorrelation = Nicode\FormStudio\Domain\Uuid::create();
 $technicalLog->record('DEBUG', 'job.retry', $debugCorrelation);
 if ($technicalLog->page(1, $logAllow, correlation: $debugCorrelation)['rows'] !== []) { throw new RuntimeException('Debug logging enabled by default.'); }
-(new Nicode\EasyForms\Infrastructure\Database\TechnicalLog($connection, true))->record('DEBUG', 'job.retry', $debugCorrelation);
+(new Nicode\FormStudio\Infrastructure\Database\TechnicalLog($connection, true))->record('DEBUG', 'job.retry', $debugCorrelation);
 if (count($technicalLog->page(1, $logAllow, correlation: $debugCorrelation)['rows']) !== 1) { throw new RuntimeException('Explicit debug logging failed.'); }
 echo "Technical log: fixed safe vocabulary, typed references, default debug suppression, ACL and keyset pagination verified.\n";
 $connection->execute('UPDATE ' . $connection->table('technical_log') . ' SET created_at = :old WHERE correlation_id = :correlation', [':old' => gmdate('Y-m-d H:i:s', time() - 31 * 86400), ':correlation' => $logCorrelation]);
 $auditBefore = (int) $connection->row('SELECT COUNT(*) AS total FROM ' . $connection->table('audit_log'))['total'];
-$logCleaner = new Nicode\EasyForms\Jobs\TechnicalLogCleanupHandler($connection);
+$logCleaner = new Nicode\FormStudio\Jobs\TechnicalLogCleanupHandler($connection);
 $cleanupCursor = []; $cleaned = 0;
 do {
-    $cleanupLease = new Nicode\EasyForms\Jobs\JobLease(1, Nicode\EasyForms\Domain\Uuid::create(), 'technical-log-cleanup', 0, ['days' => 30], $cleanupCursor, str_repeat('a', 64), 1, $cleaned, 0);
+    $cleanupLease = new Nicode\FormStudio\Jobs\JobLease(1, Nicode\FormStudio\Domain\Uuid::create(), 'technical-log-cleanup', 0, ['days' => 30], $cleanupCursor, str_repeat('a', 64), 1, $cleaned, 0);
     $cleanupProgress = $connection->transaction(static fn () => $logCleaner->run($cleanupLease, 50));
     $cleanupCursor = $cleanupProgress->cursor; $cleaned += $cleanupProgress->processed;
 } while (!$cleanupProgress->complete);

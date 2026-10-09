@@ -23,8 +23,8 @@ $rateHttp = static function (string $path, string $cookie, ?array $post = null):
 try {
     foreach ([0, 1] as $session) {
         $rateCookie = $root . '/build/rate-cookie-' . bin2hex(random_bytes(6)) . '.txt'; $rateJars[] = $rateCookie;
-        $ratePage = $rateHttp('/index.php?option=com_nicode_easy_forms&view=form&id=' . $rateForm['id'], $rateCookie);
-        $rateDom = $dom($ratePage['body']); $rateNode = $rateDom->query('//form[@data-nef-form]')->item(0);
+        $ratePage = $rateHttp('/index.php?option=com_nicode_form_studio&view=form&id=' . $rateForm['id'], $rateCookie);
+        $rateDom = $dom($ratePage['body']); $rateNode = $rateDom->query('//form[@data-nfs-form]')->item(0);
         $assert($ratePage['status'] === 200 && $rateNode instanceof DOMElement, 'Rate fixture form unavailable.');
         $ratePost = ['format' => 'json'];
         foreach ($rateDom->query('.//input[@type="hidden"]', $rateNode) as $input) { $ratePost[$input->getAttribute('name')] = $input->getAttribute('value'); }
@@ -33,7 +33,7 @@ try {
         $assert($rateReply['status'] === ($session === 0 ? 422 : 429) && $rateResult['category'] === ($session === 0 ? 'validation_error' : 'rate_limited'), 'Rate limit was bypassed by replacing the Joomla session.');
         if ($session === 1) {
             $assert(preg_match('/Retry-After: ([1-9][0-9]*)/i', $rateReply['headers'], $retry) === 1 && (int) $retry[1] <= 3600, 'Missing bounded Retry-After.');
-            $optionsReply = $rateHttp('/index.php?option=com_nicode_easy_forms&task=form.options&format=json', $rateCookie, $ratePost);
+            $optionsReply = $rateHttp('/index.php?option=com_nicode_form_studio&task=form.options&format=json', $rateCookie, $ratePost);
             $assert($optionsReply['status'] === 200 && json_decode($optionsReply['body'], true)['ok'] === true, 'Submission limiter contaminated the separate option query scope.');
         }
     }

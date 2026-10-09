@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Domain\{Uuid, FormSpec, FieldAddress, CanonicalJson};
-use Nicode\EasyForms\Submission\RequestFingerprint;
-use Nicode\EasyForms\Storage\StoredFile;
+use Nicode\FormStudio\Domain\{Uuid, FormSpec, FieldAddress, CanonicalJson};
+use Nicode\FormStudio\Submission\RequestFingerprint;
+use Nicode\FormStudio\Storage\StoredFile;
 
 test('repeated fingerprints bind row order action-only values and stable file content', function (): void {
     [$group,$text,$file,$one,$two]=array_map(static fn()=>Uuid::create(),range(1,5));

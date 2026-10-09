@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Domain\{Uuid, FieldAddress, RepeatedInstances};
-use Nicode\EasyForms\Validation\{ScopedValidator, RelationalValidator};
+use Nicode\FormStudio\Domain\{Uuid, FieldAddress, RepeatedInstances};
+use Nicode\FormStudio\Validation\{ScopedValidator, RelationalValidator};
 
 test('scoped relational validation isolates sibling values and addresses errors to the correct row', function (): void {
     [$group,$left,$right,$shared,$one,$two] = array_map(static fn()=>Uuid::create(),range(1,6));

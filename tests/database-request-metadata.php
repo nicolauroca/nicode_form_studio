@@ -4,7 +4,7 @@ declare(strict_types=1);
 $metadataForm = $forms->create('Request metadata', 'request-metadata-' . bin2hex(random_bytes(5)), 1);
 $metadataDraft = $forms->draft($metadataForm);
 $metadataRaw = ['ip' => '2001:db8::1', 'user_agent' => 'Private browser <script>'];
-$metadataReader = new Nicode\EasyForms\Application\SubmissionReader($submissions, $forms, $connection, static fn (int $actor, int $form, string $permission): bool => $actor === 1 || $permission !== 'easyforms.submissions.view_sensitive');
+$metadataReader = new Nicode\FormStudio\Application\SubmissionReader($submissions, $forms, $connection, static fn (int $actor, int $form, string $permission): bool => $actor === 1 || $permission !== 'formstudio.submissions.view_sensitive');
 foreach ([['full', false], ['full', true], ['metadata', true], ['none', true]] as [$metadataMode, $metadataOptIn]) {
     $metadataDraft['privacy'] = ['store_ip' => $metadataOptIn, 'store_user_agent' => $metadataOptIn];
     $metadataDraft['persistence'] = ['mode' => $metadataMode];

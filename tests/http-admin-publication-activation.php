@@ -7,20 +7,20 @@ $activationDraft['elements'] = [['uuid' => $activationField, 'type' => 'field']]
 $activationDraft['fields'] = [['uuid' => $activationField, 'name' => 'answer', 'type' => 'text', 'config' => ['label' => 'Published original label', 'default' => 'Original default']]];
 $activationRevision = $api('save', ['id' => $activationForm['id'], 'revision' => 0, 'draft' => $activationDraft])['revision'];
 $activationFirst = $api('publish', ['id' => $activationForm['id'], 'revision' => $activationRevision]);
-$activationUrl = 'http://127.0.0.1:13371/index.php?option=com_nicode_easy_forms&view=form&id=' . $activationForm['id'];
+$activationUrl = 'http://127.0.0.1:13371/index.php?option=com_nicode_form_studio&view=form&id=' . $activationForm['id'];
 $activationRead = static function (int $version, string $label, string $default) use ($visitorRequest, $activationUrl, $activationField, $dom, $assert): array {
     // The exact same URL and visitor session exercise resolution without cache busting.
     $response = $visitorRequest($activationUrl); $xpath = $dom($response['body']);
-    $node = $xpath->query('//form[@data-nef-form]')->item(0);
+    $node = $xpath->query('//form[@data-nfs-form]')->item(0);
     $assert($response['status'] === 200 && $node instanceof DOMElement, 'Published activation fixture did not render.');
     $assert((int) $xpath->query('.//input[@name="version_id"]', $node)->item(0)?->getAttribute('value') === $version, 'Public runtime resolved the wrong active version.');
-    $assert($xpath->query('.//input[@data-nef-input="' . $activationField . '"]', $node)->item(0)?->getAttribute('value') === $default, 'Public runtime used draft or stale defaults.');
-    $inputId = $xpath->query('.//input[@data-nef-input="' . $activationField . '"]', $node)->item(0)?->getAttribute('id');
+    $assert($xpath->query('.//input[@data-nfs-input="' . $activationField . '"]', $node)->item(0)?->getAttribute('value') === $default, 'Public runtime used draft or stale defaults.');
+    $inputId = $xpath->query('.//input[@data-nfs-input="' . $activationField . '"]', $node)->item(0)?->getAttribute('id');
     $assert($xpath->query('.//label[@for="' . $inputId . '"]', $node)->item(0)?->textContent === $label, 'Public runtime used draft or stale labels.');
     return [$xpath, $node];
 };
 $activationRead($activationFirst['version_id'], 'Published original label', 'Original default');
-$activationSnapshotQuery = $prefillDb->prepare('SELECT spec, hash FROM j6_nicode_easyforms_form_versions WHERE form_id = ? AND id = ?');
+$activationSnapshotQuery = $prefillDb->prepare('SELECT spec, hash FROM j6_nicode_form_studio_form_versions WHERE form_id = ? AND id = ?');
 $activationSnapshotQuery->execute([$activationForm['id'], $activationFirst['version_id']]);
 $activationOriginal = $activationSnapshotQuery->fetch(PDO::FETCH_ASSOC);
 $activationDraft['fields'][0]['config'] = ['label' => 'Published replacement label', 'default' => 'Replacement default'];
@@ -28,12 +28,12 @@ $activationRevision = $api('save', ['id' => $activationForm['id'], 'revision' =>
 $activationRead($activationFirst['version_id'], 'Published original label', 'Original default');
 $activationSecond = $api('publish', ['id' => $activationForm['id'], 'revision' => $activationRevision]);
 [$activationXpath, $activationNode] = $activationRead($activationSecond['version_id'], 'Published replacement label', 'Replacement default');
-$activationPost = ['format' => 'json', 'nef' => [$activationField => 'Response to replacement version']];
+$activationPost = ['format' => 'json', 'nfs' => [$activationField => 'Response to replacement version']];
 foreach ($activationXpath->query('.//input[@type="hidden"]', $activationNode) as $input) { $activationPost[$input->getAttribute('name')] = $input->getAttribute('value'); }
 $activationResponse = $visitorRequest('http://127.0.0.1:13371' . $activationNode->getAttribute('action'), $activationPost);
 $activationResult = json_decode($activationResponse['body'], true, 512, JSON_THROW_ON_ERROR);
 $assert($activationResponse['status'] === 200 && $activationResult['category'] === 'success', 'Replacement version could not accept a response.');
-$activationResponseQuery = $prefillDb->prepare('SELECT form_version_id FROM j6_nicode_easyforms_submissions WHERE form_id = ? AND uuid = ?');
+$activationResponseQuery = $prefillDb->prepare('SELECT form_version_id FROM j6_nicode_form_studio_submissions WHERE form_id = ? AND uuid = ?');
 $activationResponseQuery->execute([$activationForm['id'], $activationResult['reference']]);
 $assert((int) $activationResponseQuery->fetchColumn() === $activationSecond['version_id'], 'New response retained an obsolete version identity.');
 $activationSnapshotQuery->execute([$activationForm['id'], $activationFirst['version_id']]);

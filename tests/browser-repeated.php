@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
-require dirname(__DIR__) . '/src/lib_nicode_easy_forms/autoload.php';
-use Nicode\EasyForms\Domain\{Uuid, FormSpec, RepeatedInstances};
-use Nicode\EasyForms\Registry\{FieldTypeRegistry, RuleOperatorRegistry, RuleEffectRegistry};
-use Nicode\EasyForms\Rules\{RuleEngine, ConditionEvaluator, PresentationState};
-use Nicode\EasyForms\Rendering\{FormRenderer, FieldRendererRegistry, CoreFieldRenderer, PublicSpec, RenderContext};
+require dirname(__DIR__) . '/src/lib_nicode_form_studio/autoload.php';
+use Nicode\FormStudio\Domain\{Uuid, FormSpec, RepeatedInstances};
+use Nicode\FormStudio\Registry\{FieldTypeRegistry, RuleOperatorRegistry, RuleEffectRegistry};
+use Nicode\FormStudio\Rules\{RuleEngine, ConditionEvaluator, PresentationState};
+use Nicode\FormStudio\Rendering\{FormRenderer, FieldRendererRegistry, CoreFieldRenderer, PublicSpec, RenderContext};
 
-$types = new FieldTypeRegistry(); Nicode\EasyForms\Field\CoreFieldTypes::register($types);
+$types = new FieldTypeRegistry(); Nicode\FormStudio\Field\CoreFieldTypes::register($types);
 $rules = new RuleEngine(new ConditionEvaluator(RuleOperatorRegistry::core()),RuleEffectRegistry::core(),$types);
 [$outer,$inner,$name,$copy,$toggle,$panel,$email] = array_map(static fn()=>Uuid::create(),range(1,7));
 $elements = [
@@ -47,7 +47,7 @@ $minimumRows = [$inner=>[]];
 $minimumState = (new PresentationState($types,$rules))->evaluateInstances($minimumSpec,$minimumRows);
 $html .= '<section><h2>Mínimos activos</h2>'.$renderer->renderInstances($minimumSpec,$minimumRows,new RenderContext('minimos',1,2,'/index.php','csrf','',preview:true),$minimumState).'</section>';
 $html = str_replace('</form>','<button type="button" data-test-validate>Comprobar campos</button></form>',$html);
-$page = '<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Filas repetidas — prueba aislada</title><link rel="stylesheet" href="assets/css/easyforms.css"><style>body{font-family:system-ui;margin:24px auto;padding:0 16px;max-width:1000px}section>h2{margin-top:2rem}.nef-repeat-row{margin:1rem 0;padding:1rem}fieldset{min-width:0}input{max-width:100%;box-sizing:border-box}</style><h1>Filas repetidas</h1><p>Prueba interna de representación y reglas. Envío deshabilitado.</p>'.$html.'<script type="module">import {createInitializer} from "./assets/js/initialize.js"; import {createFormInstance} from "./assets/js/form-instance.js"; createInitializer(form => Promise.resolve(createFormInstance(form)).then(runtime => { form.querySelector("[data-test-validate]").addEventListener("click", () => runtime.validate()); return runtime; }))(document);</script></html>';
+$page = '<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Filas repetidas — prueba aislada</title><link rel="stylesheet" href="assets/css/formstudio.css"><style>body{font-family:system-ui;margin:24px auto;padding:0 16px;max-width:1000px}section>h2{margin-top:2rem}.nfs-repeat-row{margin:1rem 0;padding:1rem}fieldset{min-width:0}input{max-width:100%;box-sizing:border-box}</style><h1>Filas repetidas</h1><p>Prueba interna de representación y reglas. Envío deshabilitado.</p>'.$html.'<script type="module">import {createInitializer} from "./assets/js/initialize.js"; import {createFormInstance} from "./assets/js/form-instance.js"; createInitializer(form => Promise.resolve(createFormInstance(form)).then(runtime => { form.querySelector("[data-test-validate]").addEventListener("click", () => runtime.validate()); return runtime; }))(document);</script></html>';
 $directory = dirname(__DIR__).'/build/repeated-browser';
 if (!is_dir($directory)) { mkdir($directory,0770,true); }
 file_put_contents($directory.'/index.html',$page);

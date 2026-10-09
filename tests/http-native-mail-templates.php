@@ -2,12 +2,12 @@
 declare(strict_types=1);
 
 (static function()use($root,$runtime,$forms,$db,$admin,$request,$captures,&$created):void {
-    $templates=$runtime->get(Nicode\EasyForms\Application\Templates::class);
+    $templates=$runtime->get(Nicode\FormStudio\Application\Templates::class);
     $actor=(int)$admin->id; $cases=[];
     foreach(['exact','primary','default','source'] as $fallback) {
         $form=$forms->create('Native attachment acceptance','native-mail-template-'.bin2hex(random_bytes(5)),$actor); $created[]=$form;
         $draft=$forms->edit($form,$actor)['draft'];
-        $field=Nicode\EasyForms\Domain\Uuid::create(); $email=Nicode\EasyForms\Domain\Uuid::create();
+        $field=Nicode\FormStudio\Domain\Uuid::create(); $email=Nicode\FormStudio\Domain\Uuid::create();
         $draft['elements']=[['uuid'=>$field,'type'=>'field'],['uuid'=>$email,'type'=>'field']];
         $draft['fields']=[['uuid'=>$field,'name'=>'answer','type'=>'text','config'=>['label'=>'Answer']],['uuid'=>$email,'name'=>'email','type'=>'email','config'=>['label'=>'Email','required'=>true]]];
         $draft['base_language']='es-ES'; $draft['security']['captcha']=['mode'=>'none']; $draft['security']['minimum_seconds']=0;
@@ -18,7 +18,7 @@ declare(strict_types=1);
         $copied=$templates->emailConfiguration($actor,$template,1,$form,['answer'=>$field])['config'];
         $draft['actions']=[];
         foreach(['email_notification','email_autoresponse'] as $order=>$type) {
-            $action=Nicode\EasyForms\Domain\Uuid::create();
+            $action=Nicode\FormStudio\Domain\Uuid::create();
             $draft['actions'][]=['uuid'=>$action,'type'=>$type,'order'=>$order,'failure_policy'=>'blocking','config'=>$copied+['to'=>['team@example.test'],'email_field'=>$email]];
             foreach(['en-GB'=>'exact','en'=>'primary','es-ES'=>'default'] as $locale=>$label) {
                 if(array_search($label,['exact','primary','default','source'],true)<array_search($fallback,['exact','primary','default','source'],true)) { continue; }
@@ -32,10 +32,10 @@ declare(strict_types=1);
         foreach($changed['actions'] as &$action) { $action['config']['subject']='CHANGED'; $action['config']['body_text']='CHANGED'; } unset($action);
         $published=$forms->edit($form,$actor);
         $forms->save($form,(int)$published['form']['draft_revision'],$changed,$actor);
-        [$status,$html]=$request('/index.php?option=com_nicode_easy_forms&view=form&id='.$form);
-        $document=new DOMDocument(); $prior=libxml_use_internal_errors(true); $document->loadHTML($html); libxml_clear_errors(); libxml_use_internal_errors($prior); $xp=new DOMXPath($document); $node=$xp->query('//form[@data-nef-form]')->item(0);
+        [$status,$html]=$request('/index.php?option=com_nicode_form_studio&view=form&id='.$form);
+        $document=new DOMDocument(); $prior=libxml_use_internal_errors(true); $document->loadHTML($html); libxml_clear_errors(); libxml_use_internal_errors($prior); $xp=new DOMXPath($document); $node=$xp->query('//form[@data-nfs-form]')->item(0);
         if($status!==200 || !$node instanceof DOMElement) { throw new RuntimeException('Template fixture did not render.'); }
-        $post=['format'=>'json','nef['.$field.']'=>'<value & data>','nef['.$email.']'=>'visitor@example.test'];
+        $post=['format'=>'json','nfs['.$field.']'=>'<value & data>','nfs['.$email.']'=>'visitor@example.test'];
         foreach($xp->query('.//input[@type="hidden"]',$node) as $input) { $post[$input->getAttribute('name')]=$input->getAttribute('value'); }
         $destination=$node->getAttribute('action'); if(str_starts_with($destination,'http')) { $destination=parse_url($destination,PHP_URL_PATH).'?'.parse_url($destination,PHP_URL_QUERY); }
         $before=count($captures()); [$status,$body]=$request($destination,$post); $result=json_decode($body,true,flags:JSON_THROW_ON_ERROR);

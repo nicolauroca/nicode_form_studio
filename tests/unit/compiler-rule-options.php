@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 test('rule-provided choices reject duplicate identities and nonboolean flags before publication', function (): void {
     $draft = withSecond(definition(), 'select'); [$trigger,$choice] = array_column($draft['fields'],'uuid');
-    $draft['rules'] = [['uuid' => Nicode\EasyForms\Domain\Uuid::create(),'when' => ['field' => $trigger,'operator' => 'not_empty'],'effects' => [['type' => 'change_options','target' => $choice,'value' => []]]]];
+    $draft['rules'] = [['uuid' => Nicode\FormStudio\Domain\Uuid::create(),'when' => ['field' => $trigger,'operator' => 'not_empty'],'effects' => [['type' => 'change_options','target' => $choice,'value' => []]]]];
     foreach (['enabled','default'] as $flag) {
         foreach (['false',0,1,null,[]] as $value) {
             $draft['rules'][0]['effects'][0]['value'] = [['value' => 'a','label' => 'A',$flag => $value]];

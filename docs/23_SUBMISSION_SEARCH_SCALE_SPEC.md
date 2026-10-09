@@ -1,7 +1,7 @@
 # 23 — Submissions, búsqueda y escala
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -12,7 +12,7 @@
 
 ## 1. Requisito principal
 
-EasyForms debe seguir siendo operable cuando existan:
+FormStudio debe seguir siendo operable cuando existan:
 
 - cientos de Forms;
 - millones de Submissions;

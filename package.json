@@ -1,5 +1,5 @@
 {
-  "name": "nicode-easyforms",
+  "name": "nicode-form-studio",
   "private": true,
   "type": "module",
   "scripts": {"test": "node --test tests/js/*.test.mjs"},

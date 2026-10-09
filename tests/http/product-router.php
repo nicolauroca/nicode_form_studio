@@ -13,13 +13,13 @@ $_SERVER['SCRIPT_FILENAME'] = $applicationRoot . '/index.php'; unset($_SERVER['P
 $_SERVER['HTTP_HOST'] = '127.0.0.1:13371'; $_SERVER['SERVER_PORT'] = '13371';
 require $applicationRoot . '/includes/defines.php'; require $applicationRoot . '/includes/framework.php';
 $container = Joomla\CMS\Factory::getContainer(); $config = $container->get('config');
-if ($config->get('db') !== 'easyforms_joomla' || $config->get('host') !== '127.0.0.1:13367') { throw new RuntimeException('Non-isolated product fixture.'); }
+if ($config->get('db') !== 'formstudio_joomla' || $config->get('host') !== '127.0.0.1:13367') { throw new RuntimeException('Non-isolated product fixture.'); }
 $session = $administrator ? 'session.web.administrator' : 'session.web.site';
 $container->alias('session.web', $session)->alias('session', $session)->alias(Joomla\CMS\Session\Session::class, $session)->alias(Joomla\Session\SessionInterface::class, $session);
 $container->get(Joomla\Event\DispatcherInterface::class)->addListener('onCaptchaSetup', static function ($event): void {
     $event->getArgument('subject')->add(new class implements Joomla\CMS\Captcha\CaptchaProviderInterface {
         public function getName(): string { return 'fixture-product-captcha'; }
-        public function display(string $name = '', array $attributes = []): string { return '<input name="easyforms_captcha" aria-label="Synthetic CAPTCHA">'; }
+        public function display(string $name = '', array $attributes = []): string { return '<input name="formstudio_captcha" aria-label="Synthetic CAPTCHA">'; }
         public function checkAnswer(?string $code = null): bool { return $code === 'fixture-valid'; }
         public function setupField(Joomla\CMS\Form\FormField $field, SimpleXMLElement $element): void {}
     });

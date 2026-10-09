@@ -5,9 +5,9 @@ declare(strict_types=1);
 $root = dirname(__DIR__); $output = $root . '/build/development-package';
 if (!is_dir($output)) { mkdir($output, 0770, true); }
 $manifestPaths = [];
-foreach (['lib_nicode_easy_forms', 'com_nicode_easy_forms', 'mod_nicode_easy_forms', 'plg_task_nicode_easy_forms', 'plg_extension_nicode_easy_forms'] as $extension) {
+foreach (['lib_nicode_form_studio', 'com_nicode_form_studio', 'mod_nicode_form_studio', 'plg_task_nicode_form_studio', 'plg_extension_nicode_form_studio'] as $extension) {
     $source = $root . '/src/' . $extension;
-    $manifest = str_starts_with($extension, 'plg_') ? 'nicode_easy_forms' : $extension;
+    $manifest = str_starts_with($extension, 'plg_') ? 'nicode_form_studio' : $extension;
     if (!simplexml_load_file($source . '/' . $manifest . '.xml')) { throw new RuntimeException('Invalid extension manifest.'); }
     $files = [];
     foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source, FilesystemIterator::SKIP_DOTS)) as $file) {
@@ -23,11 +23,11 @@ foreach (['lib_nicode_easy_forms', 'com_nicode_easy_forms', 'mod_nicode_easy_for
     if (!$zip->close()) { throw new RuntimeException('Unable to finish development archive.'); }
     $manifestPaths[$extension . '.zip'] = $path;
 }
-$package = new ZipArchive(); $target = $output . '/pkg_nicode_easy_forms.zip';
+$package = new ZipArchive(); $target = $output . '/pkg_nicode_form_studio.zip';
 if ($package->open($target, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) { throw new RuntimeException('Unable to create package.'); }
-$package->addFile($root . '/src/pkg_nicode_easy_forms/pkg_nicode_easy_forms.xml', 'pkg_nicode_easy_forms.xml');
-$package->setMtimeName('pkg_nicode_easy_forms.xml', 1789776000);
-$package->addFile($root . '/src/pkg_nicode_easy_forms/script.php', 'script.php');
+$package->addFile($root . '/src/pkg_nicode_form_studio/pkg_nicode_form_studio.xml', 'pkg_nicode_form_studio.xml');
+$package->setMtimeName('pkg_nicode_form_studio.xml', 1789776000);
+$package->addFile($root . '/src/pkg_nicode_form_studio/script.php', 'script.php');
 $package->setMtimeName('script.php', 1789776000);
 foreach ($manifestPaths as $name => $path) { $package->addFile($path, 'packages/' . $name); $package->setMtimeName('packages/' . $name, 1789776000); }
 if (!$package->close()) { throw new RuntimeException('Unable to finish package.'); }

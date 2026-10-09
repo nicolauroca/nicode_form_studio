@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-use Nicode\EasyForms\Actions\ActionContext;
-use Nicode\EasyForms\Actions\EmailAction;
-use Nicode\EasyForms\Actions\MailMessage;
-use Nicode\EasyForms\Actions\TokenTemplate;
-use Nicode\EasyForms\Contract\MailTransportInterface;
+use Nicode\FormStudio\Actions\ActionContext;
+use Nicode\FormStudio\Actions\EmailAction;
+use Nicode\FormStudio\Actions\MailMessage;
+use Nicode\FormStudio\Actions\TokenTemplate;
+use Nicode\FormStudio\Contract\MailTransportInterface;
 
 test('template tokens are literal data and escape by output context', function (): void {
     $templates = new TokenTemplate();
@@ -59,14 +59,14 @@ test('email preparation failures are definite while transport exceptions retain 
     $config=['to'=>['to@example.test'],'subject'=>'{{field.'.$field.'.value}}','body_text'=>'Body'];
     foreach([$config,array_replace($config,['subject'=>'Subject','body_text'=>'{{unavailable}}']),array_replace($config,['subject'=>'Subject','body_html'=>'{{unavailable}}'])] as $case) {
         try { $action->execute($case,$context); throw new RuntimeException('Expected preparation rejection.'); }
-        catch(Nicode\EasyForms\Actions\ActionFailure $failure) { same('mail_preparation_failed',$failure->resultCode); same(false,$failure->unknownOutcome); }
+        catch(Nicode\FormStudio\Actions\ActionFailure $failure) { same('mail_preparation_failed',$failure->resultCode); same(false,$failure->unknownOutcome); }
     }
     same(0,$transport->calls);
     try { $action->execute(array_replace($config,['to'=>[]]),$context); throw new RuntimeException('Expected configuration rejection.'); }
-    catch(Nicode\EasyForms\Actions\ActionFailure $failure) { same('configuration_invalid',$failure->resultCode); }
+    catch(Nicode\FormStudio\Actions\ActionFailure $failure) { same('configuration_invalid',$failure->resultCode); }
     same(0,$transport->calls);
     $config['subject']='Subject';
-    foreach([new RuntimeException('Uncertain transport'),new Nicode\EasyForms\Actions\ActionFailure('mail_delivery_unknown',true)] as $failure) {
+    foreach([new RuntimeException('Uncertain transport'),new Nicode\FormStudio\Actions\ActionFailure('mail_delivery_unknown',true)] as $failure) {
         $transport->failure=$failure;
         try { $action->execute($config,$context); throw new LogicException('Expected transport exception.'); }
         catch(Throwable $caught) { same($failure,$caught); }
@@ -80,16 +80,16 @@ test('repeated mail recipients require explicit selection in declaration order b
         public function send(MailMessage $message): void { $this->messages[] = $message; }
     };
     $draft = definition(); $field = $draft['fields'][0]['uuid']; $draft['fields'][0]['type'] = 'email';
-    $group = Nicode\EasyForms\Domain\Uuid::create();
+    $group = Nicode\FormStudio\Domain\Uuid::create();
     $draft['elements'][0]['parent_uuid'] = $group;
     array_unshift($draft['elements'], ['uuid'=>$group,'type'=>'repeatable-group','repeat'=>['min'=>0,'max'=>3]]);
-    $rows = array_map(static fn()=>Nicode\EasyForms\Domain\Uuid::create(), range(1,3));
+    $rows = array_map(static fn()=>Nicode\FormStudio\Domain\Uuid::create(), range(1,3));
     $keys = array_map(static fn($row)=>$group.'/'.$row.'/'.$field, $rows);
-    $make = static fn(array $values, array $order) => new ActionContext(new Nicode\EasyForms\Domain\FormSpec($draft), $values, 'reference', 'date', instances:[$group=>$order]);
+    $make = static fn(array $values, array $order) => new ActionContext(new Nicode\FormStudio\Domain\FormSpec($draft), $values, 'reference', 'date', instances:[$group=>$order]);
     $values = [$keys[2]=>'last@example.com', $keys[0]=>null, $keys[1]=>'first@example.com'];
     $action = new EmailAction($transport, new TokenTemplate(), true);
     $config = ['email_field'=>$field,'reply_to_field'=>$field,'subject'=>'Received','body_text'=>'Thank you'];
-    raises(Nicode\EasyForms\Actions\ActionFailure::class, fn()=>$action->execute($config,$make($values,$rows)));
+    raises(Nicode\FormStudio\Actions\ActionFailure::class, fn()=>$action->execute($config,$make($values,$rows)));
     same([], $transport->messages);
     $config += ['email_field_selection'=>'first_nonempty','reply_to_field_selection'=>'last_nonempty'];
     same([], $action->validateConfiguration($config,'/action'));
@@ -98,12 +98,12 @@ test('repeated mail recipients require explicit selection in declaration order b
     $action->execute($config,$make($values,array_reverse($rows)));
     same(['last@example.com'],$transport->messages[1]->to); same('first@example.com',$transport->messages[1]->replyTo);
     $config['email_field_selection']='unique';
-    raises(Nicode\EasyForms\Actions\ActionFailure::class, fn()=>$action->execute($config,$make($values,$rows)));
+    raises(Nicode\FormStudio\Actions\ActionFailure::class, fn()=>$action->execute($config,$make($values,$rows)));
     $values[$keys[2]]='first@example.com'; $action->execute($config,$make($values,$rows));
     same(['first@example.com'],$transport->messages[2]->to);
     $config['email_field_selection']='first_nonempty'; $values[$keys[2]]="bad@example.com\r\nBcc: other@example.com";
-    raises(Nicode\EasyForms\Actions\ActionFailure::class, fn()=>$action->execute($config,$make($values,$rows)));
-    raises(Nicode\EasyForms\Actions\ActionFailure::class, fn()=>$action->execute($config,$make([],[])));
+    raises(Nicode\FormStudio\Actions\ActionFailure::class, fn()=>$action->execute($config,$make($values,$rows)));
+    raises(Nicode\FormStudio\Actions\ActionFailure::class, fn()=>$action->execute($config,$make([],[])));
     same(3,count($transport->messages));
     $config['email_field_selection']='implicit'; same('action.email_selection',$action->validateConfiguration($config,'/action')[0]->code);
 });

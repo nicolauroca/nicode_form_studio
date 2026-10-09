@@ -12,7 +12,7 @@ if (-not (Test-Path -LiteralPath $credentialFile)) {
     $testPassword = [Guid]::NewGuid().ToString('N') + [Guid]::NewGuid().ToString('N')
     & (Join-Path $serverRoot 'bin/mariadb-install-db.exe') "--datadir=$dataRoot" "--password=$testPassword" "--port=$port" --silent *> (Join-Path $testRoot 'database-bootstrap.log')
     if ($LASTEXITCODE -ne 0) { throw 'Database initialization failed; inspect build/database-bootstrap.log.' }
-    @{host='127.0.0.1'; port=$port; user='root'; password=$testPassword; database='easyforms_test'; prefix='nef_'} | ConvertTo-Json | Set-Content -LiteralPath $credentialFile -Encoding utf8
+    @{host='127.0.0.1'; port=$port; user='root'; password=$testPassword; database='formstudio_test'; prefix='nfs_'} | ConvertTo-Json | Set-Content -LiteralPath $credentialFile -Encoding utf8
 }
 $pidFile = Join-Path $testRoot 'database-process.json'
 if (Test-Path -LiteralPath $pidFile) {

@@ -1,15 +1,15 @@
 <?php
 declare(strict_types=1);
 
-use Nicode\EasyForms\Compiler\DependencyGraph;
-use Nicode\EasyForms\Compiler\FormCompiler;
-use Nicode\EasyForms\Domain\CanonicalJson;
-use Nicode\EasyForms\Domain\Uuid;
-use Nicode\EasyForms\Field\CoreFieldTypes;
-use Nicode\EasyForms\Registry\FieldTypeRegistry;
-use Nicode\EasyForms\Registry\ProviderRegistry;
-use Nicode\EasyForms\Validation\Decimal;
-use Nicode\EasyForms\Validation\SafePattern;
+use Nicode\FormStudio\Compiler\DependencyGraph;
+use Nicode\FormStudio\Compiler\FormCompiler;
+use Nicode\FormStudio\Domain\CanonicalJson;
+use Nicode\FormStudio\Domain\Uuid;
+use Nicode\FormStudio\Field\CoreFieldTypes;
+use Nicode\FormStudio\Registry\FieldTypeRegistry;
+use Nicode\FormStudio\Registry\ProviderRegistry;
+use Nicode\FormStudio\Validation\Decimal;
+use Nicode\FormStudio\Validation\SafePattern;
 
 function registry(): FieldTypeRegistry { $registry = new FieldTypeRegistry(); CoreFieldTypes::register($registry); return $registry; }
 function definition(): array {

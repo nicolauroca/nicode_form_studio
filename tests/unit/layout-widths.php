@@ -2,21 +2,21 @@
 declare(strict_types=1);
 
 test('all conceptual widths compile without inheriting other breakpoints and render exact classes', function (): void {
-    $renderers = new Nicode\EasyForms\Rendering\FieldRendererRegistry();
-    $renderers->register('text', new Nicode\EasyForms\Rendering\CoreFieldRenderer());
-    $renderer = new Nicode\EasyForms\Rendering\FormRenderer($renderers, new Nicode\EasyForms\Rendering\PublicSpec(registry()));
+    $renderers = new Nicode\FormStudio\Rendering\FieldRendererRegistry();
+    $renderers->register('text', new Nicode\FormStudio\Rendering\CoreFieldRenderer());
+    $renderer = new Nicode\FormStudio\Rendering\FormRenderer($renderers, new Nicode\FormStudio\Rendering\PublicSpec(registry()));
     foreach (['mobile', 'tablet', 'desktop'] as $breakpoint) {
         foreach (range(1, 12) as $width) {
             $draft = definition(); $draft['elements'][0]['width'] = [$breakpoint => $width];
             $compiled = compiler()->compile($draft); same(true, $compiled->successful());
             same([$breakpoint => $width], $compiled->spec->toArray()['elements'][0]['width']);
-            $html = $renderer->render($compiled->spec, new Nicode\EasyForms\Rendering\RenderContext('width-test', 1, 2, 'index.php?task=form.submit', 'csrf', 'attempt'), rules()->evaluate($compiled->spec, []));
+            $html = $renderer->render($compiled->spec, new Nicode\FormStudio\Rendering\RenderContext('width-test', 1, 2, 'index.php?task=form.submit', 'csrf', 'attempt'), rules()->evaluate($compiled->spec, []));
             $document = new DOMDocument(); @$document->loadHTML($html); $xpath = new DOMXPath($document);
-            $element = $xpath->query('//*[@data-nef-element="'.$draft['elements'][0]['uuid'].'"]')->item(0);
+            $element = $xpath->query('//*[@data-nfs-element="'.$draft['elements'][0]['uuid'].'"]')->item(0);
             $classes = explode(' ', $element->getAttribute('class'));
-            same(true, in_array('nef-'.$breakpoint.'-'.$width, $classes, true));
+            same(true, in_array('nfs-'.$breakpoint.'-'.$width, $classes, true));
             foreach (array_diff(['mobile', 'tablet', 'desktop'], [$breakpoint]) as $absent) {
-                same([], array_values(array_filter($classes, fn ($class) => str_starts_with($class, 'nef-'.$absent.'-'))));
+                same([], array_values(array_filter($classes, fn ($class) => str_starts_with($class, 'nfs-'.$absent.'-'))));
             }
         }
     }

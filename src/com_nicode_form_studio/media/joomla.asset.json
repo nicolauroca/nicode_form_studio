@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.joomla.org/schemas/json-schema/web_assets.json",
+  "name": "com_nicode_form_studio",
+  "version": "1.0.4",
+  "description": "Nicode Form Studio scoped runtime assets",
+  "assets": [
+    {"name": "com_nicode_form_studio.runtime", "type": "script", "uri": "com_nicode_form_studio/formstudio.js", "attributes": {"type": "module"}},
+    {"name": "com_nicode_form_studio.styles", "type": "style", "uri": "com_nicode_form_studio/formstudio.css"},
+    {"name": "com_nicode_form_studio.admin", "type": "script", "uri": "com_nicode_form_studio/admin.js", "dependencies": ["core"], "attributes": {"type": "module"}},
+    {"name": "com_nicode_form_studio.admin", "type": "style", "uri": "com_nicode_form_studio/admin.css"}
+  ]
+}

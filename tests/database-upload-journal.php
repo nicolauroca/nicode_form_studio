@@ -3,12 +3,12 @@ declare(strict_types=1);
 
 // Runs under database.php's isolated database guard.
 $uploadClock = time();
-$uploadJobs = new Nicode\EasyForms\Infrastructure\Database\JobRepository($connection);
-$journal = new Nicode\EasyForms\Infrastructure\Database\UploadJournal($connection, $uploadJobs, static function () use (&$uploadClock): int { return $uploadClock; });
+$uploadJobs = new Nicode\FormStudio\Infrastructure\Database\JobRepository($connection);
+$journal = new Nicode\FormStudio\Infrastructure\Database\UploadJournal($connection, $uploadJobs, static function () use (&$uploadClock): int { return $uploadClock; });
 $uploadForm = $forms->create('Upload ownership', 'upload-' . bin2hex(random_bytes(6)), 1);
 $uploadRoot = $root . '/build/upload-journal' . $suffix;
 if (!is_dir($uploadRoot)) { mkdir($uploadRoot, 0700, true); }
-$uploadStorage = new Nicode\EasyForms\Storage\LocalStorage($uploadRoot, $root . '/tests/http');
+$uploadStorage = new Nicode\FormStudio\Storage\LocalStorage($uploadRoot, $root . '/tests/http');
 $uploadJobFloor = (int) ($connection->row('SELECT MAX(id) AS maximum FROM ' . $connection->table('jobs'))['maximum'] ?? 0);
 $uploadKeys = [];
 $uploadAssert = static function (bool $condition, string $message): void { if (!$condition) { throw new RuntimeException($message); } };
@@ -25,9 +25,9 @@ try {
     $lockProbe = new PDO(($postgres ? 'pgsql' : 'mysql') . ':host=127.0.0.1;port=' . $port . ';dbname=' . $databaseName, $config['user'], $config['password'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     $lockProbe->exec($postgres ? "SET lock_timeout = '100ms'" : 'SET SESSION innodb_lock_wait_timeout = 1');
     $connection->transaction(function () use ($connection, $lockProbe, $uploadAssert): void {
-        (new Nicode\EasyForms\Infrastructure\Database\PurgeState($connection))->shareSchema();
+        (new Nicode\FormStudio\Infrastructure\Database\PurgeState($connection))->shareSchema();
         $lockProbe->beginTransaction(); $blocked = false;
-        try { $lockProbe->query("SELECT id FROM nef_nicode_easyforms_installation_state WHERE state_key = 'schema' FOR UPDATE"); }
+        try { $lockProbe->query("SELECT id FROM nfs_nicode_form_studio_installation_state WHERE state_key = 'schema' FOR UPDATE"); }
         catch (PDOException $expected) { $blocked = in_array($expected->getCode(), ['HY000', '55P03'], true); }
         finally { $lockProbe->rollBack(); }
         $uploadAssert($blocked, 'Purge crossed an active writer fence.');
@@ -59,7 +59,7 @@ try {
     // A competing exclusive create must survive collision recovery.
     $collision = $journal->reserve($uploadForm, $uploadStorage); $uploadKeys[] = $collision->key;
     $stream = $uploadStream(); $uploadStorage->putReserved($collision->key, $stream, 100); rewind($stream);
-    try { $journal->write($collision, $uploadStorage, $stream, 100); throw new RuntimeException('Collision accepted.'); } catch (Nicode\EasyForms\Storage\StorageCollision) {} finally { fclose($stream); }
+    try { $journal->write($collision, $uploadStorage, $stream, 100); throw new RuntimeException('Collision accepted.'); } catch (Nicode\FormStudio\Storage\StorageCollision) {} finally { fclose($stream); }
     $uploadAssert($uploadStorage->exists($collision->key), 'Collision recovery deleted foreign bytes.');
     $uploadAssert($connection->row('SELECT id FROM ' . $connection->table('upload_staging') . ' WHERE id = :id', [':id' => $collision->id]) === null, 'Collision retained a deletion obligation.');
 

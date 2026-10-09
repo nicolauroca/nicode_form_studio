@@ -3,31 +3,31 @@ declare(strict_types=1);
 
 define('_JEXEC', 1); $root = dirname(__DIR__);
 require $root . '/build/joomla-6.0.0/libraries/vendor/autoload.php';
-require $root . '/src/lib_nicode_easy_forms/autoload.php';
+require $root . '/src/lib_nicode_form_studio/autoload.php';
 $engine = $argv[1] ?? 'mysql';
 [$suffix, $port, $database, $adapter] = match ($engine) {
-    'mysql' => ['', 13367, 'easyforms_test', 'mysql'], 'mysql8' => ['-mysql8', 13373, 'easyforms_test_mysql8', 'mysql'], 'postgresql' => ['-postgresql', 13368, 'easyforms_test_pg', 'pgsql'], default => throw new InvalidArgumentException('Unknown isolated database engine.')
+    'mysql' => ['', 13367, 'formstudio_test', 'mysql'], 'mysql8' => ['-mysql8', 13373, 'formstudio_test_mysql8', 'mysql'], 'postgresql' => ['-postgresql', 13368, 'formstudio_test_pg', 'pgsql'], default => throw new InvalidArgumentException('Unknown isolated database engine.')
 };
 $config = json_decode(ltrim(file_get_contents($root . '/build/database-test' . $suffix . '.json'), "\xEF\xBB\xBF"), true, flags: JSON_THROW_ON_ERROR);
 if ($config['host'] !== '127.0.0.1' || $config['port'] !== $port || $config['database'] !== $database) { throw new RuntimeException('Refusing non-isolated reindex fixture.'); }
-$driver = (new Joomla\Database\DatabaseFactory())->getDriver($adapter, ['host' => '127.0.0.1', 'port' => $port, 'user' => $config['user'], 'password' => $config['password'], 'database' => $database, 'prefix' => 'nef_', 'charset' => 'utf8mb4']);
-$db = new Nicode\EasyForms\Infrastructure\Database\Connection($driver);
-$fields = new Nicode\EasyForms\Registry\FieldTypeRegistry(); Nicode\EasyForms\Field\CoreFieldTypes::register($fields);
-$compiler = new Nicode\EasyForms\Compiler\FormCompiler($fields, new Nicode\EasyForms\Registry\ProviderRegistry(), new Nicode\EasyForms\Registry\ProviderRegistry(), new Nicode\EasyForms\Registry\ProviderRegistry());
-$forms = new Nicode\EasyForms\Infrastructure\Database\FormRepository($db, $compiler);
-$responses = new Nicode\EasyForms\Infrastructure\Database\SubmissionRepository($db, new Nicode\EasyForms\Search\IndexProjector($fields), str_repeat('reindex-fixture-', 3));
-$jobs = new Nicode\EasyForms\Infrastructure\Database\JobRepository($db);
+$driver = (new Joomla\Database\DatabaseFactory())->getDriver($adapter, ['host' => '127.0.0.1', 'port' => $port, 'user' => $config['user'], 'password' => $config['password'], 'database' => $database, 'prefix' => 'nfs_', 'charset' => 'utf8mb4']);
+$db = new Nicode\FormStudio\Infrastructure\Database\Connection($driver);
+$fields = new Nicode\FormStudio\Registry\FieldTypeRegistry(); Nicode\FormStudio\Field\CoreFieldTypes::register($fields);
+$compiler = new Nicode\FormStudio\Compiler\FormCompiler($fields, new Nicode\FormStudio\Registry\ProviderRegistry(), new Nicode\FormStudio\Registry\ProviderRegistry(), new Nicode\FormStudio\Registry\ProviderRegistry());
+$forms = new Nicode\FormStudio\Infrastructure\Database\FormRepository($db, $compiler);
+$responses = new Nicode\FormStudio\Infrastructure\Database\SubmissionRepository($db, new Nicode\FormStudio\Search\IndexProjector($fields), str_repeat('reindex-fixture-', 3));
+$jobs = new Nicode\FormStudio\Infrastructure\Database\JobRepository($db);
 $allowed = true; $authorize = static function (int $actor, ?int $form, string $permission) use (&$allowed): bool { return $actor === 1 && $allowed; };
-$handler = new Nicode\EasyForms\Jobs\ReindexHandler($db, $forms, $responses, $jobs, $authorize);
-$handlers = new Nicode\EasyForms\Registry\JobHandlerRegistry(); $handlers->register($handler);
-$search = new Nicode\EasyForms\Search\SqlSearchProvider($db, $fields, new Nicode\EasyForms\Search\CursorCodec(str_repeat('reindex-cursor-', 3)));
-$admin = new Nicode\EasyForms\Application\JobAdministration($db, $forms, $jobs, $handlers, $search, $authorize);
+$handler = new Nicode\FormStudio\Jobs\ReindexHandler($db, $forms, $responses, $jobs, $authorize);
+$handlers = new Nicode\FormStudio\Registry\JobHandlerRegistry(); $handlers->register($handler);
+$search = new Nicode\FormStudio\Search\SqlSearchProvider($db, $fields, new Nicode\FormStudio\Search\CursorCodec(str_repeat('reindex-cursor-', 3)));
+$admin = new Nicode\FormStudio\Application\JobAdministration($db, $forms, $jobs, $handlers, $search, $authorize);
 $assert = static function (bool $ok, string $message): void { if (!$ok) { throw new RuntimeException($message); } };
 $fixtureForms = []; $rows = []; $payloads = [];
 try {
     foreach ([0, 1] as $number) {
         $form = $forms->create('Reindex modes', 'reindex-modes-' . bin2hex(random_bytes(6)), 1); $fixtureForms[] = $form;
-        $draft = $forms->draft($form); $field = Nicode\EasyForms\Domain\Uuid::create();
+        $draft = $forms->draft($form); $field = Nicode\FormStudio\Domain\Uuid::create();
         $draft['elements'] = [['uuid' => $field, 'type' => 'field']];
         $draft['fields'] = [['uuid' => $field, 'type' => 'text', 'name' => 'answer', 'index' => true, 'config' => ['max_length' => 255]]];
         $version = $forms->publish($form, $forms->saveDraft($form, 0, $draft, 1), 1); $spec = $forms->version($form, $version);
@@ -49,7 +49,7 @@ try {
         for ($chunk = 0; $chunk < 20; $chunk++) {
             $row = $jobs->get($id); $token = bin2hex(random_bytes(32)); $revision = (int) $row['revision'];
             $db->execute('UPDATE ' . $db->table('jobs') . " SET state = 'running', lease_token = :token, lease_until = :until WHERE id = :id", [':token' => $token, ':until' => gmdate('Y-m-d H:i:s', time() + 60), ':id' => $id]);
-            $lease = new Nicode\EasyForms\Jobs\JobLease($id, $row['uuid'], 'reindex', 1, json_decode($row['parameters'], true, flags: JSON_THROW_ON_ERROR), $cursor, $token, $revision, (int) $row['processed'], 0);
+            $lease = new Nicode\FormStudio\Jobs\JobLease($id, $row['uuid'], 'reindex', 1, json_decode($row['parameters'], true, flags: JSON_THROW_ON_ERROR), $cursor, $token, $revision, (int) $row['processed'], 0);
             $progress = $handler->run($lease, 1); $jobs->checkpoint($lease, $progress); $cursor = $progress->cursor;
             if ($afterChunk !== null) { $afterChunk($progress); }
             if ($progress->complete) { return; }

@@ -31,6 +31,6 @@ $api('datasource.configure', $resourceConfigure, expected: 409); $api('datasourc
 $sourceBinding['revision'] = 2; $api('datasource.bind', $sourceBinding, expected: 403);
 $sourceHistoric = $api('preview', query: ['id' => $destinationForm['id'], 'version' => $sourcePublication['version_id']]);
 $assert(str_contains($sourceHistoric['html'], 'Madrid'), 'Disabling resource changed the published source copy.');
-foreach (['datasources', 'datasource&id=' . $sourceRecordId] as $view) { $sourceView = $request($base . '?option=com_nicode_easy_forms&view=' . $view); $assert($sourceView['status'] === 200 && str_contains($sourceView['body'], 'Disabled HTTP source'), 'Native source resource view missing.'); }
+foreach (['datasources', 'datasource&id=' . $sourceRecordId] as $view) { $sourceView = $request($base . '?option=com_nicode_form_studio&view=' . $view); $assert($sourceView['status'] === 200 && str_contains($sourceView['body'], 'Disabled HTTP source'), 'Native source resource view missing.'); }
 file_put_contents($root . '/build/native-source-resource-fixture.json', json_encode(['source_form' => $resourceForm['id'], 'destination_form' => $destinationForm['id'], 'resource_id' => $sourceRecordId], JSON_THROW_ON_ERROR));
 echo "Native source resources HTTP: portable capture, named binding, CSRF/method checks, revisions, disabled-resource rejection, published-copy isolation and views passed.\n";

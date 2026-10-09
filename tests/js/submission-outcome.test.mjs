@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {FormInstance} from '../../src/com_nicode_easy_forms/media/js/form-instance.js';
+import {FormInstance} from '../../src/com_nicode_form_studio/media/js/form-instance.js';
 
 // Exercise the real submit method while keeping DOM rendering outside this test.
 function fixture(t, fetchResponse) {

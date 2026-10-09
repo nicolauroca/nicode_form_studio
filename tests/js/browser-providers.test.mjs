@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {loadBrowserProviders, loadBrowserStyles, browserCall} from '../../src/com_nicode_easy_forms/media/js/browser-providers.js';
-import {evaluateOperator, applyEffect, evaluateRules} from '../../src/com_nicode_easy_forms/media/js/rules.js';
-import {normalizeField, validateField, validateRelations} from '../../src/com_nicode_easy_forms/media/js/validation.js';
+import {loadBrowserProviders, loadBrowserStyles, browserCall} from '../../src/com_nicode_form_studio/media/js/browser-providers.js';
+import {evaluateOperator, applyEffect, evaluateRules} from '../../src/com_nicode_form_studio/media/js/rules.js';
+import {normalizeField, validateField, validateRelations} from '../../src/com_nicode_form_studio/media/js/validation.js';
 
 const module = {providers:{
   fields:{fixture_upper:{version:'1.2.0', read:controls => controls[0].value, update:(controls, field, state) => { controls[0].value = state.value ?? ''; }, normalize:raw => raw == null ? null : String(raw).trim().toUpperCase(), validate:(value, config) => config.required && !value ? ['required'] : []}},

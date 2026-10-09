@@ -16,8 +16,8 @@ $assert(count($selectionResult['rows']) === 2 && array_column($selectionResult['
 $selectionPayload['selection'][0]['revision'] = 1;
 $api('bulk', $selectionPayload, expected: 409);
 foreach ($selectionIds as $selectionId) { $assert((int) $api('record', query: ['id' => $selectionId])['form']['draft_revision'] === 1, 'Stale HTTP selection partly changed state.'); }
-$selectionPage = $request($base . '?option=com_nicode_easy_forms&view=forms&search=HTTP%20selection');
+$selectionPage = $request($base . '?option=com_nicode_form_studio&view=forms&search=HTTP%20selection');
 $selectionDom = $dom($selectionPage['body']);
-$assert($selectionPage['status'] === 200 && $selectionDom->query('//*[@data-nef-form-selection]')->length === 1 && $selectionDom->query('//*[@data-nef-select-form]')->length >= 2, 'Native list selection controls missing.');
+$assert($selectionPage['status'] === 200 && $selectionDom->query('//*[@data-nfs-form-selection]')->length === 1 && $selectionDom->query('//*[@data-nfs-select-form]')->length >= 2, 'Native list selection controls missing.');
 file_put_contents($root . '/build/native-selection-fixture.json', json_encode(['ids' => $selectionIds], JSON_THROW_ON_ERROR));
 echo "Native form selection HTTP: POST/CSRF, identity validation, atomic revision conflict and visible-page controls passed.\n";

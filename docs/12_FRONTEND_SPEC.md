@@ -1,6 +1,6 @@
 # 12 — Frontend
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -12,7 +12,7 @@
 
 El componente expondrá un Menu Item Type:
 
-`Nicode EasyForms → Formulario`
+`Nicode Form Studio → Formulario`
 
 Parámetro principal:
 
@@ -21,7 +21,7 @@ Parámetro principal:
 El Item de menú almacena el identificador del formulario, no una copia de sus campos.
 
 El selector nativo es compartido por menú y módulo. Muestra formularios publicados
-dentro del permiso administrativo `easyforms.forms.manage`; no expone títulos de
+dentro del permiso administrativo `formstudio.forms.manage`; no expone títulos de
 formularios fuera de ese ámbito. Conserva un ID previamente elegido aunque deje
 de estar disponible y lo indica sin revelar su título. No impone un máximo de
 formularios; recorre las páginas del servicio autorizado. La comprobación de
@@ -30,7 +30,7 @@ obligatoria en el runtime, independientemente de las opciones del selector.
 
 ## 2. Publicación como módulo
 
-`mod_nicode_easy_forms`
+`mod_nicode_form_studio`
 
 Parámetro principal:
 
@@ -107,7 +107,7 @@ Dependencias declaradas en `joomla.asset.json`.
 
 Por defecto se hereda el template Joomla.
 
-EasyForms aporta estilos mínimos estructurales.
+FormStudio aporta estilos mínimos estructurales.
 
 Opciones:
 
@@ -169,4 +169,4 @@ El componente solo activa CSS y JavaScript del runtime cuando obtiene HTML de un
 formulario. Un fallo de renderizado con respuesta 503 y correlación no activa esos
 assets por sí solo. Los módulos sanos de la misma página pueden necesitarlos y
 Joomla Web Asset Manager los incluye una sola vez. Las páginas ajenas sin instancias
-EasyForms no cargan sus assets; los assets administrativos no se activan en frontend.
+FormStudio no cargan sus assets; los assets administrativos no se activan en frontend.

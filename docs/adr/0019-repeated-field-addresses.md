@@ -227,7 +227,7 @@ con fieldsets y leyendas; cada control usa la dirección completa para su nombre
 ID, etiqueta y error. Los IDs mantienen también el prefijo de instancia de
 componente/módulo. Los errores de mínimos apuntan al grupo vacío correspondiente.
 Las declaraciones se incluyen en la proyección pública y en el campo oculto
-`nef_instances` para el futuro transporte tradicional.
+`nfs_instances` para el futuro transporte tradicional.
 
 Esta entrada exige estados de todos los nodos expandidos y respeta el presupuesto
 de expansión. Todavía no está conectada a los endpoints públicos ni a controles
@@ -247,9 +247,9 @@ declaraciones y mínimos en servidor.
 ## Lectura del transporte
 
 El empaquetador del navegador reconoce direcciones canónicas completas en los
-nombres `nef[dirección]` y `nef[dirección][]`. Los valores se reúnen en el objeto
-JSON `nef_values`; los archivos mantienen sus partes multipart y bytes. La
-declaración `nef_instances` permanece separada de los campos multivalor.
+nombres `nfs[dirección]` y `nfs[dirección][]`. Los valores se reúnen en el objeto
+JSON `nfs_values`; los archivos mantienen sus partes multipart y bytes. La
+declaración `nfs_instances` permanece separada de los campos multivalor.
 
 `RequestAdapter::requestInstances` decodifica una declaración JSON de objeto con
 límite de dos MiB, valida pertenencia y presupuestos y comparte la lectura del
@@ -475,7 +475,7 @@ falta la UX dinámica/reset antes de activar publicación.
 `tests/http-repeated-uploads.php` recorre el adaptador Joomla, pipeline compartido,
 gateway HTTP, diario durable y repositorio con subidas reales reconocidas por
 `is_uploaded_file`. El endpoint de pruebas está fuera del paquete, limitado a
-loopback y nonce; usa exclusivamente la base aislada `easyforms_test`.
+loopback y nonce; usa exclusivamente la base aislada `formstudio_test`.
 
 Se verifican archivos únicos y múltiples, MIME obtenido de bytes, pertenencia a
 la fila, orden canónico de varios recibos y límites por instancia. Un reintento

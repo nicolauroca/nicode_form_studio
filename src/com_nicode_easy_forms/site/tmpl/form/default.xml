@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<metadata>
-  <layout title="COM_NICODE_EASY_FORMS_MENU_FORM_TITLE" option="COM_NICODE_EASY_FORMS_MENU_FORM_TITLE"><message>COM_NICODE_EASY_FORMS_MENU_FORM_DESC</message></layout>
-  <fields name="request"><fieldset name="request" addfieldprefix="Nicode\Component\EasyForms\Administrator\Field">
-    <field name="id" type="easyform" label="COM_NICODE_EASY_FORMS_SELECT_FORM" description="COM_NICODE_EASY_FORMS_SELECT_FORM_HELP" filter="integer" required="true" />
-  </fieldset></fields>
-</metadata>

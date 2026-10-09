@@ -16,7 +16,7 @@ acción y job. Es independiente de `audit_log` y no contiene texto libre ni PII.
 Sus índices cubren fecha, correlación y nivel; el visor usa paginación por ID.
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -41,7 +41,7 @@ No se creará una tabla por formulario ni una columna por campo.
 
 ## 2. Tablas conceptuales
 
-### `#__nicode_easyforms_forms`
+### `#__nicode_form_studio_forms`
 
 Cabecera del Form.
 
@@ -70,7 +70,7 @@ Campos conceptuales:
 - published_version;
 - modified.
 
-### `#__nicode_easyforms_elements`
+### `#__nicode_form_studio_elements`
 
 Árbol de Authoring.
 
@@ -83,7 +83,7 @@ Campos conceptuales:
 - properties;
 - state.
 
-### `#__nicode_easyforms_fields`
+### `#__nicode_form_studio_fields`
 
 Propiedades específicas del field.
 
@@ -100,42 +100,42 @@ Unique:
 
 `form_id + machine_name`.
 
-### `#__nicode_easyforms_field_options`
+### `#__nicode_form_studio_field_options`
 
 Opciones locales.
 
-### `#__nicode_easyforms_rules`
+### `#__nicode_form_studio_rules`
 
 Rules.
 
-### `#__nicode_easyforms_rule_conditions`
+### `#__nicode_form_studio_rule_conditions`
 
 Árbol/estructura normalizada de conditions o definición estructurada.
 
-### `#__nicode_easyforms_rule_effects`
+### `#__nicode_form_studio_rule_effects`
 
 Effects.
 
-### `#__nicode_easyforms_actions`
+### `#__nicode_form_studio_actions`
 
 Actions y configuración.
 
-### `#__nicode_easyforms_option_sets`
-### `#__nicode_easyforms_option_set_versions`
-### `#__nicode_easyforms_option_set_items`
+### `#__nicode_form_studio_option_sets`
+### `#__nicode_form_studio_option_set_versions`
+### `#__nicode_form_studio_option_set_items`
 
 Se separará la identidad del recurso de sus revisiones cuando sea necesario para histórico.
 
-### `#__nicode_easyforms_data_sources`
+### `#__nicode_form_studio_data_sources`
 
 Configuración sin secretos en claro.
 
-### `#__nicode_easyforms_email_templates`
-### `#__nicode_easyforms_form_templates`
+### `#__nicode_form_studio_email_templates`
+### `#__nicode_form_studio_form_templates`
 
 Recursos reutilizables.
 
-### `#__nicode_easyforms_form_versions`
+### `#__nicode_form_studio_form_versions`
 
 - ID;
 - form_id;
@@ -151,7 +151,7 @@ Unique:
 
 `form_id + revision`.
 
-### `#__nicode_easyforms_submissions`
+### `#__nicode_form_studio_submissions`
 
 Cabecera de alto volumen.
 
@@ -183,7 +183,7 @@ Campos conceptuales:
 - `(user_id, received_at, id)` si se utiliza;
 - `(action_status, received_at, id)` si la consulta operativa lo justifica.
 
-### `#__nicode_easyforms_submission_index`
+### `#__nicode_form_studio_submission_index`
 
 Proyección tipada SOLO de campos configurados/indexables.
 
@@ -210,7 +210,7 @@ No todos los motores requieren exactamente las mismas columnas; el diseño defin
 
 `form_id + field identity + typed value + submission_id`.
 
-### `#__nicode_easyforms_submission_files`
+### `#__nicode_form_studio_submission_files`
 
 - submission;
 - field;
@@ -223,7 +223,7 @@ No todos los motores requieren exactamente las mismas columnas; el diseño defin
 - metadata;
 - timestamps.
 
-### `#__nicode_easyforms_action_runs`
+### `#__nicode_form_studio_action_runs`
 
 - submission_id;
 - action_uuid/type;
@@ -239,15 +239,15 @@ No todos los motores requieren exactamente las mismas columnas; el diseño defin
 - `(submission_id, action_uuid)`;
 - `(state, created_at)` para fallos/jobs.
 
-### `#__nicode_easyforms_audit_log`
+### `#__nicode_form_studio_audit_log`
 
 Eventos administrativos.
 
-### `#__nicode_easyforms_jobs`
+### `#__nicode_form_studio_jobs`
 
 Para exportaciones, reindexados, retención, acciones masivas y procesos que no deban vivir en una petición web.
 
-### `#__nicode_easyforms_job_items` (opcional)
+### `#__nicode_form_studio_job_items` (opcional)
 
 Solo si el Job subsystem necesita granularidad.
 

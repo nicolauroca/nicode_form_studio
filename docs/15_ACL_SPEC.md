@@ -1,7 +1,7 @@
 # 15 — ACL
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -12,7 +12,7 @@
 
 ## 1. Base
 
-EasyForms utilizará ACL Joomla.
+FormStudio utilizará ACL Joomla.
 
 Permisos de componente iniciales:
 
@@ -26,20 +26,20 @@ Permisos de componente iniciales:
 
 Permisos específicos propuestos:
 
-- `easyforms.forms.manage`;
-- `easyforms.forms.publish`;
-- `easyforms.submissions.view`;
-- `easyforms.submissions.manage`;
-- `easyforms.submissions.export`;
-- `easyforms.submissions.delete`;
-- `easyforms.submissions.view_sensitive`;
-- `easyforms.resources.manage`;
-- `easyforms.logs.view`;
-- `easyforms.jobs.manage`.
+- `formstudio.forms.manage`;
+- `formstudio.forms.publish`;
+- `formstudio.submissions.view`;
+- `formstudio.submissions.manage`;
+- `formstudio.submissions.export`;
+- `formstudio.submissions.delete`;
+- `formstudio.submissions.view_sensitive`;
+- `formstudio.resources.manage`;
+- `formstudio.logs.view`;
+- `formstudio.jobs.manage`.
 
 Los nombres anteriores se fijan como identificadores definitivos. Se añaden
-`easyforms.submissions.anonymize`, `easyforms.submissions.reindex` y
-`easyforms.submissions.retry` para separar operaciones privilegiadas.
+`formstudio.submissions.anonymize`, `formstudio.submissions.reindex` y
+`formstudio.submissions.retry` para separar operaciones privilegiadas.
 `Security/Permissions.php` enumera el contrato y `tools/acl.php` genera `access.xml`.
 Un Form sin asset hijo válido no concede permisos administrativos por fallback.
 
@@ -71,8 +71,8 @@ Comprobar en:
 Cada Controller comprueba autorización.
 
 Los servicios de administración de Forms exigen `core.manage` en el componente y
-`easyforms.forms.manage` sobre el Form, además de la capacidad concreta:
-`core.edit` para borradores e histórico; `easyforms.forms.publish` y
+`formstudio.forms.manage` sobre el Form, además de la capacidad concreta:
+`core.edit` para borradores e histórico; `formstudio.forms.publish` y
 `core.edit.state` para publicación/desactivación; `core.delete` adicional para
 enviar a papelera. Crear exige las capacidades de gestión y `core.create` en
 el componente. La creación del asset y el guardado se confirman en la misma
@@ -83,17 +83,17 @@ La View puede ocultar acciones no permitidas, pero eso es UX, no seguridad.
 Modificar reglas ACL por Form exige además `core.admin` en el componente. La
 operación modifica permisos de un grupo Joomla existente, conserva las reglas
 de los demás grupos, consume la revisión optimista del Form y comprueba una huella
-de las reglas del asset. Una modificación concurrente realizada fuera de EasyForms
+de las reglas del asset. Una modificación concurrente realizada fuera de FormStudio
 también debe provocar conflicto, aunque no haya cambiado la revisión del Form.
 El estado heredado se calcula mediante ACL Joomla; no se simula en JavaScript.
 
 
 
-Consultar respuestas exige core.manage en el componente y easyforms.submissions.view
+Consultar respuestas exige core.manage en el componente y formstudio.submissions.view
 en cada Form; no exige gestión ni edición de Forms. El scope de búsqueda se
 construye exclusivamente con assets y ACL del servidor. Añadir notas o cambiar
-estado exige además easyforms.submissions.manage. El historial de auditoría
-requiere easyforms.logs.view. Mostrar valores sensibles y descargar archivos
+estado exige además formstudio.submissions.manage. El historial de auditoría
+requiere formstudio.logs.view. Mostrar valores sensibles y descargar archivos
 sensibles comprueba view_sensitive sobre el Form; la revelación es explícita,
 mediante POST con CSRF y auditoría, y no se activa mediante parámetros GET.
 

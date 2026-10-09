@@ -14,7 +14,7 @@ if (-not (Test-Path -LiteralPath $credentialFile)) {
     & $server --no-defaults --initialize-insecure "--basedir=$serverRoot" "--datadir=$dataRoot" --console *> (Join-Path $testRoot 'mysql-bootstrap.log')
     if ($LASTEXITCODE -ne 0) { throw 'MySQL initialization failed; inspect build/mysql-bootstrap.log.' }
     Set-Content -LiteralPath $initFile -Value "ALTER USER 'root'@'localhost' IDENTIFIED BY '$testPassword';"
-    @{host='127.0.0.1';port=13373;database='easyforms_test_mysql8';user='root';password=$testPassword} | ConvertTo-Json | Set-Content -LiteralPath $credentialFile
+    @{host='127.0.0.1';port=13373;database='formstudio_test_mysql8';user='root';password=$testPassword} | ConvertTo-Json | Set-Content -LiteralPath $credentialFile
 }
 $pidFile = Join-Path $testRoot 'mysql-process.json'
 if (Test-Path -LiteralPath $pidFile) {

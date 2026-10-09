@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
-use Nicode\EasyForms\Domain\{Uuid, FormSpec, FieldAddress};
-use Nicode\EasyForms\Search\IndexProjector;
+use Nicode\FormStudio\Domain\{Uuid, FormSpec, FieldAddress};
+use Nicode\FormStudio\Search\IndexProjector;
 
 test('repeated index projection separates row identity from multivalue ordinal and shares index policy', function (): void {
     [$group,$choices,$number,$secret,$transient,$one,$two] = array_map(static fn()=>Uuid::create(),range(1,7));

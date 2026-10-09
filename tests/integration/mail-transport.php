@@ -49,8 +49,8 @@ final class PreparedJoomlaMailFactory implements Joomla\CMS\Mail\MailerFactoryIn
 
 test('Joomla mail transport prepares isolated plain and alternative MIME messages without delivery', function (): void {
     $factory = new PreparedJoomlaMailFactory();
-    $transport = new Nicode\EasyForms\Infrastructure\Joomla\MailTransport($factory, 'sender@example.test', 'Formulario á');
-    $transport->send(new Nicode\EasyForms\Actions\MailMessage(['to@example.test'], ['cc@example.test'], ['private@example.test'], 'reply@example.test', 'Respuesta á', "Plain answer\nBcc: body-only@example.test", '<p>HTML answer</p>'));
+    $transport = new Nicode\FormStudio\Infrastructure\Joomla\MailTransport($factory, 'sender@example.test', 'Formulario á');
+    $transport->send(new Nicode\FormStudio\Actions\MailMessage(['to@example.test'], ['cc@example.test'], ['private@example.test'], 'reply@example.test', 'Respuesta á', "Plain answer\nBcc: body-only@example.test", '<p>HTML answer</p>'));
     $mail = $factory->messages[0];
     same('sender@example.test', $mail->From); same('Formulario á', $mail->FromName);
     same([['to@example.test', '']], $mail->getToAddresses());
@@ -66,7 +66,7 @@ test('Joomla mail transport prepares isolated plain and alternative MIME message
     same(true, str_contains($mail->prepared, 'multipart/alternative'));
     same(true, str_contains($mail->prepared, 'text/plain'));
     same(true, str_contains($mail->prepared, 'text/html'));
-    $transport->send(new Nicode\EasyForms\Actions\MailMessage(['second@example.test'], [], [], null, 'Second', 'Plain only'));
+    $transport->send(new Nicode\FormStudio\Actions\MailMessage(['second@example.test'], [], [], null, 'Second', 'Plain only'));
     $second = $factory->messages[1];
     same([], $second->getCcAddresses()); same([], $second->getBccAddresses()); same([], $second->getReplyToAddresses());
     same('', $second->AltBody); same('text/plain', $second->ContentType);
@@ -76,8 +76,8 @@ test('Joomla mail transport prepares isolated plain and alternative MIME message
 test('mail headers reject control injection before any Joomla mailer is created', function (): void {
     $factory = new PreparedJoomlaMailFactory();
     foreach (["\r\nBcc: victim@example.test", "\n", "\r", "\0", "\t", "\x7f"] as $control) {
-        raises(InvalidArgumentException::class, fn () => new Nicode\EasyForms\Infrastructure\Joomla\MailTransport($factory, 'sender@example.test'.$control, 'Sender'));
-        raises(InvalidArgumentException::class, fn () => new Nicode\EasyForms\Infrastructure\Joomla\MailTransport($factory, 'sender@example.test', 'Sender'.$control));
+        raises(InvalidArgumentException::class, fn () => new Nicode\FormStudio\Infrastructure\Joomla\MailTransport($factory, 'sender@example.test'.$control, 'Sender'));
+        raises(InvalidArgumentException::class, fn () => new Nicode\FormStudio\Infrastructure\Joomla\MailTransport($factory, 'sender@example.test', 'Sender'.$control));
         foreach (['to', 'cc', 'bcc', 'reply', 'subject'] as $target) {
             $to=['to@example.test']; $cc=[]; $bcc=[]; $reply=null; $subject='Subject';
             match ($target) {
@@ -85,21 +85,21 @@ test('mail headers reject control injection before any Joomla mailer is created'
                 'bcc' => $bcc=['bcc@example.test'.$control], 'reply' => $reply='reply@example.test'.$control,
                 'subject' => $subject.=$control,
             };
-            raises(InvalidArgumentException::class, fn () => new Nicode\EasyForms\Actions\MailMessage($to,$cc,$bcc,$reply,$subject,'Safe body'));
+            raises(InvalidArgumentException::class, fn () => new Nicode\FormStudio\Actions\MailMessage($to,$cc,$bcc,$reply,$subject,'Safe body'));
         }
-        raises(InvalidArgumentException::class, fn () => (new Nicode\EasyForms\Actions\TokenTemplate())->render('Subject {{answer}}',['answer'=>'text'.$control],'header'));
+        raises(InvalidArgumentException::class, fn () => (new Nicode\FormStudio\Actions\TokenTemplate())->render('Subject {{answer}}',['answer'=>'text'.$control],'header'));
     }
     same([], $factory->messages);
 });
 
 test('Joomla mail delivery failures expose stable codes and distinguish disabled from unknown delivery', function (): void {
     $factory = new PreparedJoomlaMailFactory();
-    $transport = new Nicode\EasyForms\Infrastructure\Joomla\MailTransport($factory,'sender@example.test','Sender');
-    $message = new Nicode\EasyForms\Actions\MailMessage(['to@example.test'],[],[],null,'Subject','Body');
+    $transport = new Nicode\FormStudio\Infrastructure\Joomla\MailTransport($factory,'sender@example.test','Sender');
+    $message = new Nicode\FormStudio\Actions\MailMessage(['to@example.test'],[],[],null,'Subject','Body');
     foreach (['disabled','false','exception'] as $outcome) {
         $factory->outcome=$outcome;
         try { $transport->send($message); throw new RuntimeException('Expected transport failure.'); }
-        catch (Nicode\EasyForms\Actions\ActionFailure $failure) {
+        catch (Nicode\FormStudio\Actions\ActionFailure $failure) {
             same($outcome==='disabled'?'mail_disabled':'mail_delivery_unknown',$failure->resultCode);
             same($outcome!=='disabled',$failure->unknownOutcome);
             same($failure->resultCode,$failure->getMessage());
@@ -109,28 +109,28 @@ test('Joomla mail delivery failures expose stable codes and distinguish disabled
 
 test('Joomla preparation failures never send partial messages and remain definite failures', function (): void {
     $factory=new PreparedJoomlaMailFactory();
-    $transport=new Nicode\EasyForms\Infrastructure\Joomla\MailTransport($factory,'sender@example.test','Sender');
-    $message=new Nicode\EasyForms\Actions\MailMessage(['to@example.test'],['cc@example.test'],['bcc@example.test'],'reply@example.test','Subject','Body','<p>Body</p>');
+    $transport=new Nicode\FormStudio\Infrastructure\Joomla\MailTransport($factory,'sender@example.test','Sender');
+    $message=new Nicode\FormStudio\Actions\MailMessage(['to@example.test'],['cc@example.test'],['bcc@example.test'],'reply@example.test','Subject','Body','<p>Body</p>');
     $outcomes=['factory.throw'];
     foreach(['sender','to','cc','bcc','reply','subject','body'] as $stage) { $outcomes[]=$stage.'.false'; $outcomes[]=$stage.'.throw'; }
     foreach($outcomes as $outcome) {
         $factory->outcome=$outcome;
         try { $transport->send($message); throw new RuntimeException('Preparation failure was ignored: '.$outcome); }
-        catch(Nicode\EasyForms\Actions\ActionFailure $failure) { same('mail_preparation_failed',$failure->resultCode); same(false,$failure->unknownOutcome); same('mail_preparation_failed',$failure->getMessage()); }
+        catch(Nicode\FormStudio\Actions\ActionFailure $failure) { same('mail_preparation_failed',$failure->resultCode); same(false,$failure->unknownOutcome); same('mail_preparation_failed',$failure->getMessage()); }
     }
     foreach($factory->messages as $mail) { same(0,$mail->sendCalls); same('',$mail->prepared); }
     $factory->outcome='prepared';
-    $transport->send(new Nicode\EasyForms\Actions\MailMessage(['to@example.test','TO@example.test'],['to@example.test','cc@example.test'],['CC@example.test','bcc@example.test'],'to@example.test','Duplicates','Body'));
+    $transport->send(new Nicode\FormStudio\Actions\MailMessage(['to@example.test','TO@example.test'],['to@example.test','cc@example.test'],['CC@example.test','bcc@example.test'],'to@example.test','Duplicates','Body'));
     $mail=$factory->messages[array_key_last($factory->messages)];
     same([['to@example.test','']],$mail->getToAddresses()); same([['cc@example.test','']],$mail->getCcAddresses()); same([['bcc@example.test','']],$mail->getBccAddresses()); same(1,$mail->sendCalls);
 });
 
 test('Joomla attachments compose actual MIME from bytes without opening file paths or leaking across messages', function (): void {
     $factory=new PreparedJoomlaMailFactory();
-    $transport=new Nicode\EasyForms\Infrastructure\Joomla\MailTransport($factory,'sender@example.test','Sender');
+    $transport=new Nicode\FormStudio\Infrastructure\Joomla\MailTransport($factory,'sender@example.test','Sender');
     $bytes="Synthetic attachment\0binary\xff";
-    $attachment=new Nicode\EasyForms\Actions\MailAttachment('evidence.bin','application/octet-stream',$bytes);
-    $message=new Nicode\EasyForms\Actions\MailMessage(['to@example.test'],[],[],null,'Subject','Body','<p>Body</p>',[$attachment]);
+    $attachment=new Nicode\FormStudio\Actions\MailAttachment('evidence.bin','application/octet-stream',$bytes);
+    $message=new Nicode\FormStudio\Actions\MailMessage(['to@example.test'],[],[],null,'Subject','Body','<p>Body</p>',[$attachment]);
     $transport->send($message); $mail=$factory->messages[0];
     same(1,count($mail->getAttachments()));
     same($bytes,$mail->getAttachments()[0][0]); same(true,$mail->getAttachments()[0][5]);
@@ -141,11 +141,11 @@ test('Joomla attachments compose actual MIME from bytes without opening file pat
     foreach(['attachment.false','attachment.throw'] as $outcome) {
         $factory->outcome=$outcome;
         try { $transport->send($message); throw new RuntimeException('Attachment rejection ignored.'); }
-        catch(Nicode\EasyForms\Actions\ActionFailure $failure) { same('mail_preparation_failed',$failure->resultCode); same(false,$failure->unknownOutcome); }
+        catch(Nicode\FormStudio\Actions\ActionFailure $failure) { same('mail_preparation_failed',$failure->resultCode); same(false,$failure->unknownOutcome); }
         same(0,$factory->messages[array_key_last($factory->messages)]->sendCalls);
     }
     $factory->outcome='prepared';
-    $transport->send(new Nicode\EasyForms\Actions\MailMessage(['to@example.test'],[],[],null,'Subject','No attachment'));
+    $transport->send(new Nicode\FormStudio\Actions\MailMessage(['to@example.test'],[],[],null,'Subject','No attachment'));
     same([],$factory->messages[array_key_last($factory->messages)]->getAttachments());
 });
 
@@ -153,10 +153,10 @@ test('Joomla attachments compose actual MIME from bytes without opening file pat
 test('guided email tokens deliver selected fields and full summaries as plain or multipart MIME', function (): void {
     $draft = definition(); $draft['fields'][0]['type']='email'; $field=$draft['fields'][0]['uuid'];
     $factory = new PreparedJoomlaMailFactory();
-    $transport = new Nicode\EasyForms\Infrastructure\Joomla\MailTransport($factory,'sender@example.test','Forms');
-    $context = new Nicode\EasyForms\Actions\ActionContext(compiler()->compile($draft)->spec,[$field=>'visitor@example.test'],'reference','date');
+    $transport = new Nicode\FormStudio\Infrastructure\Joomla\MailTransport($factory,'sender@example.test','Forms');
+    $context = new Nicode\FormStudio\Actions\ActionContext(compiler()->compile($draft)->spec,[$field=>'visitor@example.test'],'reference','date');
     foreach ([false,true] as $autoresponse) {
-        $action = new Nicode\EasyForms\Actions\EmailAction($transport,new Nicode\EasyForms\Actions\TokenTemplate(),$autoresponse);
+        $action = new Nicode\FormStudio\Actions\EmailAction($transport,new Nicode\FormStudio\Actions\TokenTemplate(),$autoresponse);
         $recipient = $autoresponse ? ['email_field'=>$field] : ['to'=>['team@example.test']];
         $action->execute($recipient + ['subject'=>'Responses','email_format'=>'html','body_html'=>'<h2>Answers</h2><pre>{{field.'.$field.'.label}}: {{field.'.$field.'.option_label}}</pre><pre>{{response.summary}}</pre>'], $context);
         $mail=$factory->messages[array_key_last($factory->messages)];

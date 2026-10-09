@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
-import {fieldAddress,parseFieldAddress} from '../../src/com_nicode_easy_forms/media/js/field-address.js';
+import {fieldAddress,parseFieldAddress} from '../../src/com_nicode_form_studio/media/js/field-address.js';
 test('repeated field addresses retain ancestry, reject ambiguity and enforce depth',()=>{
  const field=randomUUID(), group=randomUUID(), instance=randomUUID();
  const instances=[{group,instance},{group:randomUUID(),instance:randomUUID()}];

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 $historyForm = $forms->create('Version history', 'versions-' . bin2hex(random_bytes(6)), 731);
-$historyDraft = $forms->draft($historyForm); $historyField = Nicode\EasyForms\Domain\Uuid::create();
+$historyDraft = $forms->draft($historyForm); $historyField = Nicode\FormStudio\Domain\Uuid::create();
 $historyDraft['elements'] = [['uuid' => $historyField, 'type' => 'field']];
 $historyDraft['fields'] = [['uuid' => $historyField, 'type' => 'text', 'name' => 'historical', 'config' => ['label' => 'Original']]];
 $historyRevision = $forms->saveDraft($historyForm, 0, $historyDraft, 731);
@@ -17,7 +17,7 @@ $firstPage = $forms->history($historyForm, includeCounts: true);
 $secondPage = $forms->history($historyForm, (int) $firstPage[49]['revision'], includeCounts: true);
 if (count($firstPage) !== 50 || count($secondPage) !== 2 || count(array_unique(array_column([...$firstPage, ...$secondPage], 'id'))) !== 52 || $firstPage[0]['version_state'] !== 'active' || $secondPage[1]['version_state'] !== 'historical' || $secondPage[1]['submission_count'] !== 1 || $firstPage[0]['submission_count'] !== 0) { throw new RuntimeException('Version history pagination, state or counts failed.'); }
 $historyRead = false;
-$historyAdmin = new Nicode\EasyForms\Application\FormAdministration($forms, $connection, static function (int $actor, ?int $form, string $permission) use (&$historyRead): bool { return $actor === 731 && ($permission !== 'easyforms.submissions.view' || $historyRead); }, static fn () => null, $adminCaptcha);
+$historyAdmin = new Nicode\FormStudio\Application\FormAdministration($forms, $connection, static function (int $actor, ?int $form, string $permission) use (&$historyRead): bool { return $actor === 731 && ($permission !== 'formstudio.submissions.view' || $historyRead); }, static fn () => null, $adminCaptcha);
 if (array_key_exists('submission_count', $historyAdmin->history($historyForm, 731)[0])) { throw new RuntimeException('Author without response permission saw response counts.'); }
 $historyRead = true;
 if ($historyAdmin->history($historyForm, 731)[0]['submission_count'] !== 0) { throw new RuntimeException('Authorized version count missing.'); }

@@ -17,11 +17,11 @@ $stepsDraft['fields'] = [
 $stepsDraft['rules'] = [['uuid' => '72a94cd6-a49a-44f4-bcf0-d68f76b4656d', 'when' => ['field' => $stepFields[1], 'operator' => 'equals', 'value' => true], 'effects' => [['type' => 'hide', 'target' => $stepIds[0]]]]];
 $stepsRevision = $api('save', ['id' => $stepsForm['id'], 'revision' => 0, 'draft' => $stepsDraft])['revision'];
 $api('publish', ['id' => $stepsForm['id'], 'revision' => $stepsRevision]);
-$stepsUrl = 'http://127.0.0.1:13371/index.php?option=com_nicode_easy_forms&view=form&id=' . $stepsForm['id'];
+$stepsUrl = 'http://127.0.0.1:13371/index.php?option=com_nicode_form_studio&view=form&id=' . $stepsForm['id'];
 $stepsPage = $visitorRequest($stepsUrl); $stepsXpath = $dom($stepsPage['body']);
-$stepsNode = $stepsXpath->query('//form[@data-nef-form]')->item(0);
-$assert($stepsPage['status'] === 200 && $stepsNode instanceof DOMElement && $stepsXpath->query('.//*[@data-nef-step]', $stepsNode)->length === 3, 'Three conditional steps did not render.');
-$stepsPost = ['format' => 'json', 'nef' => [$stepFields[0] => 'forged inactive answer', $stepFields[1] => '1', $stepFields[2] => 'Final authoritative answer']];
+$stepsNode = $stepsXpath->query('//form[@data-nfs-form]')->item(0);
+$assert($stepsPage['status'] === 200 && $stepsNode instanceof DOMElement && $stepsXpath->query('.//*[@data-nfs-step]', $stepsNode)->length === 3, 'Three conditional steps did not render.');
+$stepsPost = ['format' => 'json', 'nfs' => [$stepFields[0] => 'forged inactive answer', $stepFields[1] => '1', $stepFields[2] => 'Final authoritative answer']];
 foreach ($stepsXpath->query('.//input[@type="hidden"]', $stepsNode) as $input) { $stepsPost[$input->getAttribute('name')] = $input->getAttribute('value'); }
 $stepsResponse = $visitorRequest('http://127.0.0.1:13371' . $stepsNode->getAttribute('action'), $stepsPost);
 $stepsResult = json_decode($stepsResponse['body'], true, 512, JSON_THROW_ON_ERROR);
@@ -62,10 +62,10 @@ $nestedDiagnostics = array_values(array_filter($nestedResult['diagnostics'], sta
 $assert(count($nestedDiagnostics) === 1 && $nestedDiagnostics[0]['path'] === '/elements/' . $nestedIndex . '/parent_uuid', 'Nested step publication did not identify the invalid parent.');
 $fallbackRevision = $api('save', ['id' => $fallbackForm['id'], 'revision' => $nestedRevision, 'draft' => $fallbackDraft])['revision'];
 $api('publish', ['id' => $fallbackForm['id'], 'revision' => $fallbackRevision]);
-$fallbackPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_easy_forms&view=form&id=' . $fallbackForm['id']);
+$fallbackPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_form_studio&view=form&id=' . $fallbackForm['id']);
 $fallbackXpath = $dom($fallbackPage['body']);
-$assert($fallbackPage['status'] === 200 && $fallbackXpath->query('//*[@data-nef-step]/p[@class="nef-step-description"]')->length === 3, 'Step descriptions did not reach the installed renderer.');
-foreach ($fallbackXpath->query('//*[@data-nef-step]') as $node) {
+$assert($fallbackPage['status'] === 200 && $fallbackXpath->query('//*[@data-nfs-step]/p[@class="nfs-step-description"]')->length === 3, 'Step descriptions did not reach the installed renderer.');
+foreach ($fallbackXpath->query('//*[@data-nfs-step]') as $node) {
     $description = $fallbackXpath->query('//*[@id="' . $node->getAttribute('aria-describedby') . '"]')->item(0);
     $assert($description?->textContent === 'Complete this stage <safely>.' && $fallbackXpath->query('.//safely', $node)->length === 0, 'Step description was not escaped or accessibly associated.');
 }

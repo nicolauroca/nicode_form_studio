@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 test('step descriptions are typed localized escaped and linked per rendered instance', function (): void {
-    $draft = definition(); $step = Nicode\EasyForms\Domain\Uuid::create();
+    $draft = definition(); $step = Nicode\FormStudio\Domain\Uuid::create();
     $draft['elements'][0]['parent_uuid'] = $step;
     $draft['elements'][] = ['uuid' => $step, 'type' => 'step', 'title' => 'Contact', 'description' => 'Base description'];
     foreach ([null, false, 1, [], ['text' => 'wrong']] as $invalid) {
@@ -12,14 +12,14 @@ test('step descriptions are typed localized escaped and linked per rendered inst
     }
     $draft['translations'] = ['es-ES' => ['elements' => [$step => ['title' => 'Contacto', 'description' => '<img src=x onerror=alert(1)> Instructions']]]];
     $original = compiler()->compile($draft)->spec; same(true, $original !== null);
-    $spec = Nicode\EasyForms\Translation\DefinitionTranslations::spec($original, 'es-ES');
+    $spec = Nicode\FormStudio\Translation\DefinitionTranslations::spec($original, 'es-ES');
     same('Base description', $original->toArray()['elements'][1]['description']);
-    $renderers = new Nicode\EasyForms\Rendering\FieldRendererRegistry(); $renderers->register('text', new Nicode\EasyForms\Rendering\CoreFieldRenderer());
-    $renderer = new Nicode\EasyForms\Rendering\FormRenderer($renderers, new Nicode\EasyForms\Rendering\PublicSpec(registry()));
+    $renderers = new Nicode\FormStudio\Rendering\FieldRendererRegistry(); $renderers->register('text', new Nicode\FormStudio\Rendering\CoreFieldRenderer());
+    $renderer = new Nicode\FormStudio\Rendering\FormRenderer($renderers, new Nicode\FormStudio\Rendering\PublicSpec(registry()));
     foreach (['step-page', 'step-module'] as $instance) {
-        $html = $renderer->render($spec, new Nicode\EasyForms\Rendering\RenderContext($instance, 1, 2, 'index.php?task=form.submit', 'csrf', 'attempt'), rules()->evaluate($spec, []));
+        $html = $renderer->render($spec, new Nicode\FormStudio\Rendering\RenderContext($instance, 1, 2, 'index.php?task=form.submit', 'csrf', 'attempt'), rules()->evaluate($spec, []));
         $document = new DOMDocument(); @$document->loadHTML($html); $xpath = new DOMXPath($document);
-        $node = $xpath->query('//*[@data-nef-step="' . $step . '"]')->item(0);
+        $node = $xpath->query('//*[@data-nfs-step="' . $step . '"]')->item(0);
         same('Contacto', $node->getAttribute('aria-label'));
         same($instance . '-' . $step . '-description', $node->getAttribute('aria-describedby'));
         $description = $xpath->query('//*[@id="' . $node->getAttribute('aria-describedby') . '"]')->item(0);
@@ -28,6 +28,6 @@ test('step descriptions are typed localized escaped and linked per rendered inst
     }
     $draft['elements'][1]['description'] = ''; unset($draft['translations']);
     $empty = compiler()->compile($draft)->spec;
-    $html = $renderer->render($empty, new Nicode\EasyForms\Rendering\RenderContext('empty-step', 1, 2, 'index.php?task=form.submit', 'csrf', 'attempt'), rules()->evaluate($empty, []));
+    $html = $renderer->render($empty, new Nicode\FormStudio\Rendering\RenderContext('empty-step', 1, 2, 'index.php?task=form.submit', 'csrf', 'attempt'), rules()->evaluate($empty, []));
     same(false, str_contains($html, '-description"'));
 });

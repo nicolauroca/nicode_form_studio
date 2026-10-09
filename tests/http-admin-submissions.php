@@ -2,7 +2,7 @@
 declare(strict_types=1);
 // Shares the real logged-in session and assertions of http-admin.php.
 $submissionApi = static function (string $task, array $query = [], ?array $payload = null, int $expected = 200, bool $csrf = true) use ($base, $request, $token, $assert): array {
-    $response = $request($base . '?' . http_build_query(['option' => 'com_nicode_easy_forms', 'task' => 'submission.' . $task, 'format' => 'json'] + $query), $payload === null ? null : ['payload' => json_encode($payload, JSON_THROW_ON_ERROR)] + ($csrf ? [$token => '1'] : []));
+    $response = $request($base . '?' . http_build_query(['option' => 'com_nicode_form_studio', 'task' => 'submission.' . $task, 'format' => 'json'] + $query), $payload === null ? null : ['payload' => json_encode($payload, JSON_THROW_ON_ERROR)] + ($csrf ? [$token => '1'] : []));
     $assert($response['status'] === $expected, 'Unexpected submission status for ' . $task . ': ' . $response['status']);
     $assert(str_contains(strtolower($response['headers']), 'no-store'), 'Response data may be cached.');
     $decoded = json_decode($response['body'], true, 512, JSON_THROW_ON_ERROR);
@@ -25,7 +25,7 @@ $submissionApi('saveView', payload: $presetPayload, expected: 403, csrf: false);
 $savedPreset = $submissionApi('saveView', payload: $presetPayload);
 $loadedPreset = $submissionApi('savedView', ['id' => $savedPreset['id']]);
 $assert($loadedPreset['query'] === $presetQuery, 'Saved view changed filter semantics.');
-$presetPage = $request($base . '?' . http_build_query(['option' => 'com_nicode_easy_forms', 'view' => 'submissions', 'preset' => $savedPreset['id']]));
+$presetPage = $request($base . '?' . http_build_query(['option' => 'com_nicode_form_studio', 'view' => 'submissions', 'preset' => $savedPreset['id']]));
 $assert($presetPage['status'] === 200 && str_contains($presetPage['body'], 'Synthetic native composition answer'), 'Saved preset failed to render answer column.');
 $submissionApi('removeView', payload: ['id' => $savedPreset['id']]);
 $submissionApi('savedView', ['id' => $savedPreset['id']], expected: 404);
@@ -60,7 +60,7 @@ $assert($withNote['notes'][0]['body'] === 'Literal <script> note from HTTP fixtu
 $submissionApi('download', expected: 405);
 $submissionApi('download', payload: [], expected: 403, csrf: false);
 foreach (['submissions' => ['form_id' => $responseForm], 'submission' => ['form_id' => $responseForm, 'id' => $responseId]] as $view => $query) {
-    $rendered = $request($base . '?' . http_build_query(['option' => 'com_nicode_easy_forms', 'view' => $view] + $query));
+    $rendered = $request($base . '?' . http_build_query(['option' => 'com_nicode_form_studio', 'view' => $view] + $query));
     $assert($rendered['status'] === 200 && str_contains($rendered['body'], $record['uuid']) && str_contains(strtolower($rendered['headers']), 'no-store'), 'Response view rendering failed: ' . $view);
 }
 file_put_contents($root . '/build/admin-submissions-http-results.json', json_encode(['passed' => true, 'timestamp' => gmdate(DATE_ATOM), 'checks' => ['header search', 'canonical detail', 'cross-form boundary', 'strict identity', 'date validation', 'POST and CSRF reveal', 'list/detail no-store views']], JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));

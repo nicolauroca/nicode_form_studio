@@ -1,6 +1,6 @@
 # 26 — Import, export y versionado
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -57,7 +57,7 @@ Pipeline:
 
 Nunca publicar automáticamente un Form importado sin validación/decisión explícita.
 
-El sobre JSON de intercambio usa `nicode.easyforms.definition`, versión `1.0`,
+El sobre JSON de intercambio usa `nicode.formstudio.definition`, versión `1.0`,
 con hash SHA-256 de la definición canónica y un máximo de 2 MiB. Versiones de
 esquema desconocidas se rechazan; no se interpreta código ni SQL. Los providers
 propios pueden declarar `PortableProviderInterface`; las credenciales se eliminan

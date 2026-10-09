@@ -8,7 +8,7 @@ Página y módulo necesitan compartir runtime sin duplicar código.
 
 ## Decision
 
-Distribuir `com_nicode_easy_forms`, `mod_nicode_easy_forms` y `lib_nicode_easy_forms` mediante `pkg_nicode_easy_forms`.
+Distribuir `com_nicode_form_studio`, `mod_nicode_form_studio` y `lib_nicode_form_studio` mediante `pkg_nicode_form_studio`.
 
 ## Consequences
 

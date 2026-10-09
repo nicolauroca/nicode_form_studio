@@ -1,7 +1,7 @@
 # 06 — Validación y normalización
 
 
-> Proyecto: **Nicode EasyForms**  
+> Proyecto: **Nicode Form Studio**  
 > Estado del documento: **Especificación inicial normativa**  
 > Plataforma objetivo: **Joomla 6.x**  
 > Principios obligatorios: **SPEC-DRIVEN** y **DATA-DRIVEN**
@@ -26,9 +26,9 @@ raw input
 → accepted canonical value.
 
 El envío mejorado agrupa los valores escalares y selecciones en una parte JSON
-`nef_values` del multipart para evitar truncamientos por `max_input_vars`.
+`nfs_values` del multipart para evitar truncamientos por `max_input_vars`.
 Archivos, CSRF, CAPTCHA e identidad mantienen sus partes originales. El servidor
-admite también `nef` tradicional para formularios sin JavaScript, pero rechaza
+admite también `nfs` tradicional para formularios sin JavaScript, pero rechaza
 mezclar ambos mapas. El mapa JSON debe ser un objeto UTF-8 válido de hasta 2 MiB;
 este presupuesto protege el parser, no impone un número comercial de campos.
 Los valores siguen sin ser confiables y recorren la misma validación autoritativa.

@@ -20,19 +20,19 @@ $api('publish', ['id' => $temporalForm['id'], 'revision' => $temporalRevision], 
 $temporalDraft['fields'][4]['config']['min'] = '2026-W39';
 $temporalRevision = $api('save', ['id' => $temporalForm['id'], 'revision' => $temporalRevision, 'draft' => $temporalDraft])['revision'];
 $api('publish', ['id' => $temporalForm['id'], 'revision' => $temporalRevision]);
-$temporalPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_easy_forms&view=form&id=' . $temporalForm['id']);
-$temporalXpath = $dom($temporalPage['body']); $temporalNode = $temporalXpath->query('//form[@data-nef-form]')->item(0);
+$temporalPage = $visitorRequest('http://127.0.0.1:13371/index.php?option=com_nicode_form_studio&view=form&id=' . $temporalForm['id']);
+$temporalXpath = $dom($temporalPage['body']); $temporalNode = $temporalXpath->query('//form[@data-nfs-form]')->item(0);
 $assert($temporalPage['status'] === 200 && $temporalNode instanceof DOMElement, 'Native temporal form failed to render.');
-$temporalPost = ['format' => 'json', 'nef' => $temporalValues];
+$temporalPost = ['format' => 'json', 'nfs' => $temporalValues];
 foreach ($temporalXpath->query('.//input[@type="hidden"]', $temporalNode) as $input) { $temporalPost[$input->getAttribute('name')] = $input->getAttribute('value'); }
 $temporalDestination = 'http://127.0.0.1:13371' . $temporalNode->getAttribute('action');
 foreach ($temporalTypes as $type) {
-    $input = $temporalXpath->query('.//input[@data-nef-input="' . $temporalIds[$type] . '"]', $temporalNode)->item(0);
+    $input = $temporalXpath->query('.//input[@data-nfs-input="' . $temporalIds[$type] . '"]', $temporalNode)->item(0);
     $assert($input instanceof DOMElement && $input->getAttribute('type') === $type, 'Native temporal control type missing.');
 }
 foreach (['date' => ['2023-02-29', '0001-01-01'], 'time' => ['24:00', '11:59:59'], 'datetime-local' => ['2026-09-27T12:00Z', '2026-09-27T13:00:01'], 'month' => ['2026-13'], 'week' => ['2021-W53', '2026-W41']] as $type => $invalidValues) {
     foreach ($invalidValues as $value) {
-        $invalidPost = $temporalPost; $invalidPost['nef'][$temporalIds[$type]] = $value;
+        $invalidPost = $temporalPost; $invalidPost['nfs'][$temporalIds[$type]] = $value;
         $response = $visitorRequest($temporalDestination, $invalidPost); $result = json_decode($response['body'], true, 512, JSON_THROW_ON_ERROR);
         $assert($response['status'] === 422 && isset($result['errors'][$temporalIds[$type]]), 'Direct POST bypassed temporal calendar, bound or index-range validation.');
     }

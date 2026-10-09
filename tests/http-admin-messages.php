@@ -19,9 +19,9 @@ try {
     $published = $api('publish', ['id' => $id, 'revision' => $saved['revision']]);
     $record = $api('record', query: ['id' => $id]);
     $assert($record['draft']['post_submit']['messages'] == $draft['post_submit']['messages'] && $record['draft']['translations'] == $draft['translations'], 'Native message save/reload changed configured categories.');
-    $editor = $request($base . '?option=com_nicode_easy_forms&view=editor&id=' . $id);
+    $editor = $request($base . '?option=com_nicode_form_studio&view=editor&id=' . $id);
     $assert($editor['status'] === 200, 'Native message editor failed.');
-    $editorData = $dom($editor['body'])->query('//*[@data-nef-editor-data]')->item(0);
+    $editorData = $dom($editor['body'])->query('//*[@data-nfs-editor-data]')->item(0);
     $assert($editorData instanceof DOMElement, 'Native message editor data missing.');
     $loaded = json_decode($editorData->textContent, true, 512, JSON_THROW_ON_ERROR);
     $assert(($loaded['draft']['post_submit']['messages'] ?? null) == $draft['post_submit']['messages'], 'Editor reload lost configured result messages.');
@@ -36,8 +36,8 @@ try {
         $offset = curl_getinfo($handle, CURLINFO_HEADER_SIZE); curl_setopt($handle, CURLOPT_COOKIELIST, 'FLUSH');
         return ['status' => curl_getinfo($handle, CURLINFO_RESPONSE_CODE), 'headers' => substr($raw, 0, $offset), 'body' => substr($raw, $offset)];
     };
-    $public = $siteRequest('http://127.0.0.1:13371/index.php?option=com_nicode_easy_forms&view=form&tmpl=component&id=' . $id);
-    $publicDom = $dom($public['body']); $publicForm = $publicDom->query('//form[@data-nef-form]')->item(0);
+    $public = $siteRequest('http://127.0.0.1:13371/index.php?option=com_nicode_form_studio&view=form&tmpl=component&id=' . $id);
+    $publicDom = $dom($public['body']); $publicForm = $publicDom->query('//form[@data-nfs-form]')->item(0);
     $assert($public['status'] === 200 && $publicForm instanceof DOMElement, 'Published message-test form unavailable.');
     $post = [];
     foreach ($publicDom->query('.//input[@type="hidden"]', $publicForm) as $input) { $post[$input->getAttribute('name')] = $input->getAttribute('value'); }
@@ -59,7 +59,7 @@ try {
         foreach (['json', 'html'] as $format) {
             $rejectedPost = $post; $rejectedPost['format'] = $format;
             if ($category === 'session_error') { $rejectedPost['attempt'] = 'invalid-attempt'; }
-            if ($category === 'anti_spam_rejected') { $rejectedPost['nef_contact'] = 'bot-filled'; }
+            if ($category === 'anti_spam_rejected') { $rejectedPost['nfs_contact'] = 'bot-filled'; }
             $rejected = $siteRequest($url, $rejectedPost);
             $expected = 'Base ' . $category . ' Native message acceptance';
             $assert($rejected['status'] === $expectedStatus && str_contains(strtolower($rejected['headers']), 'no-store'), 'Configured rejection status/cache mismatch for ' . $category);
